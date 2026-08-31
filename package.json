@@ -12,6 +12,7 @@
   "dependencies": {
     "astro": "^5.7.0",
     "gsap": "^3.12.7",
+    "phaser": "^4.2.1",
     "three": "^0.170.0"
   },
   "devDependencies": {

@@ -80,3 +80,88 @@ body {
   z-index: 30;
   opacity: 0;
 }
+
+/* Phase 3 游戏化 About：展板内容面板 + 返回提示 */
+#board-panel {
+  position: fixed;
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%) translateY(14px);
+  width: min(540px, calc(100vw - 32px));
+  padding: 20px 24px;
+  border-radius: 14px;
+  background: rgba(15, 17, 21, 0.92);
+  border: 1px solid var(--color-cyan);
+  box-shadow: 0 0 28px rgba(0, 217, 255, 0.16);
+  color: #f8fafc;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 40;
+}
+#board-panel.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+#board-panel .board-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+#board-panel .board-index {
+  font-family: ui-monospace, monospace;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--color-cyan);
+}
+#board-panel .board-title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+#board-panel .board-tagline {
+  margin: 6px 0 0;
+  color: var(--color-warm);
+  font-size: 14px;
+}
+#board-panel .board-lines {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+#board-panel .board-lines li {
+  position: relative;
+  padding-left: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(248, 250, 252, 0.88);
+}
+#board-panel .board-lines li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: var(--color-purple);
+}
+
+#back-hint {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(15, 17, 21, 0.8);
+  border: 1px solid rgba(0, 217, 255, 0.4);
+  color: #00d9ff;
+  font-size: 13px;
+  letter-spacing: 1px;
+  z-index: 50;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+#back-hint:hover {
+  background: rgba(0, 217, 255, 0.15);
+}
