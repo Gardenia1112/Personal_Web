@@ -5,7 +5,7 @@ export interface DeskObject {
   route: string; // 点击跳转路由
   position: [number, number, number]; // 等距桌面坐标
   color: string;
-  geometry: "box" | "monitor" | "gamepad" | "lamp" | "folder" | "notebook";
+  geometry: "box" | "monitor" | "gamepad" | "lamp" | "folder" | "notebook" | "coffee";
   size: [number, number, number];
 }
 
@@ -64,5 +64,18 @@ export const p0Objects: DeskObject[] = [
     color: "#ffb974",
     geometry: "lamp",
     size: [0.6, 1.4, 0.6],
+  },
+];
+
+// 02 §2.1 P1（第二版增强；Phase 2 先放咖啡杯做开场 idle 热气）
+export const p1Objects: DeskObject[] = [
+  {
+    id: "coffee",
+    title: "咖啡 · 彩蛋",
+    route: "coffee", // 特殊：Phase 6 彩蛋（热气加速弹邮箱/微信）
+    position: [-1.8, 0, -1.4],
+    color: "#5b3a29",
+    geometry: "coffee",
+    size: [0.5, 0.4, 0.5],
   },
 ];
