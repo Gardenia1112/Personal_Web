@@ -1,5 +1,25 @@
 ---
 // 深夜工位 3D 场景容器（仅首页加载 Three.js）
+// 移动端降级：渲染静态俯视图文菜单（.mobile-fallback），由 CSS 媒体查询切换
+import { p0Objects, p1Objects, p2Objects, type DeskObject } from "../../data/objects";
+
+const EMOJI: Record<string, string> = {
+  monitor: "🖥️",
+  gamepad: "🎮",
+  desktop: "💻",
+  folder: "📁",
+  notebook: "📓",
+  lamp: "💡",
+  coffee: "☕",
+  keyboard: "⌨️",
+  headphones: "🎧",
+  sticker: "🎨",
+  box: "📦",
+};
+
+const navObjects = [...p0Objects, ...p1Objects, ...p2Objects].filter(
+  (o) => o.route.startsWith("/") && o.route !== "/"
+);
 ---
 <div class="relative w-full h-screen overflow-hidden" id="desk-scene">
   <div id="screen-text"></div>
@@ -7,6 +27,22 @@
 </div>
 <div id="intro-hint">拖拽 / 滚动 探索工位</div>
 <div id="intro-overlay"></div>
+
+<!-- 移动端降级：静态导航菜单（保留核心路由，避免 3D 性能崩） -->
+<div class="mobile-fallback">
+  <h1 class="mobile-fallback-title">赵韵婷 · 游戏客户端开发工程师</h1>
+  <p class="mobile-fallback-sub">深夜工位 · 物件即导航（移动端降级模式）</p>
+  <nav class="mobile-fallback-nav">
+    {
+      navObjects.map((o) => (
+        <a href={o.route} class="mobile-fallback-link">
+          <span class="mobile-fallback-emoji">{EMOJI[o.geometry] ?? "📦"}</span>
+          <span>{o.title}</span>
+        </a>
+      ))
+    }
+  </nav>
+</div>
 
 <script>
   import { initDesk } from "../../scripts/desk";

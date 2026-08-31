@@ -1,4 +1,12 @@
-// 01 §4 开发项目 —— 四段式结构化数据
+// 01 §4 开发项目 —— 四段式结构化数据（+ 真实素材路径 / 量化成果可视化）
+export interface ProjectMetric {
+  label: string;
+  before: string;
+  after: string;
+  pct: number; // 条形填充百分比
+  note: string; // +71% / −18%
+}
+
 export interface Project {
   slug: string;
   name: string;
@@ -10,6 +18,13 @@ export interface Project {
   result: string;
   links: { label: string; url: string }[];
   status: "done" | "todo";
+  media?: {
+    cover?: string; // 封面
+    arch?: string; // 架构图
+    video?: string; // 实机视频（mp4）
+    gallery?: string[]; // 附加图
+  };
+  metrics?: ProjectMetric[]; // 量化成果可视化（02 §9）
 }
 
 export const projects: Project[] = [
@@ -27,6 +42,16 @@ export const projects: Project[] = [
     result: "平均帧率 35→60FPS、内存峰值 −18%；核心战斗与架构框架完善可扩展。",
     links: [{ label: "Gitee 源码", url: "https://gitee.com/bfnya/Unity_Game2025.git" }],
     status: "done",
+    media: {
+      cover: "/assets/projects/01-cover.png",
+      arch: "/assets/projects/01-arch.png",
+      video: "/assets/projects/01-gameplay.mp4",
+      gallery: ["/assets/projects/concept-01.png", "/assets/projects/making-of.png"],
+    },
+    metrics: [
+      { label: "平均帧率", before: "35 FPS", after: "60 FPS", pct: 71, note: "+71%" },
+      { label: "内存峰值", before: "100%", after: "82%", pct: 82, note: "−18%" },
+    ],
   },
   {
     slug: "buhuige-studio",
@@ -42,6 +67,9 @@ export const projects: Project[] = [
       "累计营收 2.7 万元；获 2 项国家软件著作权（2025SR0979528、2025SR2140826）。",
     links: [],
     status: "done",
+    media: {
+      cover: "/assets/projects/03-cover.png",
+    },
   },
   {
     slug: "zhilian-tilt-sensor",
@@ -54,6 +82,9 @@ export const projects: Project[] = [
     result: "获软件著作权（登记号 2025SR0979528）。",
     links: [],
     status: "done",
+    media: {
+      cover: "/assets/projects/02-cover.png",
+    },
   },
   {
     slug: "air-track-virtual-lab",

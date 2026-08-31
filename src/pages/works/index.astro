@@ -3,21 +3,28 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { projects } from "../../data/projects";
 ---
 <BaseLayout title="作品 · lszbf.com">
-  <main class="pt-24 px-6 max-w-4xl mx-auto min-h-screen">
-    <h1 class="text-3xl font-bold text-[#00d9ff]">作品</h1>
-    <p class="mt-4 text-white/60">占位页 —— Phase 4 将替换为「电脑桌面拟物系统」。</p>
+  <main class="works-page">
+    <div class="works-header">
+      <h1 class="works-title">作品</h1>
+      <p class="works-sub">开发项目 ×4 · 四段式</p>
+    </div>
 
-    <div class="mt-8 grid gap-4 sm:grid-cols-2">
+    <div class="works-grid">
       {
         projects.map((p) => (
-          <a
-            href={`/works/${p.slug}`}
-            class="p-5 rounded bg-white/5 border border-white/10 hover:border-[#00d9ff]/50 transition-colors"
-          >
-            <h2 class="font-bold text-lg">{p.name}</h2>
-            <p class="mt-1 text-sm text-white/50">
-              {p.role} · {p.period}
-            </p>
+          <a href={`/works/${p.slug}`} class="work-card">
+            {p.media?.cover ? (
+              <img class="work-card-cover" src={p.media.cover} alt={p.name} loading="lazy" />
+            ) : (
+              <div class="work-card-ph">{p.name.slice(0, 1)}</div>
+            )}
+            <div class="work-card-body">
+              <h2 class="work-card-name">{p.name}</h2>
+              <p class="work-card-meta">{p.role} · {p.period}</p>
+              {p.metrics && (
+                <span class="work-card-metric">{p.metrics.map((m) => m.note).join(" · ")}</span>
+              )}
+            </div>
           </a>
         ))
       }

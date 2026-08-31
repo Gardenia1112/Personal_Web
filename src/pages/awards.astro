@@ -1,23 +1,149 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { awards } from "../data/awards";
+
+// 证书墙：按 01 §6 分组，校级可隐藏；图片可点击放大，PDF/Office 走下载
+interface AwardView {
+  name: string;
+  level: string;
+  category: string;
+  file?: string;
+  status: string;
+  hide?: boolean;
+  url?: string;
+  isImage?: boolean;
+  isPdf?: boolean;
+  isDownload?: boolean;
+}
+
+const view: AwardView[] = awards.map((a) => {
+  if (!a.file) return { ...a };
+  const ext = a.file.split(".").pop()?.toLowerCase() ?? "";
+  return {
+    ...a,
+    url: "/assets/awards/" + a.file,
+    isImage: ["png", "jpg", "jpeg", "gif", "webp"].includes(ext),
+    isPdf: ext === "pdf",
+    isDownload: ["xls", "xlsx", "doc", "docx"].includes(ext),
+  };
+});
+
+const groups = [
+  { key: "all", label: "全部" },
+  { key: "省级及以上", label: "竞赛获奖" },
+  { key: "奖学金", label: "奖学金" },
+  { key: "证书", label: "证书" },
+  { key: "待补", label: "待补" },
+];
 ---
 <BaseLayout title="获奖与证书 · lszbf.com">
-  <main class="pt-24 px-6 max-w-4xl mx-auto min-h-screen">
-    <h1 class="text-3xl font-bold text-[#00d9ff]">获奖与证书</h1>
-    <p class="mt-4 text-white/60">占位页 —— Phase 5 将替换为「可翻页证书墙」。</p>
+  <main class="awards-page">
+    <div class="awards-header">
+      <h1 class="awards-title">获奖与证书</h1>
+      <p class="awards-sub">竞赛 · 奖学金 · 证书 · 软著（校级奖项默认隐藏）</p>
+    </div>
 
-    <div class="mt-8 grid gap-4">
-      {
-        awards
-          .filter((a) => a.category === "省级及以上")
-          .map((a) => (
-            <div class="p-4 rounded bg-white/5 border border-white/10">
-              <span class="font-semibold">{a.name}</span>
-              <span class="ml-3 text-[#ffb974]">{a.level}</span>
-            </div>
+    <div class="awards-toolbar">
+      <div class="awards-tabs" id="awards-tabs">
+        {
+          groups.map((g) => (
+            <button class={g.key === "all" ? "awards-tab active" : "awards-tab"} data-group={g.key}>
+              {g.label}
+            </button>
           ))
+        }
+      </div>
+      <label class="awards-toggle">
+        <input type="checkbox" id="show-school" />
+        <span>显示校级 / 院级</span>
+      </label>
+    </div>
+
+    <div class="awards-grid" id="awards-grid">
+      {
+        view.map((a) => (
+          <article class="award-card" data-group={a.category} data-hidden={a.hide ? "1" : "0"}>
+            <div class="award-card-head">
+              <span class="award-level">{a.level}</span>
+              {a.isImage && <span class="award-hint">🔍 点击放大</span>}
+            </div>
+            <h2 class="award-name">{a.name}</h2>
+            {a.isImage ? (
+              <button class="award-view" data-src={a.url}>
+                <img src={a.url} alt={a.name} loading="lazy" />
+              </button>
+            ) : a.isPdf ? (
+              <a class="award-doc" href={a.url} target="_blank" rel="noopener" download={a.file}>
+                📄 查看 / 下载 PDF
+              </a>
+            ) : a.isDownload ? (
+              <a class="award-doc" href={a.url} download={a.file}>
+                📎 下载文件
+              </a>
+            ) : (
+              <span class="award-pending">证书待补充</span>
+            )}
+          </article>
+        ))
       }
     </div>
   </main>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox-close" id="lightbox-close" aria-label="关闭">✕</button>
+    <img id="lightbox-img" src="" alt="" />
+  </div>
+
+  <script>
+    const tabs = document.getElementById("awards-tabs");
+    const grid = document.getElementById("awards-grid");
+    const showSchool = document.getElementById("show-school");
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightbox-img");
+
+    function applyFilter() {
+      const active = tabs?.querySelector(".awards-tab.active");
+      const group = (active as HTMLElement)?.dataset.group ?? "all";
+      const schoolOn = showSchool?.checked ?? false;
+      grid?.querySelectorAll(".award-card").forEach((card) => {
+        const el = card as HTMLElement;
+        const g = el.dataset.group;
+        const hidden = el.dataset.hidden === "1";
+        const groupOk = group === "all" || g === group;
+        const schoolOk = schoolOn || !hidden;
+        el.style.display = groupOk && schoolOk ? "" : "none";
+      });
+    }
+
+    tabs?.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest(".awards-tab") as HTMLElement | null;
+      if (!btn) return;
+      tabs.querySelectorAll(".awards-tab").forEach((t) => t.classList.remove("active"));
+      btn.classList.add("active");
+      applyFilter();
+    });
+    showSchool?.addEventListener("change", applyFilter);
+
+    grid?.addEventListener("click", (e) => {
+      const btn = (e.target as HTMLElement).closest(".award-view") as HTMLElement | null;
+      if (!btn) return;
+      lightboxImg.src = btn.dataset.src ?? "";
+      lightbox.classList.add("show");
+      lightbox.setAttribute("aria-hidden", "false");
+    });
+    function closeLightbox() {
+      lightbox.classList.remove("show");
+      lightbox.setAttribute("aria-hidden", "true");
+      lightboxImg.src = "";
+    }
+    document.getElementById("lightbox-close")?.addEventListener("click", closeLightbox);
+    lightbox?.addEventListener("click", (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeLightbox();
+    });
+
+    applyFilter();
+  </script>
 </BaseLayout>

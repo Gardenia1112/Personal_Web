@@ -1,27 +1,75 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { profile } from "../data/profile";
+
+const links = [
+  { label: "GitHub", url: profile.github, icon: "🐙" },
+  { label: "Gitee 源码", url: profile.gitee, icon: "🧩" },
+  { label: "个人网站", url: `https://${profile.website}`, icon: "🌐" },
+  { label: "发邮件", url: `mailto:${profile.email}`, icon: "✉️" },
+];
 ---
 <BaseLayout title="联系我 · lszbf.com">
-  <main class="pt-24 px-6 max-w-4xl mx-auto min-h-screen">
-    <h1 class="text-3xl font-bold text-[#00d9ff]">联系我</h1>
-    <p class="mt-4 text-white/60">占位页 —— Phase 5 将替换为「本子 Links」翻开交互。</p>
+  <main class="contact-page">
+    <div class="contact-header">
+      <h1 class="contact-title">本子 · Links</h1>
+      <p class="contact-sub">联系方式 + 外链跳转</p>
+    </div>
 
-    <div class="mt-8 space-y-3 text-white/80">
-      <p>邮箱：{profile.email}</p>
-      <p>微信：{profile.wechat}</p>
-      <p>
-        GitHub：
-        <a href={profile.github} target="_blank" rel="noopener" class="text-[#00d9ff] hover:underline">
-          {profile.github}
-        </a>
-      </p>
-      <p>
-        Gitee：
-        <a href={profile.gitee} target="_blank" rel="noopener" class="text-[#00d9ff] hover:underline">
-          {profile.gitee}
-        </a>
-      </p>
+    <div class="contact-notebook">
+      <!-- 左页：联系方式 -->
+      <section class="contact-sheet">
+        <h2 class="contact-sheet-title">联系方式</h2>
+        <div class="contact-field">
+          <span class="contact-field-label">邮箱</span>
+          <code class="contact-field-value">{profile.email}</code>
+          <button class="contact-copy" data-copy={profile.email}>复制</button>
+        </div>
+        <div class="contact-field">
+          <span class="contact-field-label">微信</span>
+          <code class="contact-field-value">{profile.wechat}</code>
+          <button class="contact-copy" data-copy={profile.wechat}>复制</button>
+        </div>
+        <div class="contact-field">
+          <span class="contact-field-label">手机</span>
+          <code class="contact-field-value">{profile.phone}</code>
+          <button class="contact-copy" data-copy={profile.phone}>复制</button>
+        </div>
+        <p class="contact-note">📄 简历下载：<a href="/resume.pdf" download>resume.pdf</a></p>
+      </section>
+
+      <!-- 右页：外链 -->
+      <section class="contact-sheet">
+        <h2 class="contact-sheet-title">外链</h2>
+        <div class="contact-links">
+          {
+            links.map((l) => (
+              <a class="contact-link" href={l.url} target="_blank" rel="noopener">
+                <span class="contact-link-icon">{l.icon}</span>
+                <span class="contact-link-label">{l.label}</span>
+                <span class="contact-link-arrow">↗</span>
+              </a>
+            ))
+          }
+        </div>
+      </section>
     </div>
   </main>
+
+  <script>
+    document.querySelectorAll("[data-copy]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const btn = b as HTMLElement;
+        const v = btn.dataset.copy ?? "";
+        navigator.clipboard?.writeText(v);
+        const old = btn.textContent;
+        btn.textContent = "已复制 ✓";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = old;
+          btn.classList.remove("copied");
+        }, 1200);
+      });
+    });
+  </script>
 </BaseLayout>

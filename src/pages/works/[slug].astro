@@ -12,46 +12,101 @@ export function getStaticPaths() {
 const { project } = Astro.props;
 ---
 <BaseLayout title={`${project.name} · lszbf.com`}>
-  <main class="pt-24 px-6 max-w-3xl mx-auto min-h-screen">
-    <a href="/works" class="text-sm text-[#00d9ff] hover:underline">← 返回作品</a>
-    <h1 class="mt-4 text-3xl font-bold">{project.name}</h1>
-    <p class="mt-2 text-white/60">
-      {project.role} · {project.period}
-    </p>
+  <main class="project-page">
+    <a href="/works" class="project-back">← 返回作品</a>
 
-    <div class="mt-8 space-y-8">
+    <header class="project-header">
+      <h1 class="project-name">{project.name}</h1>
+      <p class="project-meta">{project.role} · {project.period}</p>
+    </header>
+
+    {
+      project.media?.cover && (
+        <figure class="project-cover">
+          <img src={project.media.cover} alt={`${project.name} 封面`} loading="lazy" />
+        </figure>
+      )
+    }
+
+    {
+      project.metrics && (
+        <section class="project-metrics">
+          {
+            project.metrics.map((m) => (
+              <div class="metric">
+                <div class="metric-head">
+                  <span class="metric-label">{m.label}</span>
+                  <span class="metric-values">{m.before} → {m.after}</span>
+                  <span class="metric-note">{m.note}</span>
+                </div>
+                <div class="metric-bar"><i style={`width:${m.pct}%`}></i></div>
+              </div>
+            ))
+          }
+        </section>
+      )
+    }
+
+    <div class="project-sections">
       <section>
-        <h2 class="text-xl font-semibold text-[#ffb974]">问题</h2>
-        <p class="mt-2 text-white/80">{project.problem}</p>
+        <h2 class="project-h2">问题</h2>
+        <p class="project-p">{project.problem}</p>
       </section>
       <section>
-        <h2 class="text-xl font-semibold text-[#ffb974]">技术方案</h2>
-        <p class="mt-2 text-white/80">{project.tech}</p>
+        <h2 class="project-h2">技术方案</h2>
+        <p class="project-p">{project.tech}</p>
       </section>
       <section>
-        <h2 class="text-xl font-semibold text-[#ffb974]">我的贡献</h2>
-        <p class="mt-2 text-white/80">{project.contribution}</p>
+        <h2 class="project-h2">我的贡献</h2>
+        <p class="project-p">{project.contribution}</p>
       </section>
       <section>
-        <h2 class="text-xl font-semibold text-[#ffb974]">量化成果</h2>
-        <p class="mt-2 text-white/80">{project.result}</p>
+        <h2 class="project-h2">量化成果</h2>
+        <p class="project-p">{project.result}</p>
       </section>
-      {
-        project.links.length > 0 && (
-          <div>
-            {project.links.map((l) => (
-              <a
-                href={l.url}
-                target="_blank"
-                rel="noopener"
-                class="inline-block mr-3 px-4 py-2 rounded bg-[#00d9ff]/10 text-[#00d9ff] hover:bg-[#00d9ff]/20 transition-colors"
-              >
-                {l.label}
-              </a>
+    </div>
+
+    {
+      project.media?.arch && (
+        <section class="project-media">
+          <h2 class="project-h2">架构</h2>
+          <img class="project-media-img" src={project.media.arch} alt={`${project.name} 架构图`} loading="lazy" />
+        </section>
+      )
+    }
+
+    {
+      project.media?.video && (
+        <section class="project-media">
+          <h2 class="project-h2">实机演示</h2>
+          <video class="project-video" src={project.media.video} controls preload="none" playsinline></video>
+        </section>
+      )
+    }
+
+    {
+      project.media?.gallery && project.media.gallery.length > 0 && (
+        <section class="project-media">
+          <h2 class="project-h2">更多素材</h2>
+          <div class="project-gallery">
+            {project.media.gallery.map((g) => (
+              <img class="project-gallery-img" src={g} alt={`${project.name} 素材`} loading="lazy" />
             ))}
           </div>
-        )
-      }
-    </div>
+        </section>
+      )
+    }
+
+    {
+      project.links.length > 0 && (
+        <div class="project-links">
+          {project.links.map((l) => (
+            <a class="project-link" href={l.url} target="_blank" rel="noopener">
+              {l.label} ↗
+            </a>
+          ))}
+        </div>
+      )
+    }
   </main>
 </BaseLayout>

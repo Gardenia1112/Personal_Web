@@ -10,7 +10,7 @@ export const profile = {
   website: "lszbf.com",
   github: "https://github.com/Gardenia1112",
   gitee: "https://gitee.com/bfnya/Unity_Game2025.git",
-  avatar: "/素材/品牌/head.png",
+  avatar: "/assets/brand/head.png",
 
   // 个人介绍（01 §3.2）
   intro: {
@@ -35,25 +35,43 @@ export const profile = {
     ],
   },
 
-  // 专业技能（01 §3.4）
+  // 专业技能（01 §3.4）—— items 为完整表述，tags 用于「键盘打散成技能标签」
   skills: [
     {
       category: "编程语言",
       items:
         "C#（熟练，可独立开发完整 Unity 项目：协程、状态机、对象池、CSV 序列化与文件 I/O，了解 Lambda/泛型/Linq/反射）；C/C++/Java/Python（基础，可阅读 + AI 辅助）",
+      tags: [
+        "C#",
+        "C/C++",
+        "Java",
+        "Python",
+        "协程",
+        "状态机",
+        "对象池",
+        "CSV 序列化",
+        "文件 I/O",
+        "Lambda",
+        "泛型",
+        "Linq",
+        "反射",
+      ],
     },
     {
       category: "游戏引擎",
       items: "Unity3D（熟悉）；UE5（了解：蓝图）；Godot（了解：GDScript 简单 2D）",
+      tags: ["Unity3D", "UE5 · 蓝图", "Godot", "GDScript"],
     },
     {
       category: "开发工具",
       items:
         "Git（熟练：分支管理、Code Review、冲突解决）；Visual Studio；AI 辅助编程（Claude、Cursor、Copilot、CodeGeeX）",
+      tags: ["Git", "分支管理", "Code Review", "Visual Studio", "Claude", "Cursor", "Copilot", "CodeGeeX"],
     },
     {
       category: "其他技术",
       items: "性能优化（对象池、GC 优化）；Shader（基础，能写简单 Shader）",
+      tags: ["性能优化", "GC 优化", "Shader", "2.5D 渲染", "URP"],
     },
   ],
 };

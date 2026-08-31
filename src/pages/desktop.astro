@@ -1,0 +1,64 @@
+---
+import "../styles/global.css";
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="赵韵婷 · 拟物桌面系统" />
+    <title>桌面 · lszbf.com</title>
+  </head>
+  <body class="overflow-hidden">
+    <main id="os" class="os">
+      <div class="os-menubar">
+        <div class="os-menubar-left">
+          <a href="/" class="os-brand">lszbf.com</a>
+          <a href="/" class="os-menu-link">返回工位</a>
+        </div>
+        <div class="os-menubar-right">
+          <div class="os-menu">
+            <button class="os-menu-btn" id="os-menu-btn" aria-label="菜单">⚙️</button>
+            <div class="os-menu-dropdown" id="os-menu-dropdown">
+              <a href="/works">📁 作品</a>
+              <a href="/blog">📁 博客</a>
+              <a href="/about">🎮 关于我</a>
+              <a href="/awards">🏆 获奖</a>
+              <a href="/contact">📓 联系</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="os-desktop">
+        <div class="os-icons">
+          <div class="os-icon" data-app="works">
+            <span class="os-icon-emoji">📁</span>
+            <span>Works</span>
+          </div>
+          <div class="os-icon" data-app="blog">
+            <span class="os-icon-emoji">📁</span>
+            <span>Blog</span>
+          </div>
+          <div class="os-icon" data-app="resume">
+            <span class="os-icon-emoji">📄</span>
+            <span>Resume.pdf</span>
+          </div>
+        </div>
+
+        <div class="os-sticker" id="os-sticker">
+          <span class="os-sticker-title">lszbf</span>
+          <span class="os-sticker-sub">赵韵婷 · Game Dev</span>
+        </div>
+      </div>
+
+      <div class="os-windows"></div>
+    </main>
+
+    <script>
+      import { initDesktop } from "../scripts/desktop/desktop";
+      const root = document.getElementById("os");
+      if (root) initDesktop(root);
+    </script>
+  </body>
+</html>

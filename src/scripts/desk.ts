@@ -1,9 +1,9 @@
 // 深夜工位 3D 场景
-// Phase 1：等距 2.5D 工位 + 6 物件导航；Phase 2：开场剧本 + Hover 统一状态机
-// 02 §1.1 开场 ①-⑧：台灯亮 → 镜头推近 → 物件弹簧弹出 → 显示器打字机 → 提示 → 咖啡 idle
+// Phase 1-2：等距 2.5D 工位 + 开场剧本 + Hover 统一状态机
+// Phase 5-6：键盘技能矩阵 / 台灯主题切换 / 彩蛋（咖啡/耳机/贴纸）/ 性能 HUD / 移动端降级
 import * as THREE from "three";
 import { gsap } from "gsap";
-import { p0Objects, p1Objects, type DeskObject } from "../data/objects";
+import { p0Objects, p1Objects, p2Objects, type DeskObject } from "../data/objects";
 import { profile } from "../data/profile";
 
 interface DeskItem {
@@ -16,6 +16,7 @@ interface DeskItem {
 const HOVER_LIFT = 0.35; // hover 浮起
 const HOVER_TILT = 0.08; // hover 旋转
 const INTRO_KEY = "lszbf:intro:played";
+const THEME_KEY = "lszbf:theme";
 
 const CAM_START = new THREE.Vector3(13, 13, 13); // 开场远机位
 const CAM_END = new THREE.Vector3(9, 9, 9); // 定机位
@@ -72,23 +73,20 @@ function buildObject(obj: DeskObject): { group: THREE.Group; meshes: THREE.Mesh[
 
   switch (obj.geometry) {
     case "monitor": {
-      // 底座 + 屏幕（屏幕初始熄灭，④ 亮起）
       const stand = add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.5, h * 0.2, d * 1.4), mat("#1a1d24")));
       stand.position.y = h * 0.1;
       const screen = add(new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.75, d), mat("#0e141a")));
       screen.position.y = h * 0.2 + h * 0.375;
-      group.userData.screen = screen; // 供 ④ 亮起 + 打字机投影
+      group.userData.screen = screen;
       break;
     }
     case "gamepad": {
-      // 平躺胶囊，长轴沿 X
       const cap = add(new THREE.Mesh(new THREE.CapsuleGeometry(h / 2, w - h, 4, 12), mat(c)));
       cap.rotation.z = Math.PI / 2;
       cap.position.y = h / 2;
       break;
     }
     case "lamp": {
-      // 底座 + 灯臂 + 灯头（灯头自带暖光 emissive）
       const base = add(new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.1, d), mat("#3a3f4a")));
       base.position.y = h * 0.05;
       const arm = add(new THREE.Mesh(new THREE.CapsuleGeometry(w * 0.25, h * 0.55, 4, 12), mat(c)));
@@ -100,7 +98,6 @@ function buildObject(obj: DeskObject): { group: THREE.Group; meshes: THREE.Mesh[
       break;
     }
     case "coffee": {
-      // 杯身 + 杯把 + 液面 + 热气（热气为 MeshBasicMaterial，不参与 hover 发光）
       const cup = add(new THREE.Mesh(new THREE.CylinderGeometry(w * 0.5, w * 0.42, h, 24), mat(c)));
       cup.position.y = h / 2;
       const handle = add(new THREE.Mesh(new THREE.TorusGeometry(w * 0.32, w * 0.08, 8, 16), mat(c)));
@@ -122,6 +119,39 @@ function buildObject(obj: DeskObject): { group: THREE.Group; meshes: THREE.Mesh[
       group.userData.steamBase = h * 0.98;
       break;
     }
+    case "keyboard": {
+      // 机身 + 两排键帽
+      const body = add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)));
+      body.position.y = h / 2;
+      const keyMat = mat("#cbd5e1");
+      for (let r = 0; r < 2; r++) {
+        for (let k = 0; k < 7; k++) {
+          const key = add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.09, h * 0.7, d * 0.07), keyMat));
+          key.position.set(-w * 0.4 + k * (w * 0.13), h + h * 0.35, -d * 0.28 + r * (d * 0.56));
+        }
+      }
+      break;
+    }
+    case "headphones": {
+      // 半圆头梁 + 两个耳罩
+      const band = add(new THREE.Mesh(new THREE.TorusGeometry(w * 0.42, h * 0.07, 8, 20, Math.PI), mat(c)));
+      band.position.y = h * 0.62;
+      const cupL = add(new THREE.Mesh(new THREE.CylinderGeometry(h * 0.22, h * 0.22, h * 0.28, 20), mat("#2a2f3a")));
+      cupL.rotation.z = Math.PI / 2;
+      cupL.position.set(-w * 0.42, h * 0.62, 0);
+      const cupR = add(new THREE.Mesh(new THREE.CylinderGeometry(h * 0.22, h * 0.22, h * 0.28, 20), mat("#2a2f3a")));
+      cupR.rotation.z = Math.PI / 2;
+      cupR.position.set(w * 0.42, h * 0.62, 0);
+      break;
+    }
+    case "sticker": {
+      // 平贴桌面的发光贴纸 + 中心 Logo 色块
+      const card = add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c, { emissive: c, emissiveIntensity: 0.5 })));
+      card.position.y = h / 2 + 0.02;
+      const mark = add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.55, h * 0.5, d * 1.2), mat("#a855f7")));
+      mark.position.y = h / 2 + h * 0.5 + 0.02;
+      break;
+    }
     case "folder":
     case "notebook":
     case "box":
@@ -136,11 +166,150 @@ function buildObject(obj: DeskObject): { group: THREE.Group; meshes: THREE.Mesh[
   return { group, meshes };
 }
 
+// ── 性能 HUD：流浪尸潮 35→60FPS / 内存 −18%（02 §9 场景可视化）──
+function buildPerfHud(): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "perf-hud";
+  el.innerHTML = `
+    <a class="perf-hud-link" href="/works/wandering-corpse-tide">
+      <div class="perf-hud-head">
+        <span class="perf-hud-title">流浪尸潮</span>
+        <span class="perf-hud-tag">性能优化</span>
+      </div>
+      <div class="perf-row"><span class="perf-label">平均帧率</span><span class="perf-val">35 → 60 FPS</span></div>
+      <div class="perf-bar"><i style="width:71%"></i></div>
+      <div class="perf-row"><span class="perf-label">内存峰值</span><span class="perf-val">−18%</span></div>
+      <div class="perf-bar"><i style="width:82%"></i></div>
+    </a>
+  `;
+  document.body.appendChild(el);
+  return el;
+}
+
+// ── 技能矩阵覆盖层（键盘点击 → 按键打散成技能标签）──
+function buildSkillsOverlay(): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "skills-overlay";
+  el.innerHTML = `
+    <div class="skills-panel">
+      <button class="skills-close" aria-label="关闭">✕</button>
+      <div class="skills-head">
+        <span class="skills-index">⌨️</span>
+        <div>
+          <h2 class="skills-title">Skills 技能矩阵</h2>
+          <p class="skills-sub">按键打散成技能标签</p>
+        </div>
+      </div>
+      <div class="skills-grid"></div>
+    </div>
+  `;
+  const grid = el.querySelector<HTMLElement>(".skills-grid")!;
+  for (const s of profile.skills) {
+    const sec = document.createElement("div");
+    sec.className = "skills-cat";
+    sec.innerHTML = `<h3 class="skills-cat-title">${s.category}</h3><div class="skills-tags"></div>`;
+    const tags = sec.querySelector<HTMLElement>(".skills-tags")!;
+    for (const t of s.tags) {
+      const chip = document.createElement("span");
+      chip.className = "skills-chip";
+      chip.textContent = t;
+      tags.appendChild(chip);
+    }
+    grid.appendChild(sec);
+  }
+  document.body.appendChild(el);
+  return el;
+}
+
+function openSkills(overlay: HTMLElement) {
+  overlay.classList.add("open");
+  const chips = overlay.querySelectorAll<HTMLElement>(".skills-chip");
+  gsap.fromTo(
+    chips,
+    {
+      x: () => gsap.utils.random(-140, 140),
+      y: () => gsap.utils.random(-90, 90),
+      opacity: 0,
+      scale: 0.4,
+    },
+    { x: 0, y: 0, opacity: 1, scale: 1, duration: 0.55, stagger: 0.025, ease: "back.out(1.7)" }
+  );
+}
+
+function closeSkills(overlay: HTMLElement) {
+  overlay.classList.remove("open");
+}
+
+// ── 彩蛋弹窗（咖啡 / 耳机 / 贴纸）──
+const EASTER: Record<string, { icon: string; title: string; body: string; fields: [string, string][] }> = {
+  coffee: {
+    icon: "☕",
+    title: "咖啡彩蛋",
+    body: "来都来了，加个好友再走。",
+    fields: [
+      ["邮箱", profile.email],
+      ["微信", profile.wechat],
+    ],
+  },
+  headphones: {
+    icon: "🎧",
+    title: "耳机彩蛋",
+    body: "深夜工位 BGM：键盘敲击 × 咖啡蒸汽 × 显示器电流声。",
+    fields: [],
+  },
+  sticker: {
+    icon: "🎨",
+    title: "Logo 贴纸",
+    body: "个人 Logo「lszbf」—— 像素风 + 霓虹描边。",
+    fields: [
+      ["GitHub", profile.github],
+      ["网站", profile.website],
+    ],
+  },
+};
+
+function buildEasterPopup(): HTMLElement {
+  const el = document.createElement("div");
+  el.className = "easter-pop";
+  document.body.appendChild(el);
+  return el;
+}
+
+function showEaster(pop: HTMLElement, type: string) {
+  const data = EASTER[type];
+  if (!data) return;
+  pop.innerHTML = `
+    <button class="easter-close" aria-label="关闭">✕</button>
+    <div class="easter-icon">${data.icon}</div>
+    <h3 class="easter-title">${data.title}</h3>
+    <p class="easter-body">${data.body}</p>
+    ${data.fields
+      .map(([k, v]) =>
+        v.startsWith("http")
+          ? `<div class="easter-field"><span>${k}</span><a class="easter-link" href="${v}" target="_blank" rel="noopener">${v}</a></div>`
+          : `<div class="easter-field"><span>${k}</span><code>${v}</code><button class="easter-copy" data-copy="${v}">复制</button></div>`
+      )
+      .join("")}
+  `;
+  pop.querySelector<HTMLElement>(".easter-close")!.addEventListener("click", () => pop.classList.remove("show"));
+  pop.querySelectorAll<HTMLElement>(".easter-copy").forEach((b) => {
+    b.addEventListener("click", () => {
+      const v = b.dataset.copy!;
+      navigator.clipboard?.writeText(v);
+      b.textContent = "已复制 ✓";
+      setTimeout(() => (b.textContent = "复制"), 1200);
+    });
+  });
+  pop.classList.add("show");
+}
+
 export function initDesk(container: HTMLElement) {
+  // 移动端降级：粗指针 / 窄屏 → 不初始化 3D，由 .mobile-fallback 静态菜单兜底
+  if (window.matchMedia("(pointer: coarse)").matches || container.clientWidth < 768) return;
+
   const scene = new THREE.Scene();
   scene.background = new THREE.Color("#0f1115");
 
-  // 等距 2.5D：正交相机，可变 frustumSize 实现「镜头推近」
   let frustumSize = FRUSTUM_START;
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
   camera.position.copy(CAM_START);
@@ -162,13 +331,11 @@ export function initDesk(container: HTMLElement) {
   renderer.domElement.style.display = "block";
   container.appendChild(renderer.domElement);
 
-  // 光照（02 §1）：暗环境光 + 台灯暖光
   const ambientLight = new THREE.AmbientLight("#3b4556", 1.4);
   scene.add(ambientLight);
   const lampLight = new THREE.PointLight("#ffb974", 4, 30, 2);
   scene.add(lampLight);
 
-  // 地面（承接暖光光晕）
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 20),
     new THREE.MeshStandardMaterial({ color: "#0f1115", roughness: 1 })
@@ -177,7 +344,6 @@ export function initDesk(container: HTMLElement) {
   floor.position.y = -1.6;
   scene.add(floor);
 
-  // 桌面（顶面 y=0，物件坐于其上）
   const desk = new THREE.Mesh(
     new THREE.BoxGeometry(7.5, 0.3, 5.5),
     new THREE.MeshStandardMaterial({ color: "#1a1d24", roughness: 0.85 })
@@ -185,23 +351,71 @@ export function initDesk(container: HTMLElement) {
   desk.position.y = -0.15;
   scene.add(desk);
 
-  // P0 + P1 物件（数据来自 src/data/objects.ts）
+  // P0 + P1 + P2 物件（数据来自 src/data/objects.ts）
   const items: DeskItem[] = [];
-  for (const obj of [...p0Objects, ...p1Objects]) {
+  for (const obj of [...p0Objects, ...p1Objects, ...p2Objects]) {
     const { group, meshes } = buildObject(obj);
     group.position.set(obj.position[0], obj.position[1], obj.position[2]);
     scene.add(group);
     items.push({ group, meshes, data: obj, baseY: obj.position[1] });
   }
 
-  // 台灯暖光跟随灯头
   const lamp = p0Objects.find((o) => o.id === "lamp");
   if (lamp) lampLight.position.set(lamp.position[0], lamp.position[1] + lamp.size[1], lamp.position[2]);
 
-  // 咖啡热气
   const coffeeItem = items.find((i) => i.data.id === "coffee");
   const steam = (coffeeItem?.group.userData.steam as THREE.Mesh[] | undefined) ?? [];
   const steamBase = (coffeeItem?.group.userData.steamBase as number) ?? 0.4;
+
+  // ── 台灯主题切换（02 §2 物件 #6）──
+  let theme: "dark" | "light" = (() => {
+    try {
+      return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
+    } catch {
+      return "dark";
+    }
+  })();
+
+  function applyTheme(mode: "dark" | "light") {
+    theme = mode;
+    document.documentElement.dataset.theme = mode;
+    if (mode === "light") {
+      scene.background = new THREE.Color("#dfe6ee");
+      ambientLight.color.set("#ffffff");
+      ambientLight.intensity = 1.1;
+      lampLight.intensity = 0.7;
+      floor.material.color.set("#cfd8e3");
+      desk.material.color.set("#b7c2d0");
+    } else {
+      scene.background = new THREE.Color("#0f1115");
+      ambientLight.color.set("#3b4556");
+      ambientLight.intensity = 1.4;
+      lampLight.intensity = 4;
+      floor.material.color.set("#0f1115");
+      desk.material.color.set("#1a1d24");
+    }
+    try {
+      localStorage.setItem(THEME_KEY, mode);
+    } catch {
+      /* ignore */
+    }
+  }
+  applyTheme(theme);
+
+  // ── DOM 层（性能 HUD / 技能矩阵 / 彩蛋弹窗）──
+  const perfHud = buildPerfHud();
+  const skillsOverlay = buildSkillsOverlay();
+  const easterPop = buildEasterPopup();
+  skillsOverlay.querySelector<HTMLElement>(".skills-close")!.addEventListener("click", () => closeSkills(skillsOverlay));
+  skillsOverlay.addEventListener("click", (e) => {
+    if (e.target === skillsOverlay) closeSkills(skillsOverlay);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeSkills(skillsOverlay);
+      easterPop.classList.remove("show");
+    }
+  });
 
   // 02 §4 状态机：IDLE → HOVER → ACTIVE
   const raycaster = new THREE.Raycaster();
@@ -254,7 +468,6 @@ export function initDesk(container: HTMLElement) {
       hoverLabel.style.left = `${e.clientX}px`;
       hoverLabel.style.top = `${e.clientY}px`;
       if (changed) {
-        // 标题打字机
         hoverLabel.classList.add("visible");
         const token = ++typeToken;
         typewriter(hoverLabel, item.data.title, 28, () => token !== typeToken);
@@ -269,9 +482,19 @@ export function initDesk(container: HTMLElement) {
   function onClick() {
     if (!ready || !hovered) return;
     const r = hovered.data.route;
-    if (r === "theme") console.log("[desk] 台灯主题切换（Phase 6 实现）");
-    else if (r === "coffee") console.log("[desk] 咖啡彩蛋（Phase 6 实现）");
-    else window.location.href = r;
+    if (r === "theme") {
+      applyTheme(theme === "dark" ? "light" : "dark");
+    } else if (r === "skills") {
+      openSkills(skillsOverlay);
+    } else if (r === "coffee") {
+      showEaster(easterPop, "coffee");
+    } else if (r === "headphones") {
+      showEaster(easterPop, "headphones");
+    } else if (r === "sticker") {
+      showEaster(easterPop, "sticker");
+    } else {
+      window.location.href = r;
+    }
   }
 
   container.addEventListener("pointermove", onPointerMove);
@@ -325,7 +548,7 @@ export function initDesk(container: HTMLElement) {
     );
 
     // ③ 物件逐个弹簧弹出
-    const popIds = ["monitor", "gamepad", "desktop", "folder", "notebook", "coffee"];
+    const popIds = ["monitor", "gamepad", "desktop", "folder", "notebook", "coffee", "keyboard", "headphones", "sticker"];
     popIds.forEach((id, i) => {
       const item = items.find((x) => x.data.id === id);
       if (!item) return;
@@ -358,7 +581,6 @@ export function initDesk(container: HTMLElement) {
   }
 
   if (played) {
-    // 已播过：直接呈现静态工位
     camera.position.copy(CAM_END);
     frustumSize = FRUSTUM_END;
     updateCamera();
@@ -387,7 +609,6 @@ export function initDesk(container: HTMLElement) {
   function animate() {
     requestAnimationFrame(animate);
     camera.lookAt(0, 0, 0);
-    // ⑥ 咖啡热气循环飘动（idle）
     const t = performance.now() / 1000;
     for (const s of steam) {
       const ph = (t * 0.4 + (s.userData.phase as number)) % 1;
@@ -404,4 +625,7 @@ export function initDesk(container: HTMLElement) {
     updateCamera();
     renderer.setSize(container.clientWidth, container.clientHeight);
   });
+
+  // 引用 perfHud 避免未使用告警（HUD 为纯静态 DOM，无需交互）
+  void perfHud;
 }
