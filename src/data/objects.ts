@@ -36,7 +36,7 @@ export const p0Objects: DeskObject[] = [
     position: [0.2, 0, 1.7],
     color: "#00d9ff",
     geometry: "box",
-    size: [0.8, 0.5, 0.1],
+    size: [0.6, 0.9, 0.5],
   },
   {
     id: "folder",
