@@ -22,13 +22,5 @@ npm-debug.log*
 01基础信息/
 02项目作品/
 04-award/
-# 根目录源素材（加 / 锚定，避免误伤 public/素材/ 里的同名副本）
-/01-arch.png
-/01-cover.png
-/01-gameplay.mp4
-/02-cover.png
-/02-demo.gif
-/03-cover.png
-动效参考链接.txt
-风格参考.png
-风格参考 (2).png
+# 原始素材（源文件，非网站产物；已从根目录收拢到 assets/raw-materials/）
+assets/raw-materials/

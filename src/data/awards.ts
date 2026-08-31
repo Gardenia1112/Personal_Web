@@ -2,7 +2,7 @@
 export interface Award {
   name: string;
   level: string;
-  category: "省级及以上" | "校级院级" | "待补" | "奖学金" | "证书";
+  category: "省级及以上" | "校级院级" | "待补" | "证书";
   file?: string;
   status: "done" | "todo";
   hide?: boolean; // 校级/院级，建站时可隐藏
@@ -29,10 +29,6 @@ export const awards: Award[] = [
 
   // 待补
   { name: "全国大学生数学建模竞赛", level: "辽宁省一等奖", category: "待补", status: "todo" },
-
-  // 奖学金
-  { name: "辽宁大学二等奖学金", level: "2023–2024-1", category: "奖学金", file: "scholarship-2023-2024-1.pdf", status: "done" },
-  { name: "辽宁大学单项奖学金", level: "2024 / 2025", category: "奖学金", file: "merit-scholarship.pdf", status: "done" },
 
   // 证书
   { name: "英语四级 CET-4", level: "大学英语四级", category: "证书", file: "CET4.pdf", status: "done" },
