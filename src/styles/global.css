@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/* 02 §1 场景配色：深夜工位 */
+@theme {
+  --color-desk: #1a1d24;
+  --color-deep: #0f1115;
+  --color-cyan: #00d9ff;
+  --color-purple: #a855f7;
+  --color-warm: #ffb974;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-deep);
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 3D 工位 hover 标题标签（由 desk.ts 控制显隐/位置） */
+#hover-label {
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -140%);
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: rgba(15, 17, 21, 0.85);
+  border: 1px solid var(--color-cyan);
+  color: #f8fafc;
+  font-size: 14px;
+  white-space: nowrap;
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+#hover-label.visible {
+  opacity: 1;
+}
+
+/* 移动端降级菜单（Phase 6 启用，这里先占位样式） */
+.mobile-fallback {
+  display: none;
+}

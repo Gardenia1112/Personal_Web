@@ -1,0 +1,27 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { profile } from "../data/profile";
+---
+<BaseLayout title="联系我 · lszbf.com">
+  <main class="pt-24 px-6 max-w-4xl mx-auto min-h-screen">
+    <h1 class="text-3xl font-bold text-[#00d9ff]">联系我</h1>
+    <p class="mt-4 text-white/60">占位页 —— Phase 5 将替换为「本子 Links」翻开交互。</p>
+
+    <div class="mt-8 space-y-3 text-white/80">
+      <p>邮箱：{profile.email}</p>
+      <p>微信：{profile.wechat}</p>
+      <p>
+        GitHub：
+        <a href={profile.github} target="_blank" rel="noopener" class="text-[#00d9ff] hover:underline">
+          {profile.github}
+        </a>
+      </p>
+      <p>
+        Gitee：
+        <a href={profile.gitee} target="_blank" rel="noopener" class="text-[#00d9ff] hover:underline">
+          {profile.gitee}
+        </a>
+      </p>
+    </div>
+  </main>
+</BaseLayout>

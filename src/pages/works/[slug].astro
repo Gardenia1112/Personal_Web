@@ -1,0 +1,57 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { projects } from "../../data/projects";
+
+export function getStaticPaths() {
+  return projects.map((p) => ({
+    params: { slug: p.slug },
+    props: { project: p },
+  }));
+}
+
+const { project } = Astro.props;
+---
+<BaseLayout title={`${project.name} · lszbf.com`}>
+  <main class="pt-24 px-6 max-w-3xl mx-auto min-h-screen">
+    <a href="/works" class="text-sm text-[#00d9ff] hover:underline">← 返回作品</a>
+    <h1 class="mt-4 text-3xl font-bold">{project.name}</h1>
+    <p class="mt-2 text-white/60">
+      {project.role} · {project.period}
+    </p>
+
+    <div class="mt-8 space-y-8">
+      <section>
+        <h2 class="text-xl font-semibold text-[#ffb974]">问题</h2>
+        <p class="mt-2 text-white/80">{project.problem}</p>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-[#ffb974]">技术方案</h2>
+        <p class="mt-2 text-white/80">{project.tech}</p>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-[#ffb974]">我的贡献</h2>
+        <p class="mt-2 text-white/80">{project.contribution}</p>
+      </section>
+      <section>
+        <h2 class="text-xl font-semibold text-[#ffb974]">量化成果</h2>
+        <p class="mt-2 text-white/80">{project.result}</p>
+      </section>
+      {
+        project.links.length > 0 && (
+          <div>
+            {project.links.map((l) => (
+              <a
+                href={l.url}
+                target="_blank"
+                rel="noopener"
+                class="inline-block mr-3 px-4 py-2 rounded bg-[#00d9ff]/10 text-[#00d9ff] hover:bg-[#00d9ff]/20 transition-colors"
+              >
+                {l.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </main>
+</BaseLayout>

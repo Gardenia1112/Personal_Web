@@ -1,0 +1,12 @@
+---
+// 深夜工位 3D 场景容器（仅首页加载 Three.js）
+---
+<div class="relative w-full h-screen overflow-hidden" id="desk-scene">
+  <div id="hover-label"></div>
+</div>
+
+<script>
+  import { initDesk } from "../../scripts/desk";
+  const el = document.getElementById("desk-scene");
+  if (el) initDesk(el);
+</script>

@@ -1,0 +1,33 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.astro/
+
+# env
+.env
+.env.*
+
+# misc
+.DS_Store
+npm-debug.log*
+*.local
+
+# Claude Code 本地数据
+.claude/
+
+# 源素材（原始材料，非网站源码）
+# Phase 7 内容填充时，把站点真正需要的资源复制到 public/ 或 src/assets/ 再纳入版本管理
+01基础信息/
+02项目作品/
+04-award/
+01-arch.png
+01-cover.png
+01-gameplay.mp4
+02-cover.png
+02-demo.gif
+03-cover.png
+动效参考链接.txt
+风格参考.png
+风格参考 (2).png

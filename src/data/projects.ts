@@ -1,0 +1,70 @@
+// 01 §4 开发项目 —— 四段式结构化数据
+export interface Project {
+  slug: string;
+  name: string;
+  role: string;
+  period: string;
+  problem: string;
+  tech: string;
+  contribution: string;
+  result: string;
+  links: { label: string; url: string }[];
+  status: "done" | "todo";
+}
+
+export const projects: Project[] = [
+  {
+    slug: "wandering-corpse-tide",
+    name: "流浪尸潮",
+    role: "个人项目 · 主程序 / 主策划",
+    period: "2025.03 – 2026.01",
+    problem:
+      "2.5D 动作肉鸽游戏，初始平均帧率仅 35FPS、内存占用高；团队策划 / 美工产出不足。",
+    tech:
+      "C# 面向对象 + 组件化架构；泛型状态机（FSM）；2.5D 渲染管线（URP Decal 动态阴影、视差背景）；事件驱动解耦战斗/UI/经济；数据驱动（ScriptableObject）实现肉鸽三选一、动态难度、局外成长；对象池管理。",
+    contribution:
+      "主策划 + 主程序：技术选型、架构搭建、Git 协作流程、任务拆分与带新人、能力系统设计；角色移动/二段跳/冲刺/射击手感优化。",
+    result: "平均帧率 35→60FPS、内存峰值 −18%；核心战斗与架构框架完善可扩展。",
+    links: [{ label: "Gitee 源码", url: "https://gitee.com/bfnya/Unity_Game2025.git" }],
+    status: "done",
+  },
+  {
+    slug: "buhuige-studio",
+    name: "不绘鸽工作室",
+    role: "国家级大创 · 负责人",
+    period: "2024.12 – 至今",
+    problem:
+      "从 0 搭建创业工作室，落地「数字动漫 IP 全链路设计」，需兼顾产品研发与市场化。",
+    tech:
+      "Unity 核心架构；物理碰撞、场景切换、UI、动画、音效 5 个核心模块；CSV 数据导出模块（C# 文件流 + 序列化，运行时一键导出），用 Cursor 加速开发。",
+    contribution: "负责人，带领 3 人团队，制定开发计划与代码规范；搭建核心架构。",
+    result:
+      "累计营收 2.7 万元；获 2 项国家软件著作权（2025SR0979528、2025SR2140826）。",
+    links: [],
+    status: "done",
+  },
+  {
+    slug: "zhilian-tilt-sensor",
+    name: "智联传感：基于倾角传感器的安全监测系统",
+    role: "团队项目 · 代码 + 统筹",
+    period: "2025",
+    problem: "安全监测场景需要基于倾角传感器的实时数据采集与监测软件。",
+    tech: "倾角传感器数据采集 + 监测系统软件（详见作品开发文档）。",
+    contribution: "代码实现 + 团队统筹分工。",
+    result: "获软件著作权（登记号 2025SR0979528）。",
+    links: [],
+    status: "done",
+  },
+  {
+    slug: "air-track-virtual-lab",
+    name: "气垫导轨虚拟仿真实验",
+    role: "团队项目 · 实验室模块 + 导出 + 统筹",
+    period: "2025",
+    problem: "大学物理实验「气垫导轨」的虚拟仿真教学需求（中国大学生计算机设计大赛作品）。",
+    tech: "气垫导轨虚拟仿真教学实验软件（详见设计开发文档）。",
+    contribution: "实验室模块 + 结尾导出功能开发，参与统筹分工（UI 部分由他人完成）。",
+    result: "获软件著作权（登记号 2025SR2140826）；中国大学生计算机设计大赛参赛。",
+    links: [],
+    status: "done",
+  },
+];
