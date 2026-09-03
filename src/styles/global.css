@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./cursor.css";
 
 /* 02 §1 场景配色：深夜工位 */
 @theme {
@@ -13,31 +14,16 @@ html,
 body {
   margin: 0;
   padding: 0;
+  /* 首页的 WebGL 画布是透明的，场景底色由这里提供（昼夜切换只换这一层，加过渡防突变） */
   background: var(--color-deep);
+  transition: background-color 0.7s ease;
   color: #f8fafc;
   font-family: system-ui, -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
-/* 3D 工位 hover 标题标签（由 desk.ts 控制显隐/位置） */
-#hover-label {
-  position: fixed;
-  pointer-events: none;
-  transform: translate(-50%, -140%);
-  padding: 4px 12px;
-  border-radius: 6px;
-  background: rgba(15, 17, 21, 0.85);
-  border: 1px solid var(--color-cyan);
-  color: #f8fafc;
-  font-size: 14px;
-  white-space: nowrap;
-  z-index: 50;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-#hover-label.visible {
-  opacity: 1;
-}
+/* 3D 物件的悬停标题只由热点圆点的 .hotspot-label 承担，
+   原先跟随鼠标的 #hover-label 会和圆点标签重叠，已移除 */
 
 /* 移动端降级菜单（Phase 6 启用，这里先占位样式） */
 .mobile-fallback {
@@ -58,28 +44,182 @@ body {
   left: 50%;
   bottom: 48px;
   transform: translateX(-50%);
-  color: rgba(248, 250, 252, 0.7);
-  font-size: 14px;
-  letter-spacing: 2px;
+  color: #ffffff;
+  font-size: clamp(18px, 1.6vw, 26px);
+  font-weight: 800;
+  letter-spacing: 3px;
+  white-space: nowrap;
+  /* 白天主题下这行压在浅色地板上，靠阴影保证两种主题都读得清 */
+  text-shadow: 0 2px 12px rgba(15, 17, 21, 0.85);
   pointer-events: none;
   z-index: 40;
   opacity: 0;
 }
 
-/* 显示器屏幕上的打字机文字（投影定位到屏幕中央） */
-#screen-text {
+/* ===== 首页背景排版大字 =====
+   位于 3D 画布之后（#desk-scene 带 z-10、WebGL 画布 alpha 透明），铺满视口；
+   desk.ts 会让它随鼠标做反向微位移，和前景工位拉开前后空间感。opacity 由 desk.ts 在开场结束后淡入 */
+#hero-type {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 2.5vh 3vw;
+  display: flex;
+  flex-direction: column;
+  /* 三行撑到上中下：房间从中间那行穿过去，上下两行留在房间外面还读得出来 */
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0;
+  will-change: transform;
+  /* 粗黑体走系统自带（Win 的 Arial Black / Segoe UI Black、macOS 的 Helvetica），
+     不引网络字体是为了不给 13MB 模型的首屏再加一个阻塞请求 */
+  font-family: "Arial Black", "Segoe UI Black", "Helvetica Neue", Impact, system-ui, sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.8;
+  text-transform: uppercase;
+  color: var(--hero-ink, #2c3342);
+}
+.hero-line {
+  display: block;
+  /* 按字符数反推字号，让长短不同的行各自撑满整行宽
+     0.7em ≈ Arial Black 这类粗黑体的大写字均宽（已含 -0.045em 字距的抵扣） */
+  font-size: calc(96vw / (var(--len) * 0.7));
+  white-space: nowrap;
+}
+[data-theme="light"] #hero-type {
+  --hero-ink: #14181f;
+}
+
+/* ===== 可交互物件的热点标记 =====
+   位置每帧由 desk.ts 从 3D 世界坐标投影过来；圆点常亮 + 呼吸圈解决「哪些能点」 */
+#hotspots {
+  position: fixed;
+  inset: 0;
+  z-index: 36;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+#hotspots.is-ready {
+  opacity: 1;
+}
+/* 按钮本体就是圆点大小，标题绝对定位悬浮在右侧：
+   这样展开标题不会改变按钮宽度，圆点不会因为重新居中而跳动 */
+.hotspot {
   position: absolute;
-  transform: translate(-50%, -50%);
-  color: #e6f2ff;
+  top: 0;
+  left: 0;
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.hotspot-dot {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: var(--color-cyan);
+  box-shadow: 0 0 10px 2px rgba(0, 217, 255, 0.7);
+}
+.hotspot-dot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 217, 255, 0.6);
+  animation: hotspot-pulse 2.4s ease-out infinite;
+}
+.hotspot:nth-child(2) .hotspot-dot::after {
+  animation-delay: 0.4s;
+}
+.hotspot:nth-child(3) .hotspot-dot::after {
+  animation-delay: 0.8s;
+}
+.hotspot:nth-child(4) .hotspot-dot::after {
+  animation-delay: 1.2s;
+}
+.hotspot:nth-child(5) .hotspot-dot::after {
+  animation-delay: 1.6s;
+}
+.hotspot:nth-child(6) .hotspot-dot::after {
+  animation-delay: 2s;
+}
+@keyframes hotspot-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+.hotspot-label {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 0;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  border-radius: 7px;
+  font-size: 13px;
+  color: #f8fafc;
+  background: rgba(15, 17, 21, 0.88);
+  border: 1px solid rgba(0, 217, 255, 0);
+  transition: max-width 0.3s ease, opacity 0.22s ease, padding 0.3s ease, border-color 0.22s ease;
+}
+/* is-hot 由 desk.ts 在 3D 拾取到该物件时加上：鼠标碰物件也展开同一个标签，
+   不再另起一个跟随鼠标的标签（会和圆点标签重叠） */
+.hotspot:hover .hotspot-label,
+.hotspot.is-hot .hotspot-label,
+.hotspot:focus-visible .hotspot-label {
+  max-width: 240px;
+  padding: 5px 12px;
+  opacity: 1;
+  border-color: rgba(0, 217, 255, 0.55);
+}
+.hotspot:focus-visible {
+  outline: none;
+}
+.hotspot:focus-visible .hotspot-dot {
+  box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.35), 0 0 10px 2px rgba(0, 217, 255, 0.7);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hotspot-dot::after {
+    animation: none;
+  }
+}
+
+/* room_full.glb 有 13MB，加载期间在黑幕上给进度，避免看着像卡死 */
+#loading-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 48px;
+  transform: translateX(-50%);
+  color: rgba(248, 250, 252, 0.6);
   font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
   font-size: 13px;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  text-align: center;
+  letter-spacing: 1px;
   pointer-events: none;
-  z-index: 30;
-  opacity: 0;
+  z-index: 61;
 }
+
+/* 显示器屏幕上的打字机文字（投影定位到屏幕中央） */
+/* 显示器上原本有一行投影上去的「姓名 · 职位」（#screen-text），压在画面中间太抢眼，已删除；
+   开场第 ④ 步只保留屏幕亮起，身份信息交给背景大字与 /about */
 
 /* Phase 3 游戏化 About：展板内容面板 + 返回提示 */
 #board-panel {
@@ -444,78 +584,13 @@ body {
   cursor: nwse-resize;
 }
 
-/* ===== Phase 5-6：性能 HUD / 技能矩阵 / 彩蛋 / 证书墙 / 联系页 / 作品页 / 移动端降级 ===== */
+/* ===== Phase 5-6：技能矩阵 / 彩蛋 / 证书墙 / 联系页 / 作品页 / 移动端降级 =====
+   首页左下角的「流浪尸潮」性能 HUD 已按用户意见删除；02 §9 要求的 35→60FPS 量化可视化
+   仍保留在项目详情页 /works/wandering-corpse-tide 的 .project-metrics 区块 */
 
-/* 性能 HUD（02 §9：流浪尸潮 35→60FPS、内存 −18% 场景可视化） */
-.perf-hud {
-  position: fixed;
-  left: 20px;
-  bottom: 20px;
-  z-index: 45;
-  width: 216px;
-}
-.perf-hud-link {
-  display: block;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: rgba(15, 17, 21, 0.82);
-  border: 1px solid rgba(0, 217, 255, 0.3);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  text-decoration: none;
-  color: #f8fafc;
-  transition: border-color 0.2s ease, transform 0.2s ease;
-}
-.perf-hud-link:hover {
-  border-color: rgba(0, 217, 255, 0.7);
-  transform: translateY(-2px);
-}
-.perf-hud-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.perf-hud-title {
-  font-weight: 700;
-  font-size: 14px;
-}
-.perf-hud-tag {
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  color: #7ff3ff;
-  background: rgba(0, 217, 255, 0.14);
-}
-.perf-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 8px;
-  font-size: 12px;
-}
-.perf-label {
-  color: rgba(248, 250, 252, 0.55);
-}
-.perf-val {
-  font-weight: 600;
-  color: var(--color-warm);
-  font-family: ui-monospace, monospace;
-}
-.perf-bar {
-  height: 6px;
-  margin-top: 4px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-}
-.perf-bar i {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #00d9ff, #7ff3ff);
-}
-
-/* 技能矩阵覆盖层（键盘点击） */
+/* 技能矩阵覆盖层
+   首页键盘物件已下线（room_full.glb 无 obj_keyboard），样式保留给 02 §3.2 规定的
+   /desktop 右上角 Skills 菜单，接线在 PHASE4 卡 */
 .skills-overlay {
   position: fixed;
   inset: 0;
@@ -911,70 +986,99 @@ body {
   border-radius: 999px;
   background: linear-gradient(90deg, #00d9ff, #a855f7);
 }
-/* ===== 移动端降级 ===== */
+/* ===== 降级为静态导航 =====
+   两条触发路径：① 窄屏媒体查询；② desk.ts 判定粗指针 / 模型加载失败时给 <html> 加 .is-fallback
+   （只靠媒体查询会漏掉「触屏 + 宽屏」设备：JS 不加载 3D，CSS 又不显示菜单，会白屏） */
 .mobile-fallback {
   display: none;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 40px 24px;
+  background: radial-gradient(900px 600px at 50% 20%, rgba(0, 217, 255, 0.08), transparent 60%), var(--color-deep);
+  color: #f8fafc;
 }
+.mobile-fallback-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-cyan);
+  margin: 0;
+}
+.mobile-fallback-sub {
+  margin: 8px 0 28px;
+  font-size: 13px;
+  color: rgba(248, 250, 252, 0.55);
+}
+.mobile-fallback-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.mobile-fallback-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  color: #f8fafc;
+  font-size: 13px;
+  text-align: center;
+}
+.mobile-fallback-link:hover {
+  border-color: rgba(0, 217, 255, 0.4);
+}
+.mobile-fallback-emoji {
+  font-size: 28px;
+}
+
 @media (max-width: 767px) {
   #desk-scene,
   #intro-overlay,
   #intro-hint,
-  #hover-label,
-  #screen-text,
-  .perf-hud,
-  .skills-overlay,
+  #loading-hint,
+  #hero-type,
+  #hotspots,
   .easter-pop {
     display: none;
   }
   .mobile-fallback {
     display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    padding: 40px 24px;
-    background: radial-gradient(900px 600px at 50% 20%, rgba(0, 217, 255, 0.08), transparent 60%), var(--color-deep);
-    color: #f8fafc;
-  }
-  .mobile-fallback-title {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--color-cyan);
-    margin: 0;
-  }
-  .mobile-fallback-sub {
-    margin: 8px 0 28px;
-    font-size: 13px;
-    color: rgba(248, 250, 252, 0.55);
   }
   .mobile-fallback-nav {
-    display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-  .mobile-fallback-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 20px 12px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    text-decoration: none;
-    color: #f8fafc;
-    font-size: 13px;
-    text-align: center;
-  }
-  .mobile-fallback-link:hover {
-    border-color: rgba(0, 217, 255, 0.4);
-  }
-  .mobile-fallback-emoji {
-    font-size: 28px;
   }
 }
 
-/* 台灯主题（明暗）—— 影响全局 DOM 底色（3D 场景颜色由 desk.ts 切换） */
+html.is-fallback
+  :is(
+    #desk-scene,
+    #intro-overlay,
+    #intro-hint,
+    #loading-hint,
+    #hero-type,
+    #hotspots,
+    .easter-pop
+  ) {
+  display: none;
+}
+html.is-fallback .mobile-fallback {
+  display: flex;
+}
+/* 模型加载失败时保留这一行说明（区别于「正在加载」文案） */
+html.is-fallback #loading-hint.is-error {
+  display: block;
+  bottom: 20px;
+  color: var(--color-warm);
+}
+
+/* 台灯主题（明暗）—— 影响全局 DOM 底色（3D 场景光照由 desk.ts 切换）
+   ⚠️ 这里只保证浅色下正文可读；二级页全套浅色配色属手册 §7.2（Phase 6 昼夜全局化） */
 [data-theme="light"] body {
   background: #eef2f7;
+  color: #14181f;
 }
 
 /* ===== 渐黑转场遮罩（D5 / D6：所有跳转统一渐黑）===== */

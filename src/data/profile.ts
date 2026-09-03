@@ -12,6 +12,10 @@ export const profile = {
   gitee: "https://gitee.com/bfnya/Unity_Game2025.git",
   avatar: "/assets/brand/head.png",
 
+  // 首页背景排版大字：铺满视口、位于 3D 工位之后形成前后空间感
+  // ⚠️ 按用户要求不含真名；三行长度接近才能各自撑满一行宽度
+  heroLines: ["LATE NIGHT", "GAME CLIENT", "WORKSTATION"],
+
   // 个人介绍（01 §3.2）
   intro: {
     tagline:

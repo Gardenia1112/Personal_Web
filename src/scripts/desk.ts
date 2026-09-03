@@ -1,33 +1,51 @@
 // 深夜工位 3D 场景
-// Phase 1-2：等距 2.5D 工位 + 开场剧本 + Hover 统一状态机
-// Phase 5-6：键盘技能矩阵 / 台灯主题切换 / 彩蛋（咖啡/耳机/贴纸）/ 性能 HUD / 移动端降级
+// Phase 1-2：room_full.glb 实模 + 开场剧本 + Hover 统一状态机（GSAP 驱动）
+// 参考 handoff/references/awwwards/john-particias-comfort-space.md：鼠标带动视角摇晃 + 昼夜切换
 import * as THREE from "three";
+import { GLTFLoader } from "three-stdlib";
 import { gsap } from "gsap";
-import { p0Objects, p1Objects, p2Objects, type DeskObject } from "../data/objects";
+import { deskObjects, introPopOrder, type DeskObject } from "../data/objects";
 import { profile } from "../data/profile";
 import { navigateWithTransition } from "./transition";
 
-interface DeskItem {
-  group: THREE.Group;
-  meshes: THREE.Mesh[];
-  data: DeskObject;
-  baseY: number;
-}
-
-const HOVER_LIFT = 0.35; // hover 浮起
-const HOVER_TILT = 0.08; // hover 旋转
+const MODEL_URL = "/models/room_full.glb";
 const INTRO_KEY = "lszbf:intro:played";
 const THEME_KEY = "lszbf:theme";
 
-const CAM_START = new THREE.Vector3(13, 13, 13); // 开场远机位
-const CAM_END = new THREE.Vector3(9, 9, 9); // 定机位
-const FRUSTUM_START = 19; // 开场视角（更广）
-const FRUSTUM_END = 12; // 定视角
+// 等距 2.5D：正交相机沿固定方向俯视，靠 frustum 缩放取景（D1）
+const VIEW_DIR = new THREE.Vector3(1, 0.82, 1).normalize();
+const WORLD_UP = new THREE.Vector3(0, 1, 0);
+const SWAY_RIGHT = new THREE.Vector3().crossVectors(VIEW_DIR, WORLD_UP).normalize();
+const SWAY_UP = new THREE.Vector3().crossVectors(SWAY_RIGHT, VIEW_DIR).normalize();
 
-const SCREEN_ON = { r: 0.16, g: 0.38, b: 0.5 }; // 显示器亮起后的屏幕色
+const FIT_INTRO = 1.9; // 开场取景（更广）
+const FIT_IDLE = 1.5; // 定机位取景：留一圈余量，让身后的背景大字从房间四周透出来
+const FIT_ACTIVE = 0.72; // ACTIVE：镜头飞近（D5）
+const SWAY_AMOUNT = 0.22; // 视角摇晃幅度（× 场景半径），克制为主
+const SWAY_EASE = 0.055; // lerp 系数，越小越黏
+const HERO_PARALLAX = 26; // 背景大字的反向位移上限（px），比前景多走一点才显得远
+const HOVER_COLOR = new THREE.Color("#00d9ff");
+const ACTIVE_MS = 380; // 与 transition.ts 的 FADE_MS 对齐：飞近与渐黑同时发生
 
-function mat(color: string, opts: Partial<THREE.MeshStandardMaterialParameters> = {}) {
-  return new THREE.MeshStandardMaterial({ color, roughness: 0.5, metalness: 0.15, ...opts });
+interface DeskMat {
+  mat: THREE.MeshStandardMaterial;
+  baseEmissive: THREE.Color;
+  baseIntensity: number;
+}
+
+interface DeskItem {
+  data: DeskObject;
+  root: THREE.Object3D;
+  mats: DeskMat[];
+  basePos: THREE.Vector3;
+  baseScale: THREE.Vector3;
+  liftVec: THREE.Vector3; // 世界「上」换算到父空间后的浮起向量
+  center: THREE.Vector3; // 世界包围盒中心（镜头聚焦 / DOM 投影用）
+  top: THREE.Vector3; // 世界包围盒顶部中心（热气 / 打字机定位）
+  size: THREE.Vector3;
+  hover: { t: number };
+  hotspot: HTMLElement | null; // 屏幕上的热点圆点（Scene.astro 渲染，位置每帧投影过来）
+  hotspotAnchor: THREE.Vector3; // 圆点吸附的世界坐标（物件正上方）
 }
 
 function delay(ms: number) {
@@ -39,237 +57,20 @@ function tweenDone(t: { eventCallback(type: string, callback: () => void): void 
   return new Promise((r) => t.eventCallback("onComplete", r));
 }
 
-// 打字机（isCancelled 用于 hover 标题快速切换时中断旧任务）
-function typewriter(el: HTMLElement, text: string, speed: number, isCancelled?: () => boolean): Promise<void> {
-  return new Promise((resolve) => {
-    el.textContent = "";
-    let i = 0;
-    const tick = () => {
-      if (isCancelled && isCancelled()) return resolve();
-      if (i <= text.length) {
-        el.textContent = text.slice(0, i);
-        i++;
-        setTimeout(tick, speed);
-      } else {
-        resolve();
-      }
-    };
-    tick();
-  });
+/** 把「世界坐标系里向上 worldLength」换算成物件父空间的位移向量（模型各物件有旋转/非均匀缩放，不能直接动 local Y） */
+function liftInParentSpace(obj: THREE.Object3D, worldLength: number) {
+  const v = WORLD_UP.clone().multiplyScalar(worldLength);
+  const parent = obj.parent;
+  if (!parent) return v;
+  const q = new THREE.Quaternion();
+  const s = new THREE.Vector3();
+  parent.getWorldQuaternion(q);
+  parent.getWorldScale(s);
+  v.applyQuaternion(q.invert());
+  return v.set(v.x / (s.x || 1), v.y / (s.y || 1), v.z / (s.z || 1));
 }
 
-// 占位几何体（立方体/胶囊），按 obj.geometry 区分；后续换 img2three.js 模型
-function buildObject(obj: DeskObject): { group: THREE.Group; meshes: THREE.Mesh[] } {
-  const group = new THREE.Group();
-  const meshes: THREE.Mesh[] = [];
-  const [w, h, d] = obj.size;
-  const c = obj.color;
-
-  const add = (m: THREE.Mesh) => {
-    m.userData.baseEmissive = "#" + (m.material as THREE.MeshStandardMaterial).emissive.getHexString();
-    meshes.push(m);
-    group.add(m);
-    return m;
-  };
-
-  switch (obj.geometry) {
-    case "monitor": {
-      const stand = add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.5, h * 0.2, d * 1.4), mat("#1a1d24")));
-      stand.position.y = h * 0.1;
-      const screen = add(new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.75, d), mat("#0e141a")));
-      screen.position.y = h * 0.2 + h * 0.375;
-      group.userData.screen = screen;
-      break;
-    }
-    case "gamepad": {
-      const cap = add(new THREE.Mesh(new THREE.CapsuleGeometry(h / 2, w - h, 4, 12), mat(c)));
-      cap.rotation.z = Math.PI / 2;
-      cap.position.y = h / 2;
-      break;
-    }
-    case "lamp": {
-      const base = add(new THREE.Mesh(new THREE.BoxGeometry(w, h * 0.1, d), mat("#3a3f4a")));
-      base.position.y = h * 0.05;
-      const arm = add(new THREE.Mesh(new THREE.CapsuleGeometry(w * 0.25, h * 0.55, 4, 12), mat(c)));
-      arm.position.y = h * 0.1 + h * 0.3;
-      const head = add(
-        new THREE.Mesh(new THREE.BoxGeometry(w * 0.6, h * 0.2, d * 0.8), mat(c, { emissive: c, emissiveIntensity: 0.9 }))
-      );
-      head.position.y = h * 0.85;
-      break;
-    }
-    case "coffee": {
-      const cup = add(new THREE.Mesh(new THREE.CylinderGeometry(w * 0.5, w * 0.42, h, 24), mat(c)));
-      cup.position.y = h / 2;
-      const handle = add(new THREE.Mesh(new THREE.TorusGeometry(w * 0.32, w * 0.08, 8, 16), mat(c)));
-      handle.position.set(w * 0.5, h / 2, 0);
-      const top = add(new THREE.Mesh(new THREE.CircleGeometry(w * 0.46, 24), mat("#2b1a12")));
-      top.rotation.x = -Math.PI / 2;
-      top.position.y = h * 0.98;
-      const steam: THREE.Mesh[] = [];
-      for (let i = 0; i < 3; i++) {
-        const s = new THREE.Mesh(
-          new THREE.SphereGeometry(0.07, 8, 8),
-          new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: 0.4 })
-        );
-        s.userData.phase = i / 3;
-        steam.push(s);
-        group.add(s);
-      }
-      group.userData.steam = steam;
-      group.userData.steamBase = h * 0.98;
-      break;
-    }
-    case "keyboard": {
-      // 机身 + 两排键帽
-      const body = add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)));
-      body.position.y = h / 2;
-      const keyMat = mat("#cbd5e1");
-      for (let r = 0; r < 2; r++) {
-        for (let k = 0; k < 7; k++) {
-          const key = add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.09, h * 0.7, d * 0.07), keyMat));
-          key.position.set(-w * 0.4 + k * (w * 0.13), h + h * 0.35, -d * 0.28 + r * (d * 0.56));
-        }
-      }
-      break;
-    }
-    case "headphones": {
-      // 半圆头梁 + 两个耳罩
-      const band = add(new THREE.Mesh(new THREE.TorusGeometry(w * 0.42, h * 0.07, 8, 20, Math.PI), mat(c)));
-      band.position.y = h * 0.62;
-      const cupL = add(new THREE.Mesh(new THREE.CylinderGeometry(h * 0.22, h * 0.22, h * 0.28, 20), mat("#2a2f3a")));
-      cupL.rotation.z = Math.PI / 2;
-      cupL.position.set(-w * 0.42, h * 0.62, 0);
-      const cupR = add(new THREE.Mesh(new THREE.CylinderGeometry(h * 0.22, h * 0.22, h * 0.28, 20), mat("#2a2f3a")));
-      cupR.rotation.z = Math.PI / 2;
-      cupR.position.set(w * 0.42, h * 0.62, 0);
-      break;
-    }
-    case "sticker": {
-      // 平贴桌面的发光贴纸 + 中心 Logo 色块
-      const card = add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c, { emissive: c, emissiveIntensity: 0.5 })));
-      card.position.y = h / 2 + 0.02;
-      const mark = add(new THREE.Mesh(new THREE.BoxGeometry(w * 0.55, h * 0.5, d * 1.2), mat("#a855f7")));
-      mark.position.y = h / 2 + h * 0.5 + 0.02;
-      break;
-    }
-    case "desktop":
-    case "folder":
-    case "notebook":
-    case "box":
-    default: {
-      const box = add(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)));
-      box.position.y = h / 2;
-      break;
-    }
-  }
-
-  group.userData.deskId = obj.id;
-  return { group, meshes };
-}
-
-// ── 性能 HUD：流浪尸潮 35→60FPS / 内存 −18%（02 §9 场景可视化）──
-function buildPerfHud(): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "perf-hud";
-  el.innerHTML = `
-    <a class="perf-hud-link" href="/works/wandering-corpse-tide">
-      <div class="perf-hud-head">
-        <span class="perf-hud-title">流浪尸潮</span>
-        <span class="perf-hud-tag">性能优化</span>
-      </div>
-      <div class="perf-row"><span class="perf-label">平均帧率</span><span class="perf-val">35 → 60 FPS</span></div>
-      <div class="perf-bar"><i style="width:71%"></i></div>
-      <div class="perf-row"><span class="perf-label">内存峰值</span><span class="perf-val">−18%</span></div>
-      <div class="perf-bar"><i style="width:82%"></i></div>
-    </a>
-  `;
-  document.body.appendChild(el);
-  return el;
-}
-
-// ── 技能矩阵覆盖层（键盘点击 → 按键打散成技能标签）──
-function buildSkillsOverlay(): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "skills-overlay";
-  el.innerHTML = `
-    <div class="skills-panel">
-      <button class="skills-close" aria-label="关闭">✕</button>
-      <div class="skills-head">
-        <span class="skills-index">⌨️</span>
-        <div>
-          <h2 class="skills-title">Skills 技能矩阵</h2>
-          <p class="skills-sub">按键打散成技能标签</p>
-        </div>
-      </div>
-      <div class="skills-grid"></div>
-    </div>
-  `;
-  const grid = el.querySelector<HTMLElement>(".skills-grid")!;
-  for (const s of profile.skills) {
-    const sec = document.createElement("div");
-    sec.className = "skills-cat";
-    sec.innerHTML = `<h3 class="skills-cat-title">${s.category}</h3><div class="skills-tags"></div>`;
-    const tags = sec.querySelector<HTMLElement>(".skills-tags")!;
-    for (const t of s.tags) {
-      const chip = document.createElement("span");
-      chip.className = "skills-chip";
-      chip.textContent = t;
-      tags.appendChild(chip);
-    }
-    grid.appendChild(sec);
-  }
-  document.body.appendChild(el);
-  return el;
-}
-
-function openSkills(overlay: HTMLElement) {
-  overlay.classList.add("open");
-  const chips = overlay.querySelectorAll<HTMLElement>(".skills-chip");
-  gsap.fromTo(
-    chips,
-    {
-      x: () => gsap.utils.random(-140, 140),
-      y: () => gsap.utils.random(-90, 90),
-      opacity: 0,
-      scale: 0.4,
-    },
-    { x: 0, y: 0, opacity: 1, scale: 1, duration: 0.55, stagger: 0.025, ease: "back.out(1.7)" }
-  );
-}
-
-function closeSkills(overlay: HTMLElement) {
-  overlay.classList.remove("open");
-}
-
-// ── 彩蛋弹窗（咖啡 / 耳机 / 贴纸）──
-const EASTER: Record<string, { icon: string; title: string; body: string; fields: [string, string][] }> = {
-  coffee: {
-    icon: "☕",
-    title: "咖啡彩蛋",
-    body: "来都来了，加个好友再走。",
-    fields: [
-      ["邮箱", profile.email],
-      ["微信", profile.wechat],
-    ],
-  },
-  headphones: {
-    icon: "🎧",
-    title: "耳机彩蛋",
-    body: "深夜工位 BGM：键盘敲击 × 咖啡蒸汽 × 显示器电流声。",
-    fields: [],
-  },
-  sticker: {
-    icon: "🎨",
-    title: "Logo 贴纸",
-    body: "个人 Logo「lszbf」—— 像素风 + 霓虹描边。",
-    fields: [
-      ["GitHub", profile.github],
-      ["网站", profile.website],
-    ],
-  },
-};
-
+// ── 咖啡彩蛋弹窗（02 §2 物件 #7：弹出邮箱/微信）──
 function buildEasterPopup(): HTMLElement {
   const el = document.createElement("div");
   el.className = "easter-pop";
@@ -277,27 +78,27 @@ function buildEasterPopup(): HTMLElement {
   return el;
 }
 
-function showEaster(pop: HTMLElement, type: string) {
-  const data = EASTER[type];
-  if (!data) return;
+function showEaster(pop: HTMLElement) {
+  const fields: [string, string][] = [
+    ["邮箱", profile.email],
+    ["微信", profile.wechat],
+  ];
   pop.innerHTML = `
     <button class="easter-close" aria-label="关闭">✕</button>
-    <div class="easter-icon">${data.icon}</div>
-    <h3 class="easter-title">${data.title}</h3>
-    <p class="easter-body">${data.body}</p>
-    ${data.fields
-      .map(([k, v]) =>
-        v.startsWith("http")
-          ? `<div class="easter-field"><span>${k}</span><a class="easter-link" href="${v}" target="_blank" rel="noopener">${v}</a></div>`
-          : `<div class="easter-field"><span>${k}</span><code>${v}</code><button class="easter-copy" data-copy="${v}">复制</button></div>`
+    <div class="easter-icon">☕</div>
+    <h3 class="easter-title">咖啡彩蛋</h3>
+    <p class="easter-body">来都来了，加个好友再走。</p>
+    ${fields
+      .map(
+        ([k, v]) =>
+          `<div class="easter-field"><span>${k}</span><code>${v}</code><button class="easter-copy" data-copy="${v}">复制</button></div>`
       )
       .join("")}
   `;
   pop.querySelector<HTMLElement>(".easter-close")!.addEventListener("click", () => pop.classList.remove("show"));
   pop.querySelectorAll<HTMLElement>(".easter-copy").forEach((b) => {
     b.addEventListener("click", () => {
-      const v = b.dataset.copy!;
-      navigator.clipboard?.writeText(v);
+      navigator.clipboard?.writeText(b.dataset.copy!);
       b.textContent = "已复制 ✓";
       setTimeout(() => (b.textContent = "复制"), 1200);
     });
@@ -305,71 +106,85 @@ function showEaster(pop: HTMLElement, type: string) {
   pop.classList.add("show");
 }
 
+/** 3D 不可用（移动端 / 模型加载失败）时露出静态 DOM 菜单，避免白屏 */
+function degradeToFallback() {
+  document.documentElement.classList.add("is-fallback");
+}
+
 export function initDesk(container: HTMLElement) {
-  // 移动端降级：粗指针 / 窄屏 → 不初始化 3D，由 .mobile-fallback 静态菜单兜底
-  if (window.matchMedia("(pointer: coarse)").matches || container.clientWidth < 768) return;
+  // 移动端降级：粗指针 / 窄屏 → 不加载 Three.js 与 13MB 模型，由 .mobile-fallback 静态菜单兜底
+  if (window.matchMedia("(pointer: coarse)").matches || container.clientWidth < 768) {
+    degradeToFallback();
+    return;
+  }
 
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const swayEnabled = window.matchMedia("(pointer: fine)").matches && !reduceMotion;
+
+  // 场景不设背景色：画布保持透明，好让 #hero-type 的背景大字从 3D 工位后面透出来
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#0f1115");
 
-  let frustumSize = FRUSTUM_START;
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 100);
-  camera.position.copy(CAM_START);
-  camera.lookAt(0, 0, 0);
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 100);
+  const camTarget = new THREE.Vector3(); // 当前看向点（开场推镜 / ACTIVE 飞近都改它）
+  const camFocus = new THREE.Vector3(); // 工位中心，定机位的看向点
+  const camState = { fit: FIT_INTRO, dist: 10, radius: 1 };
+  const sway = { x: 0, y: 0 };
+  const swayTo = { x: 0, y: 0 };
 
   function updateCamera() {
-    const a = container.clientWidth / container.clientHeight || 1;
-    camera.left = (frustumSize * a) / -2;
-    camera.right = (frustumSize * a) / 2;
-    camera.top = frustumSize / 2;
-    camera.bottom = frustumSize / -2;
+    const aspect = container.clientWidth / container.clientHeight || 1;
+    const half = camState.fit * camState.radius;
+    camera.left = -half * aspect;
+    camera.right = half * aspect;
+    camera.top = half;
+    camera.bottom = -half;
+    camera.near = 0.01;
+    // 房间壳比「工位」大得多，远平面留足余量，别把墙和窗切掉
+    camera.far = camState.dist + camState.radius * 60;
     camera.updateProjectionMatrix();
   }
-  updateCamera();
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearAlpha(0);
   renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
   renderer.domElement.style.display = "block";
   container.appendChild(renderer.domElement);
 
-  const ambientLight = new THREE.AmbientLight("#3b4556", 1.4);
+  // ── 两套光照管线（手册 §3 精修 2）──
+  // 黑夜：台灯 PointLight 暖光 + 弱冷色 Ambient；白天：HemisphereLight + DirectionalLight 暖色
+  const ambientLight = new THREE.AmbientLight("#3b4556", 1.1);
   scene.add(ambientLight);
-  const lampLight = new THREE.PointLight("#ffb974", 4, 30, 2);
+  const lampLight = new THREE.PointLight("#ffb974", 0, 0, 2);
   scene.add(lampLight);
+  const hemiLight = new THREE.HemisphereLight("#fff4e2", "#6b5847", 0);
+  scene.add(hemiLight);
+  const sunLight = new THREE.DirectionalLight("#ffe6bf", 0);
+  sunLight.position.set(4, 8, 6);
+  scene.add(sunLight);
 
-  const floor = new THREE.Mesh(
-    new THREE.PlaneGeometry(20, 20),
-    new THREE.MeshStandardMaterial({ color: "#0f1115", roughness: 1 })
-  );
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.y = -1.6;
-  scene.add(floor);
-
-  const desk = new THREE.Mesh(
-    new THREE.BoxGeometry(7.5, 0.3, 5.5),
-    new THREE.MeshStandardMaterial({ color: "#1a1d24", roughness: 0.85 })
-  );
-  desk.position.y = -0.15;
-  scene.add(desk);
-
-  // P0 + P1 + P2 物件（数据来自 src/data/objects.ts）
   const items: DeskItem[] = [];
-  for (const obj of [...p0Objects, ...p1Objects, ...p2Objects]) {
-    const { group, meshes } = buildObject(obj);
-    group.position.set(obj.position[0], obj.position[1], obj.position[2]);
-    scene.add(group);
-    items.push({ group, meshes, data: obj, baseY: obj.position[1] });
-  }
+  const itemRoots: THREE.Object3D[] = []; // Raycaster 只打这 6 件，不遍历整间房
+  const itemByRoot = new Map<THREE.Object3D, DeskItem>();
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2();
+  const introOverlay = document.getElementById("intro-overlay");
+  const introHint = document.getElementById("intro-hint");
+  const loadingHint = document.getElementById("loading-hint");
+  const hotspotLayer = document.getElementById("hotspots");
+  const heroType = document.getElementById("hero-type");
+  let hovered: DeskItem | null = null;
+  let ready = false;
+  let activating = false;
 
-  const lamp = p0Objects.find((o) => o.id === "lamp");
-  if (lamp) lampLight.position.set(lamp.position[0], lamp.position[1] + lamp.size[1], lamp.position[2]);
+  const easterPop = buildEasterPopup();
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") easterPop.classList.remove("show");
+  });
 
-  const coffeeItem = items.find((i) => i.data.id === "coffee");
-  const steam = (coffeeItem?.group.userData.steam as THREE.Mesh[] | undefined) ?? [];
-  const steamBase = (coffeeItem?.group.userData.steamBase as number) ?? 0.4;
-
-  // ── 台灯主题切换（02 §2 物件 #6）──
+  // ── 台灯昼夜切换（02 §2 物件 #6 / D7 D8），状态存 localStorage 跨页读取 ──
   let theme: "dark" | "light" = (() => {
     try {
       return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
@@ -378,82 +193,78 @@ export function initDesk(container: HTMLElement) {
     }
   })();
 
-  function applyTheme(mode: "dark" | "light") {
+  // 场景底色不在这里管（画布透明，底色是 body 背景，随 data-theme 由 CSS 过渡）
+  const NIGHT = {
+    ambient: new THREE.Color("#3b4556"),
+    ambientIntensity: 1.1,
+    lamp: 1,
+    hemi: 0,
+    sun: 0,
+  };
+  const DAY = {
+    ambient: new THREE.Color("#fff0d8"),
+    ambientIntensity: 0.5,
+    lamp: 0.12,
+    hemi: 1.15,
+    sun: 1.5,
+  };
+
+  /** animate=true 时用 GSAP 过渡，避免光照突变；false 用于首帧直接落位 */
+  function applyTheme(mode: "dark" | "light", animate: boolean) {
     theme = mode;
     document.documentElement.dataset.theme = mode;
-    if (mode === "light") {
-      scene.background = new THREE.Color("#dfe6ee");
-      ambientLight.color.set("#ffffff");
-      ambientLight.intensity = 1.1;
-      lampLight.intensity = 0.7;
-      floor.material.color.set("#cfd8e3");
-      desk.material.color.set("#b7c2d0");
-    } else {
-      scene.background = new THREE.Color("#0f1115");
-      ambientLight.color.set("#3b4556");
-      ambientLight.intensity = 1.4;
-      lampLight.intensity = 4;
-      floor.material.color.set("#0f1115");
-      desk.material.color.set("#1a1d24");
-    }
+    const to = mode === "light" ? DAY : NIGHT;
+    const lampPeak = lampLight.userData.peak as number;
+    const smooth = animate && !reduceMotion;
+    // duration:0 的 gsap.to 要等下一 tick 才落值，首帧会闪一下旧光照，所以这里分流到 gsap.set
+    const set = (target: object, vars: gsap.TweenVars) =>
+      smooth ? gsap.to(target, { ...vars, duration: 0.7, ease: "power2.inOut" }) : gsap.set(target, vars);
+    set(ambientLight.color, { r: to.ambient.r, g: to.ambient.g, b: to.ambient.b });
+    set(ambientLight, { intensity: to.ambientIntensity });
+    set(lampLight, { intensity: lampPeak * to.lamp });
+    set(hemiLight, { intensity: to.hemi });
+    set(sunLight, { intensity: to.sun });
     try {
       localStorage.setItem(THEME_KEY, mode);
     } catch {
-      /* ignore */
+      /* 隐私模式下 localStorage 不可用，主题仅本次生效 */
     }
   }
-  applyTheme(theme);
 
-  // ── DOM 层（性能 HUD / 技能矩阵 / 彩蛋弹窗）──
-  const perfHud = buildPerfHud();
-  const skillsOverlay = buildSkillsOverlay();
-  const easterPop = buildEasterPopup();
-  skillsOverlay.querySelector<HTMLElement>(".skills-close")!.addEventListener("click", () => closeSkills(skillsOverlay));
-  skillsOverlay.addEventListener("click", (e) => {
-    if (e.target === skillsOverlay) closeSkills(skillsOverlay);
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeSkills(skillsOverlay);
-      easterPop.classList.remove("show");
+  // ── 02 §4 状态机：IDLE → HOVER → ACTIVE（GSAP 统一驱动）──
+  function applyHoverState(item: DeskItem) {
+    const t = item.hover.t;
+    item.root.position.copy(item.basePos).addScaledVector(item.liftVec, t);
+    item.root.scale.copy(item.baseScale).multiplyScalar(1 + 0.028 * t);
+    for (const { mat, baseEmissive, baseIntensity } of item.mats) {
+      mat.emissive.copy(baseEmissive).lerp(HOVER_COLOR, t * 0.75);
+      mat.emissiveIntensity = baseIntensity + (0.85 - baseIntensity) * t;
     }
-  });
-
-  // 02 §4 状态机：IDLE → HOVER → ACTIVE
-  const raycaster = new THREE.Raycaster();
-  const pointer = new THREE.Vector2();
-  const hoverLabel = document.getElementById("hover-label");
-  let hovered: DeskItem | null = null;
-  let typeToken = 0;
-  let ready = false;
-
-  function pickItem(hit: THREE.Intersection | undefined): DeskItem | null {
-    if (!hit) return null;
-    let o: THREE.Object3D | null = hit.object;
-    while (o) {
-      if (o.userData.deskId) return items.find((i) => i.data.id === o.userData.deskId) ?? null;
-      o = o.parent;
-    }
-    return null;
   }
 
   function setHover(item: DeskItem | null) {
-    if (hovered) {
-      hovered.group.position.y = hovered.baseY;
-      hovered.group.rotation.y = 0;
-      for (const m of hovered.meshes) {
-        const matr = m.material as THREE.MeshStandardMaterial;
-        if (matr.emissive) matr.emissive.set(m.userData.baseEmissive);
-      }
-    }
+    if (item === hovered) return;
+    const prev = hovered;
     hovered = item;
-    if (hovered) {
-      hovered.group.position.y = hovered.baseY + HOVER_LIFT;
-      hovered.group.rotation.y = HOVER_TILT;
-      for (const m of hovered.meshes) {
-        const matr = m.material as THREE.MeshStandardMaterial;
-        if (matr.emissive) matr.emissive.set("#00d9ff");
-      }
+    prev?.hotspot?.classList.remove("is-hot");
+    item?.hotspot?.classList.add("is-hot");
+    if (prev) {
+      gsap.to(prev.hover, {
+        t: 0,
+        duration: 0.32,
+        ease: "power2.out",
+        overwrite: true,
+        onUpdate: () => applyHoverState(prev),
+      });
+    }
+    if (item) {
+      gsap.to(item.hover, {
+        t: 1,
+        duration: 0.26,
+        ease: "power2.out",
+        overwrite: true,
+        onUpdate: () => applyHoverState(item),
+      });
     }
   }
 
@@ -461,173 +272,404 @@ export function initDesk(container: HTMLElement) {
     const rect = container.getBoundingClientRect();
     pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
     pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-    raycaster.setFromCamera(pointer, camera);
-    const item = pickItem(raycaster.intersectObjects(items.map((i) => i.group), true)[0]);
-    const changed = item?.data.id !== hovered?.data.id;
-    setHover(item);
+    swayTo.x = pointer.x;
+    swayTo.y = pointer.y;
 
-    if (item && hoverLabel) {
-      hoverLabel.style.left = `${e.clientX}px`;
-      hoverLabel.style.top = `${e.clientY}px`;
-      if (changed) {
-        hoverLabel.classList.add("visible");
-        const token = ++typeToken;
-        typewriter(hoverLabel, item.data.title, 28, () => token !== typeToken);
-      }
-    } else if (hoverLabel) {
-      hoverLabel.classList.remove("visible");
-      typeToken++;
+    if (!ready || activating) return;
+    raycaster.setFromCamera(pointer, camera);
+    const hit = raycaster.intersectObjects(itemRoots, true)[0];
+    let found: DeskItem | null = null;
+    let o: THREE.Object3D | null = hit ? hit.object : null;
+    while (o && !found) {
+      found = itemByRoot.get(o) ?? null;
+      o = o.parent;
     }
-    container.style.cursor = item ? "pointer" : "default";
+    // 悬停标题统一由热点圆点的标签显示，这里只负责 3D 侧的 HOVER 态
+    setHover(found);
+
+    // 自定义光标（D12）靠这个类变成「可点」环形；container 上的原生 cursor 是它的 CSS 兜底
+    document.documentElement.classList.toggle("cursor-hot", !!found);
+    container.style.cursor = found ? "pointer" : "default";
+  }
+
+  /** ACTIVE：镜头飞近该物件 + 渐黑跳转（D5，转场统一走 TransitionController） */
+  function activate(item: DeskItem) {
+    activating = true;
+    document.documentElement.classList.remove("cursor-hot");
+    container.style.cursor = "default";
+    if (!reduceMotion) {
+      gsap.to(camTarget, {
+        x: item.center.x,
+        y: item.center.y,
+        z: item.center.z,
+        duration: ACTIVE_MS / 1000,
+        ease: "power2.in",
+      });
+      gsap.to(camState, {
+        fit: FIT_ACTIVE,
+        duration: ACTIVE_MS / 1000,
+        ease: "power2.in",
+        onUpdate: updateCamera,
+      });
+    }
+    navigateWithTransition(item.data.route);
+  }
+
+  /** 物件的点击动作（3D 拾取与热点圆点共用） */
+  function runAction(item: DeskItem) {
+    const r = item.data.route;
+    if (r === "theme") applyTheme(theme === "dark" ? "light" : "dark", true);
+    else if (r === "coffee") showEaster(easterPop);
+    else activate(item);
   }
 
   function onClick() {
-    if (!ready || !hovered) return;
-    const r = hovered.data.route;
-    if (r === "theme") {
-      applyTheme(theme === "dark" ? "light" : "dark");
-    } else if (r === "skills") {
-      openSkills(skillsOverlay);
-    } else if (r === "coffee") {
-      showEaster(easterPop, "coffee");
-    } else if (r === "headphones") {
-      showEaster(easterPop, "headphones");
-    } else if (r === "sticker") {
-      showEaster(easterPop, "sticker");
-    } else {
-      navigateWithTransition(r);
+    if (!ready || activating || !hovered) return;
+    runAction(hovered);
+  }
+
+  /** 热点圆点：hover / 键盘聚焦都联动 3D 的 HOVER 态，点击等价于点物件本身 */
+  function bindHotspot(item: DeskItem) {
+    const el = item.hotspot;
+    if (!el) return;
+    const enter = () => {
+      if (ready && !activating) setHover(item);
+    };
+    const leave = () => {
+      if (ready && !activating && hovered === item) setHover(null);
+    };
+    el.addEventListener("pointerenter", enter);
+    el.addEventListener("pointerleave", leave);
+    el.addEventListener("focus", enter);
+    el.addEventListener("blur", leave);
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (ready && !activating) runAction(item);
+    });
+  }
+
+  /** 背景大字：实测每行文本宽再回推字号，把每行都撑满整宽
+   *  CSS 里按字符数估的字号只是无 JS 时的兜底，粗黑体各系统字宽不一，估算会切掉行尾字母 */
+  function fitHeroType() {
+    if (!heroType) return;
+    const cs = getComputedStyle(heroType);
+    const target = heroType.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    if (target <= 0) return;
+    for (const line of Array.from(heroType.querySelectorAll<HTMLElement>(".hero-line"))) {
+      line.style.fontSize = "100px";
+      const w = line.scrollWidth;
+      if (w > 0) line.style.fontSize = `${(target / w) * 100}px`;
     }
+  }
+
+  /** 开场结束（或跳过开场）后再露出热点圆点与背景大字 */
+  function revealChrome() {
+    hotspotLayer?.classList.add("is-ready");
+    fitHeroType();
+    if (heroType) gsap.to(heroType, { autoAlpha: 1, duration: 0.9, ease: "power2.out" });
   }
 
   container.addEventListener("pointermove", onPointerMove);
   container.addEventListener("click", onClick);
+  window.addEventListener("resize", () => {
+    updateCamera();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    fitHeroType();
+  });
+  // 粗黑体是系统字体，理论上不需要等下载；仍挂一次以防浏览器晚一帧才拿到度量
+  document.fonts?.ready.then(fitHeroType);
 
-  // 开场剧本（02 §1.1）
-  const introOverlay = document.getElementById("intro-overlay");
-  const screenText = document.getElementById("screen-text");
-  const introHint = document.getElementById("intro-hint");
-  const played = (() => {
-    try {
-      return localStorage.getItem(INTRO_KEY) === "1";
-    } catch {
-      return false;
+  // ── 咖啡热气（02 §1.1 ⑥ idle 循环）──
+  const steam: THREE.Mesh[] = [];
+  const steamOrigin = new THREE.Vector3();
+  let steamRise = 0.2;
+  let steamDrift = 0.02;
+
+  function buildSteam(coffee: DeskItem) {
+    const r = Math.max(coffee.size.x, coffee.size.z) * 0.16;
+    steamRise = Math.max(coffee.size.y, r * 4) * 1.6;
+    steamDrift = r * 0.8;
+    steamOrigin.copy(coffee.top);
+    for (let i = 0; i < 3; i++) {
+      const s = new THREE.Mesh(
+        new THREE.SphereGeometry(r, 8, 8),
+        new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: 0.35, depthWrite: false })
+      );
+      s.userData.phase = i / 3;
+      s.position.copy(steamOrigin);
+      scene.add(s);
+      steam.push(s);
     }
-  })();
+  }
 
-  function projectToScreen(obj: THREE.Object3D) {
-    const v = new THREE.Vector3();
-    obj.getWorldPosition(v);
-    v.project(camera);
+  // ── 开场剧本（02 §1.1 ①-⑧）──
+  function markIntroPlayed() {
+    try {
+      localStorage.setItem(INTRO_KEY, "1");
+    } catch {
+      /* 隐私模式下写不进去，下次仍会播 */
+    }
+  }
+
+  function projectToScreen(world: THREE.Vector3) {
+    const v = world.clone().project(camera);
     return {
       x: (v.x * 0.5 + 0.5) * container.clientWidth,
       y: (-v.y * 0.5 + 0.5) * container.clientHeight,
     };
   }
 
-  async function playIntro() {
+  /** ④ 电脑屏幕亮起：抬电脑的自发光，并把亮起后的值当作新的 IDLE 基线，hover 仍能在此之上加亮
+   *  ⚠️ 模型里没有独立的 obj_screen 节点，只能整台电脑一起泛光，强度压低当屏幕漏光处理 */
+  function lightUpScreen(computer: DeskItem) {
+    const lit = new THREE.Color("#12384a");
+    for (const m of computer.mats) {
+      m.baseEmissive.copy(lit);
+      m.baseIntensity = 0.3;
+      gsap.to(m.mat.emissive, { r: lit.r, g: lit.g, b: lit.b, duration: 0.6, ease: "power2.out" });
+      gsap.to(m.mat, { emissiveIntensity: 0.3, duration: 0.6, ease: "power2.out" });
+    }
+  }
+
+  async function playIntro(computer: DeskItem | undefined) {
     const tl = gsap.timeline();
 
-    // ① 台灯「啪」亮 + 黑屏淡出
+    // ① 台灯「啪」亮起，暖光扩散；黑幕淡出
     tl.to(introOverlay, { autoAlpha: 0, duration: 1.0, ease: "power2.inOut" }, 0);
-    tl.fromTo(lampLight, { intensity: 0 }, { intensity: 4, duration: 0.5, ease: "power2.in" }, 0);
-    tl.fromTo(ambientLight, { intensity: 0 }, { intensity: 1.4, duration: 1.0, ease: "power2.out" }, 0);
+    tl.fromTo(lampLight, { intensity: 0 }, { intensity: lampLight.intensity, duration: 0.5, ease: "power2.in" }, 0);
+    tl.fromTo(ambientLight, { intensity: 0 }, { intensity: ambientLight.intensity, duration: 1.0, ease: "power2.out" }, 0);
 
     // ② 镜头从桌面一角缓慢推近
-    tl.to(camera.position, { x: CAM_END.x, y: CAM_END.y, z: CAM_END.z, duration: 1.6, ease: "power2.inOut" }, 0.3);
-    const zoomProxy = { v: frustumSize };
-    tl.to(
-      zoomProxy,
-      {
-        v: FRUSTUM_END,
-        duration: 1.6,
-        ease: "power2.inOut",
-        onUpdate: () => {
-          frustumSize = zoomProxy.v;
-          updateCamera();
-        },
-      },
-      0.3
-    );
+    const corner = camFocus
+      .clone()
+      .addScaledVector(SWAY_RIGHT, camState.radius * 0.55)
+      .addScaledVector(WORLD_UP, camState.radius * 0.18);
+    gsap.set(camTarget, { x: corner.x, y: corner.y, z: corner.z });
+    tl.to(camTarget, { x: camFocus.x, y: camFocus.y, z: camFocus.z, duration: 1.6, ease: "power2.inOut" }, 0.3);
+    tl.to(camState, { fit: FIT_IDLE, duration: 1.6, ease: "power2.inOut", onUpdate: updateCamera }, 0.3);
 
-    // ③ 物件逐个弹簧弹出
-    const popIds = ["monitor", "gamepad", "desktop", "folder", "notebook", "coffee", "keyboard", "headphones", "sticker"];
-    popIds.forEach((id, i) => {
+    // ③ 物件逐个「弹簧弹出」落到桌面
+    introPopOrder.forEach((id, i) => {
       const item = items.find((x) => x.data.id === id);
       if (!item) return;
-      const t = 0.9 + i * 0.13;
-      tl.fromTo(item.group.position, { y: item.baseY - 3.2 }, { y: item.baseY, duration: 0.9, ease: "back.out(1.8)" }, t);
-      tl.fromTo(item.group.scale, { x: 0.5, y: 0.5, z: 0.5 }, { x: 1, y: 1, z: 1, duration: 0.45, ease: "power2.out" }, t);
+      const from = item.basePos.clone().addScaledVector(item.liftVec, -7);
+      const proxy = { p: 0 };
+      tl.fromTo(
+        proxy,
+        { p: 0 },
+        {
+          p: 1,
+          duration: 0.9,
+          ease: "back.out(1.8)",
+          onUpdate: () => item.root.position.lerpVectors(from, item.basePos, proxy.p),
+        },
+        0.9 + i * 0.13
+      );
     });
 
     await tweenDone(tl);
 
-    // ④ 显示器亮起 + 打字机打出名字 + 定位
-    const monitor = items.find((x) => x.data.id === "monitor");
-    const screen = monitor?.group.userData.screen as THREE.Mesh | undefined;
-    if (screen) {
-      gsap.to(screen.material.color, { ...SCREEN_ON, duration: 0.6, ease: "power2.out" });
-      if (screenText) {
-        const p = projectToScreen(screen);
-        screenText.style.left = `${p.x}px`;
-        screenText.style.top = `${p.y}px`;
-        gsap.set(screenText, { autoAlpha: 1 });
-        await typewriter(screenText, `${profile.name} · ${profile.jobTitle}`, 55);
-        await delay(300);
-      }
+    // ④ 屏幕亮起（原先投影在屏幕上的「姓名 · 职位」已删除，只留亮屏这一拍）
+    if (computer) {
+      lightUpScreen(computer);
+      await delay(700);
     }
 
     // ⑤ 提示「拖拽 / 滚动 探索工位」
     if (introHint) await tweenDone(gsap.to(introHint, { autoAlpha: 1, duration: 0.6, ease: "power2.out" }));
 
+    // ⑥ 咖啡热气在 rAF 里持续循环；⑦ hover 状态机；⑧ 点击 ACTIVE 由事件驱动
+    markIntroPlayed();
     ready = true;
+    revealChrome();
   }
 
-  if (played) {
-    camera.position.copy(CAM_END);
-    frustumSize = FRUSTUM_END;
+  function skipIntro(computer: DeskItem | undefined) {
+    camState.fit = FIT_IDLE;
     updateCamera();
     if (introOverlay) introOverlay.style.display = "none";
-    const monitor = items.find((x) => x.data.id === "monitor");
-    const screen = monitor?.group.userData.screen as THREE.Mesh | undefined;
-    if (screen && screenText) {
-      screen.material.color.setRGB(SCREEN_ON.r, SCREEN_ON.g, SCREEN_ON.b);
-      const p = projectToScreen(screen);
-      screenText.style.left = `${p.x}px`;
-      screenText.style.top = `${p.y}px`;
-      screenText.textContent = `${profile.name} · ${profile.jobTitle}`;
-      gsap.set(screenText, { autoAlpha: 1 });
-    }
+    if (computer) lightUpScreen(computer);
     if (introHint) gsap.set(introHint, { autoAlpha: 1 });
     ready = true;
-  } else {
-    try {
-      localStorage.setItem(INTRO_KEY, "1");
-    } catch {
-      /* ignore */
-    }
-    playIntro();
+    revealChrome();
   }
 
-  function animate() {
-    requestAnimationFrame(animate);
-    camera.lookAt(0, 0, 0);
-    const t = performance.now() / 1000;
-    for (const s of steam) {
-      const ph = (t * 0.4 + (s.userData.phase as number)) % 1;
-      s.position.y = steamBase + ph * 0.7;
-      s.position.x = Math.sin(t * 1.5 + (s.userData.phase as number) * 6.28) * 0.05;
-      s.scale.setScalar(1 + ph * 0.8);
-      (s.material as THREE.MeshBasicMaterial).opacity = 0.4 * (1 - ph);
+  // ── 加载 room_full.glb（D4：单文件 + mesh 命名 obj_*）──
+  const loader = new GLTFLoader();
+  loader.load(
+    MODEL_URL,
+    (gltf) => {
+      const model = gltf.scene;
+      scene.add(model);
+      model.updateWorldMatrix(true, true);
+
+      const box = new THREE.Box3();
+      const tmpBox = new THREE.Box3();
+
+      for (const data of deskObjects) {
+        const root = model.getObjectByName(data.mesh);
+        if (!root) continue; // 模型缺件时静默跳过，不编造占位物
+
+        // 58 个材质里有 10 个被多物件共用，必须克隆，否则 hover 发光会串到别的物件上
+        const mats: DeskMat[] = [];
+        root.traverse((o) => {
+          const mesh = o as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          const list = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          mesh.material = Array.isArray(mesh.material)
+            ? list.map((m) => m.clone())
+            : (list[0] as THREE.Material).clone();
+          const cloned = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          for (const m of cloned) {
+            const std = m as THREE.MeshStandardMaterial;
+            if (!std.emissive) continue;
+            mats.push({
+              mat: std,
+              baseEmissive: std.emissive.clone(),
+              baseIntensity: std.emissiveIntensity ?? 1,
+            });
+          }
+        });
+
+        tmpBox.setFromObject(root);
+        const size = tmpBox.getSize(new THREE.Vector3());
+        const center = tmpBox.getCenter(new THREE.Vector3());
+        const liftLen = THREE.MathUtils.clamp(size.y * 0.22, 0.01, 0.12);
+
+        const item: DeskItem = {
+          data,
+          root,
+          mats,
+          basePos: root.position.clone(),
+          baseScale: root.scale.clone(),
+          liftVec: liftInParentSpace(root, liftLen),
+          center,
+          top: new THREE.Vector3(center.x, tmpBox.max.y, center.z),
+          size,
+          hover: { t: 0 },
+          hotspot: hotspotLayer?.querySelector<HTMLElement>(`.hotspot[data-id="${data.id}"]`) ?? null,
+          hotspotAnchor: new THREE.Vector3(center.x, tmpBox.max.y, center.z),
+        };
+        items.push(item);
+        itemRoots.push(root);
+        itemByRoot.set(root, item);
+        box.union(tmpBox);
+      }
+
+      if (items.length === 0) {
+        // 模型在位但一个 obj_* 都没匹配上 → 与加载失败同等处理，露出静态菜单
+        degradeToFallback();
+        if (introOverlay) introOverlay.style.display = "none";
+        return;
+      }
+
+      // 取景：只框「工位」（6 件可点物件的并集）而非整间房
+      const sphere = box.getBoundingSphere(new THREE.Sphere());
+      camState.radius = sphere.radius;
+      camState.dist = sphere.radius * 6;
+      camFocus.copy(sphere.center);
+      camTarget.copy(camFocus);
+      updateCamera();
+
+      // 热点圆点：吸附在物件正上方一点，位置随场景尺度自适应
+      for (const item of items) {
+        item.hotspotAnchor.copy(item.top).addScaledVector(WORLD_UP, camState.radius * 0.06);
+        bindHotspot(item);
+      }
+      // 模型里缺件时对应的圆点没有物件可跟，直接摘掉，别在左上角留个孤儿
+      hotspotLayer?.querySelectorAll<HTMLElement>(".hotspot").forEach((el) => {
+        if (!items.some((i) => i.data.id === el.dataset.id)) el.remove();
+      });
+
+      const lamp = items.find((i) => i.data.id === "lamp");
+      if (lamp) {
+        lampLight.position.copy(lamp.top);
+        lampLight.distance = camState.radius * 8;
+      }
+      // 台灯暖光按 decay=2 的平方衰减定标，随模型尺度自适应，避免过曝/过暗
+      lampLight.userData.peak = Math.max(4, camState.radius * camState.radius * 4);
+      lampLight.intensity = lampLight.userData.peak;
+      applyTheme(theme, false);
+
+      const coffee = items.find((i) => i.data.id === "coffee");
+      if (coffee) buildSteam(coffee);
+
+      const computer = items.find((i) => i.data.id === "computer");
+      if (loadingHint) loadingHint.style.display = "none";
+
+      const played = (() => {
+        try {
+          return localStorage.getItem(INTRO_KEY) === "1";
+        } catch {
+          return false;
+        }
+      })();
+
+      if (played || reduceMotion) skipIntro(computer);
+      else playIntro(computer);
+    },
+    (e) => {
+      if (!loadingHint) return;
+      loadingHint.textContent = e.total
+        ? `加载工位模型 ${Math.round((e.loaded / e.total) * 100)}%`
+        : `加载工位模型 ${(e.loaded / 1024 / 1024).toFixed(1)} MB`;
+    },
+    () => {
+      // 模型加载失败（离线 / 部署时 glb 未随包发布）→ 露出静态菜单，不白屏
+      degradeToFallback();
+      if (loadingHint) {
+        loadingHint.textContent = "3D 工位加载失败，已切换为静态导航";
+        loadingHint.classList.add("is-error");
+      }
+      if (introOverlay) introOverlay.style.display = "none";
     }
+  );
+
+  // ── 主循环：鼠标视角摇晃（lerp）+ 咖啡热气 ──
+  function frame() {
+    requestAnimationFrame(frame);
+
+    if (swayEnabled) {
+      sway.x += (swayTo.x - sway.x) * SWAY_EASE;
+      sway.y += (swayTo.y - sway.y) * SWAY_EASE;
+    }
+    const amp = camState.radius * SWAY_AMOUNT;
+    camera.position
+      .copy(camTarget)
+      .addScaledVector(VIEW_DIR, camState.dist)
+      .addScaledVector(SWAY_RIGHT, sway.x * amp)
+      .addScaledVector(SWAY_UP, sway.y * amp * 0.55);
+    camera.lookAt(camTarget);
+
+    // 背景大字朝反方向微移：和前景工位形成视差，读起来才有前后空间
+    if (heroType && swayEnabled) {
+      heroType.style.transform = `translate3d(${-sway.x * HERO_PARALLAX}px, ${-sway.y * HERO_PARALLAX * 0.6}px, 0)`;
+    }
+
+    camera.updateMatrixWorld();
+
+    // 热点圆点跟着物件投影到屏幕（4 个导航物件，开销可忽略）
+    if (ready) {
+      for (const item of items) {
+        if (!item.hotspot) continue;
+        const p = projectToScreen(item.hotspotAnchor);
+        item.hotspot.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) translate(-50%, -50%)`;
+      }
+    }
+
+    if (steam.length) {
+      const t = performance.now() / 1000;
+      for (const s of steam) {
+        const phase = s.userData.phase as number;
+        const ph = (t * 0.4 + phase) % 1;
+        s.position.y = steamOrigin.y + ph * steamRise;
+        s.position.x = steamOrigin.x + Math.sin(t * 1.5 + phase * 6.28) * steamDrift;
+        s.scale.setScalar(1 + ph * 0.8);
+        (s.material as THREE.MeshBasicMaterial).opacity = 0.35 * (1 - ph);
+      }
+    }
+
     renderer.render(scene, camera);
   }
-  animate();
-
-  window.addEventListener("resize", () => {
-    updateCamera();
-    renderer.setSize(container.clientWidth, container.clientHeight);
-  });
-
-  // 引用 perfHud 避免未使用告警（HUD 为纯静态 DOM，无需交互）
-  void perfHud;
+  frame();
 }

@@ -1,42 +1,62 @@
 ---
-// 深夜工位 3D 场景容器（仅首页加载 Three.js）
-// 移动端降级：渲染静态俯视图文菜单（.mobile-fallback），由 CSS 媒体查询切换
-import { p0Objects, p1Objects, p2Objects, type DeskObject } from "../../data/objects";
+// 深夜工位 3D 场景容器（仅首页加载 Three.js + room_full.glb）
+// 降级：移动端 / 模型加载失败时由 desk.ts 给 <html> 加 .is-fallback，露出下面的静态菜单
+import { deskObjects } from "../../data/objects";
+import { profile } from "../../data/profile";
 
 const EMOJI: Record<string, string> = {
-  monitor: "🖥️",
+  computer: "💻",
   gamepad: "🎮",
-  desktop: "💻",
-  folder: "📁",
+  filepile: "📁",
   notebook: "📓",
   lamp: "💡",
   coffee: "☕",
-  keyboard: "⌨️",
-  headphones: "🎧",
-  sticker: "🎨",
-  box: "📦",
 };
 
-const navObjects = [...p0Objects, ...p1Objects, ...p2Objects].filter(
-  (o) => o.route.startsWith("/") && o.route !== "/"
-);
+// 会跳路由的物件才算导航项：热点圆点和降级菜单都只列这些
+// 台灯（切昼夜）和咖啡（彩蛋）是就地生效的动作，不进菜单，只在 3D 里 hover 发光
+const navObjects = deskObjects.filter((o) => o.route.startsWith("/"));
 ---
-<div class="relative w-full h-screen overflow-hidden" id="desk-scene">
-  <div id="screen-text"></div>
-  <div id="hover-label"></div>
+<!-- 背景排版大字：位于 3D 画布之后（画布 alpha 透明），铺满视口形成前后空间感
+     文案取自 profile.ts 的 heroLines；--len 是字符数，CSS 据此把每行撑满一行宽 -->
+<h1 id="hero-type">
+  {
+    profile.heroLines.map((line) => (
+      <span class="hero-line" style={`--len:${line.length}`}>
+        {line}
+      </span>
+    ))
+  }
+</h1>
+
+<div class="relative z-10 w-full h-screen overflow-hidden" id="desk-scene"></div>
+
+<!-- 热点圆点 = 导航菜单，位置由 desk.ts 每帧从 3D 投影到屏幕
+     只给会跳路由的物件加圆点：台灯（切昼夜）和咖啡（彩蛋）不是导航项，留给鼠标扫到时自己发光 -->
+<div id="hotspots">
+  {
+    navObjects.map((o) => (
+      <button class="hotspot" type="button" data-id={o.id} aria-label={o.title}>
+        <span class="hotspot-dot"></span>
+        <span class="hotspot-label">{o.title}</span>
+      </button>
+    ))
+  }
 </div>
-<div id="intro-hint">拖拽 / 滚动 探索工位</div>
+
+<div id="loading-hint">加载工位模型…</div>
+<div id="intro-hint">鼠标靠近发光图标探索工位</div>
 <div id="intro-overlay"></div>
 
-<!-- 移动端降级：静态导航菜单（保留核心路由，避免 3D 性能崩） -->
+<!-- 静态导航菜单：移动端降级 + 3D 不可用时的兜底（保留核心路由，不白屏） -->
 <div class="mobile-fallback">
-  <h1 class="mobile-fallback-title">赵韵婷 · 游戏客户端开发工程师</h1>
-  <p class="mobile-fallback-sub">深夜工位 · 物件即导航（移动端降级模式）</p>
+  <h1 class="mobile-fallback-title">{profile.name} · {profile.jobTitle}</h1>
+  <p class="mobile-fallback-sub">深夜工位 · 物件即导航（静态导航模式）</p>
   <nav class="mobile-fallback-nav">
     {
       navObjects.map((o) => (
         <a href={o.route} class="mobile-fallback-link">
-          <span class="mobile-fallback-emoji">{EMOJI[o.geometry] ?? "📦"}</span>
+          <span class="mobile-fallback-emoji">{EMOJI[o.id] ?? "📦"}</span>
           <span>{o.title}</span>
         </a>
       ))

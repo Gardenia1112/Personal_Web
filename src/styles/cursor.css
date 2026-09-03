@@ -1,0 +1,68 @@
+/* 自定义光标（D12 / 手册 §7.1）：白色光点 + 拖尾
+   .has-custom-cursor 由 scripts/cursor.ts 在确认「精细指针 + 允许动效」后才加，
+   所以触屏、reduced-motion、JS 失效三种情况下系统光标都还在（混合式兜底） */
+#cursor {
+  --cursor-core: #ffffff;
+  --cursor-glow: rgba(0, 217, 255, 0.6);
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  mix-blend-mode: screen;
+}
+#cursor.is-visible {
+  opacity: 1;
+}
+
+/* 浅色主题下纯白光点会消失，换成深色核心 + 紫色光晕，并关掉叠加混合 */
+[data-theme="light"] #cursor {
+  --cursor-core: #14181f;
+  --cursor-glow: rgba(168, 85, 247, 0.5);
+  mix-blend-mode: normal;
+}
+
+.cursor-dot,
+.cursor-trail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 999px;
+  will-change: transform;
+}
+
+.cursor-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--cursor-core);
+  box-shadow: 0 0 10px 2px var(--cursor-glow), 0 0 26px 6px var(--cursor-glow);
+  transition: width 0.18s ease, height 0.18s ease, background 0.2s ease;
+}
+
+.cursor-trail {
+  width: 10px;
+  height: 10px;
+  background: var(--cursor-core);
+  opacity: var(--o);
+  filter: blur(1px);
+}
+
+/* 可交互目标：DOM 元素由 cursor.ts 加 .is-hot，3D 物件由 desk.ts 给 <html> 加 .cursor-hot */
+#cursor.is-hot .cursor-dot,
+html.cursor-hot .cursor-dot {
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: 1.5px solid var(--cursor-core);
+  box-shadow: 0 0 14px 2px var(--cursor-glow);
+}
+#cursor.is-press .cursor-dot {
+  width: 7px;
+  height: 7px;
+}
+
+html.has-custom-cursor,
+html.has-custom-cursor *:not(input):not(textarea) {
+  cursor: none;
+}

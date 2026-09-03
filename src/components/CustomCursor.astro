@@ -1,0 +1,9 @@
+---
+// 自定义光标容器（D12 / 手册 §7.1）——首页 3D、about、desktop 与 BaseLayout 四个入口各引一次
+// 拖尾节点由 scripts/cursor.ts 生成；样式在 styles/cursor.css
+---
+<div id="cursor" aria-hidden="true"><div class="cursor-dot"></div></div>
+<script>
+  import { initCursor } from "../scripts/cursor";
+  initCursor();
+</script>

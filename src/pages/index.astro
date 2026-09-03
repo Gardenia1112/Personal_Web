@@ -2,6 +2,7 @@
 // 首页：深夜工位 3D 场景（全屏，不使用 BaseLayout，物件即导航）
 import Scene from "../components/Desk3D/Scene.astro";
 import TransitionOverlay from "../components/TransitionOverlay.astro";
+import CustomCursor from "../components/CustomCursor.astro";
 import "../styles/global.css";
 ---
 <!doctype html>
@@ -15,5 +16,6 @@ import "../styles/global.css";
   <body class="overflow-hidden">
     <Scene />
     <TransitionOverlay />
+    <CustomCursor />
   </body>
 </html>

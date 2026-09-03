@@ -1,6 +1,7 @@
 ---
 // 渐黑转场遮罩（D5 / D6）——首页 3D、about、desktop 与 BaseLayout 四处各引一次
 // inline 脚本必须在首屏绘制前跑，才能让黑幕跨页衔接；JS 不可用时标记读不到，遮罩保持透明，页面照常可见
+// 昼夜主题（D7）也搭这趟车：这是唯一被全部四个入口引用、且在首屏绘制前执行的组件，能避免切页闪色
 ---
 <div id="transition-overlay" aria-hidden="true"></div>
 <script is:inline>
@@ -11,6 +12,12 @@
     }
   } catch (err) {
     /* sessionStorage 不可用 */
+  }
+  try {
+    var saved = localStorage.getItem("lszbf:theme");
+    document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
+  } catch (err) {
+    /* localStorage 不可用，默认深色 */
   }
 </script>
 <script>

@@ -1,5 +1,6 @@
 ---
 import TransitionOverlay from "../components/TransitionOverlay.astro";
+import CustomCursor from "../components/CustomCursor.astro";
 import "../styles/global.css";
 import { desktopIcons } from "../data/desktop";
 ---
@@ -59,5 +60,6 @@ import { desktopIcons } from "../data/desktop";
       if (root) initDesktop(root);
     </script>
     <TransitionOverlay />
+    <CustomCursor />
   </body>
 </html>
