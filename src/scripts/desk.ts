@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { gsap } from "gsap";
 import { p0Objects, p1Objects, p2Objects, type DeskObject } from "../data/objects";
 import { profile } from "../data/profile";
+import { navigateWithTransition } from "./transition";
 
 interface DeskItem {
   group: THREE.Group;
@@ -494,7 +495,7 @@ export function initDesk(container: HTMLElement) {
     } else if (r === "sticker") {
       showEaster(easterPop, "sticker");
     } else {
-      window.location.href = r;
+      navigateWithTransition(r);
     }
   }
 

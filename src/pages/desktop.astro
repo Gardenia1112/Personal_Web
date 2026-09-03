@@ -1,4 +1,5 @@
 ---
+import TransitionOverlay from "../components/TransitionOverlay.astro";
 import "../styles/global.css";
 import { desktopIcons } from "../data/desktop";
 ---
@@ -57,5 +58,6 @@ import { desktopIcons } from "../data/desktop";
       const root = document.getElementById("os");
       if (root) initDesktop(root);
     </script>
+    <TransitionOverlay />
   </body>
 </html>

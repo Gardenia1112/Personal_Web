@@ -1,0 +1,113 @@
+---
+// 横向视差画廊（决策 D10）—— /works 与 /awards 共用
+// 数据由调用页从 src/data/*.ts 组装成 items 传入，组件不含任何写死内容
+import type { GalleryItem, GalleryTab } from "../scripts/gallery";
+
+interface Props {
+  items: GalleryItem[];
+  tabs?: GalleryTab[];
+  activeKey?: string; // 首屏默认分组；?category= 会在客户端覆盖它
+  toggleLabel?: string; // 传入则渲染「显示 optional 条目」开关（如校级 / 院级奖项）
+  hint?: string;
+  emptyText?: string;
+}
+
+const {
+  items,
+  tabs,
+  activeKey = tabs?.[0]?.key,
+  toggleLabel,
+  hint = "滚轮 / 拖拽 / ← → 横向浏览",
+  emptyText = "该分类暂无内容",
+} = Astro.props;
+---
+<section class="gallery" data-gallery>
+  {
+    tabs && tabs.length > 0 && (
+      <div class="gallery__tabs">
+        {tabs.map((t) => (
+          <button
+            type="button"
+            class:list={["gallery__tab", t.key === activeKey && "is-active"]}
+            data-group={t.key}
+            data-param={t.param}
+          >
+            {t.label}
+          </button>
+        ))}
+        {toggleLabel && (
+          <label class="gallery__toggle">
+            <input type="checkbox" data-gallery-toggle />
+            <span>{toggleLabel}</span>
+          </label>
+        )}
+      </div>
+    )
+  }
+
+  <div class="gallery__viewport" tabindex="0" role="group" aria-label="横向画廊">
+    <div class="gallery__track">
+      {
+        items.map((item, i) => {
+          const num = String(i + 1).padStart(2, "0");
+          const media = (
+            <figure class="gallery__media">
+              {item.cover ? (
+                <img class="gallery__img" src={item.cover} alt={item.title} loading="lazy" draggable="false" />
+              ) : (
+                <div class="gallery__paper">
+                  <span class="gallery__paper-num">{num}</span>
+                  <span class="gallery__paper-title">{item.title}</span>
+                  {item.meta && <span class="gallery__paper-meta">{item.meta}</span>}
+                </div>
+              )}
+              {item.tag && <figcaption class="gallery__tag">{item.tag}</figcaption>}
+            </figure>
+          );
+
+          return (
+            <article class="gallery__item" data-group={item.group} data-optional={item.optional ? "1" : undefined}>
+              {item.href ? (
+                <a class="gallery__link" href={item.href}>
+                  {media}
+                </a>
+              ) : item.preview ? (
+                <button type="button" class="gallery__link gallery__link--zoom" data-preview={item.preview}>
+                  {media}
+                </button>
+              ) : item.download ? (
+                <a class="gallery__link" href={item.download} download>
+                  {media}
+                </a>
+              ) : (
+                <div class="gallery__link gallery__link--plain">{media}</div>
+              )}
+
+              <div class="gallery__caption">
+                <span class="gallery__num">{num}</span>
+                <div>
+                  <h2 class="gallery__title">{item.title}</h2>
+                  {item.meta && <p class="gallery__meta">{item.meta}</p>}
+                </div>
+                {item.href && <span class="gallery__arrow" aria-hidden="true">→</span>}
+                {item.preview && <span class="gallery__hint">点击放大</span>}
+                {item.download && <span class="gallery__hint">{item.actionLabel ?? "下载"}</span>}
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+    <p class="gallery__empty" hidden>{emptyText}</p>
+  </div>
+
+  <div class="gallery__footer">
+    <div class="gallery__progress"><i></i></div>
+    <span class="gallery__scrollhint">{hint}</span>
+  </div>
+</section>
+
+<script>
+  import { initGallery } from "../scripts/gallery";
+  document.querySelectorAll<HTMLElement>("[data-gallery]").forEach((el) => initGallery(el));
+</script>

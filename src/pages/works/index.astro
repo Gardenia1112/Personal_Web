@@ -1,74 +1,46 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import HorizontalGallery from "../../components/HorizontalGallery.astro";
+import type { GalleryItem, GalleryTab } from "../../scripts/gallery";
 import { projects } from "../../data/projects";
 import { artworks } from "../../data/art";
+
+// 分组键与 ?category= 取值一一对应；默认 dev（无 query 时），?category=art → 美术
+const tabs: GalleryTab[] = [
+  { key: "dev", label: "开发项目", param: "dev" },
+  { key: "art", label: "美术作品", param: "art" },
+  { key: "all", label: "全部", param: "all" },
+];
+
+const devItems: GalleryItem[] = projects.map((p) => ({
+  id: p.slug,
+  title: p.name,
+  group: "dev",
+  meta: `${p.role} · ${p.period}`,
+  tag: p.metrics?.map((m) => m.note).join(" · "),
+  cover: p.media?.cover,
+  href: `/works/${p.slug}`,
+}));
+
+// 美术作品按 01 §5 四类平铺，不再分子类（cover 待 Phase 7 落位缩略图后填 art.ts）
+const artItems: GalleryItem[] = artworks.map((a) => ({
+  id: a.slug,
+  title: a.name,
+  group: "art",
+  meta: a.category,
+  tag: a.category,
+  cover: a.cover,
+}));
 ---
 <BaseLayout title="作品 · lszbf.com">
-  <main class="works-page">
-    <div class="works-header">
-      <h1 class="works-title" id="works-title">作品</h1>
-      <p class="works-sub" id="works-sub">开发项目 ×4 · 四段式</p>
-    </div>
+  <main class="gallery-page">
+    <header class="gallery-page-header">
+      <h1 class="gallery-page-title">作品</h1>
+      <p class="gallery-page-sub">
+        开发项目 {projects.length} 项按「问题 → 技术方案 → 我的贡献 → 量化成果」四段式展开；美术作品含绘画 / 设计 / 建模 / 剪辑。
+      </p>
+    </header>
 
-    <div class="works-tabs" id="works-tabs">
-      <a class="works-tab active" href="/works" data-cat="dev">开发项目</a>
-      <a class="works-tab" href="/works?category=art" data-cat="art">美术作品</a>
-    </div>
-
-    <div class="works-grid" id="works-dev">
-      {
-        projects.map((p) => (
-          <a href={`/works/${p.slug}`} class="work-card">
-            {p.media?.cover ? (
-              <img class="work-card-cover" src={p.media.cover} alt={p.name} loading="lazy" />
-            ) : (
-              <div class="work-card-ph">{p.name.slice(0, 1)}</div>
-            )}
-            <div class="work-card-body">
-              <h2 class="work-card-name">{p.name}</h2>
-              <p class="work-card-meta">{p.role} · {p.period}</p>
-              {p.metrics && (
-                <span class="work-card-metric">{p.metrics.map((m) => m.note).join(" · ")}</span>
-              )}
-            </div>
-          </a>
-        ))
-      }
-    </div>
-
-    <div class="works-grid" id="works-art" style="display: none">
-      {
-        artworks.map((a) => (
-          <div class="work-card art-card">
-            <div class="work-card-ph">{a.status === "done" ? "🖼" : "⏳"}</div>
-            <div class="work-card-body">
-              <h2 class="work-card-name">{a.name}</h2>
-              <p class="work-card-meta">{a.category} · {a.status === "done" ? "✅ 已有" : "⚠️ 待补"}</p>
-            </div>
-          </div>
-        ))
-      }
-    </div>
+    <HorizontalGallery items={[...devItems, ...artItems]} tabs={tabs} activeKey="dev" />
   </main>
-
-  <script>
-    // 读取 ?category 参数：缺省/其他 → 开发项目；art → 美术作品（静态站需在浏览器侧读 query）
-    const showArt = new URLSearchParams(location.search).get("category") === "art";
-    const dev = document.getElementById("works-dev");
-    const art = document.getElementById("works-art");
-    if (dev && art) {
-      dev.style.display = showArt ? "none" : "";
-      art.style.display = showArt ? "" : "none";
-    }
-    document.querySelectorAll("#works-tabs .works-tab").forEach((t) => {
-      const el = t as HTMLElement;
-      el.classList.toggle("active", el.dataset.cat === (showArt ? "art" : "dev"));
-    });
-    if (showArt) {
-      const title = document.getElementById("works-title");
-      const sub = document.getElementById("works-sub");
-      if (title) title.textContent = "美术作品";
-      if (sub) sub.textContent = "绘画 / 设计 / 建模 / 剪辑";
-    }
-  </script>
 </BaseLayout>

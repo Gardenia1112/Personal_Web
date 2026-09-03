@@ -2,37 +2,63 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { projects } from "../../data/projects";
 
+// 排版参考 christoph-nagel.dev：满幅暗调大图 + 左侧窄栏文字 + 编号小标题 + 大字标题
 export function getStaticPaths() {
-  return projects.map((p) => ({
+  return projects.map((p, i) => ({
     params: { slug: p.slug },
-    props: { project: p },
+    props: {
+      project: p,
+      index: i,
+      prev: projects[(i - 1 + projects.length) % projects.length],
+      next: projects[(i + 1) % projects.length],
+    },
   }));
 }
 
-const { project } = Astro.props;
+const { project, index, prev, next } = Astro.props;
+const num = String(index + 1).padStart(2, "0");
+
+const chapters = [
+  { no: "01", label: "问题", title: "要解决什么", text: project.problem },
+  { no: "02", label: "技术方案", title: "怎么搭起来", text: project.tech },
+  { no: "03", label: "我的贡献", title: "我做了哪部分", text: project.contribution },
+  { no: "04", label: "量化成果", title: "最后拿到什么", text: project.result },
+];
 ---
 <BaseLayout title={`${project.name} · lszbf.com`}>
-  <main class="project-page">
-    <a href="/works" class="project-back">← 返回作品</a>
-
-    <header class="project-header">
-      <h1 class="project-name">{project.name}</h1>
-      <p class="project-meta">{project.role} · {project.period}</p>
+  <article class="pd">
+    <header class="pd-hero">
+      {
+        project.media?.cover && (
+          <div class="pd-hero-bg">
+            <img src={project.media.cover} alt={`${project.name} 封面`} />
+          </div>
+        )
+      }
+      <div class="pd-hero-inner">
+        <p class="pd-eyebrow"><b>{num}</b> {project.role}</p>
+        <h1 class="pd-hero-title">{project.name}</h1>
+        <p class="pd-hero-meta">{project.period}</p>
+        <p class="pd-hero-lede">{project.result}</p>
+        {
+          project.links.length > 0 && (
+            <div class="pd-hero-actions">
+              {project.links.map((l) => (
+                <a class="pd-btn" href={l.url} target="_blank" rel="noopener">
+                  {l.label} ↗
+                </a>
+              ))}
+            </div>
+          )
+        }
+      </div>
     </header>
 
-    {
-      project.media?.cover && (
-        <figure class="project-cover">
-          <img src={project.media.cover} alt={`${project.name} 封面`} loading="lazy" />
-        </figure>
-      )
-    }
-
-    {
-      project.metrics && (
-        <section class="project-metrics">
-          {
-            project.metrics.map((m) => (
+    <div class="pd-body">
+      {
+        project.metrics && (
+          <section class="project-metrics">
+            {project.metrics.map((m) => (
               <div class="metric">
                 <div class="metric-head">
                   <span class="metric-label">{m.label}</span>
@@ -41,72 +67,58 @@ const { project } = Astro.props;
                 </div>
                 <div class="metric-bar"><i style={`width:${m.pct}%`}></i></div>
               </div>
-            ))
-          }
-        </section>
-      )
-    }
-
-    <div class="project-sections">
-      <section>
-        <h2 class="project-h2">问题</h2>
-        <p class="project-p">{project.problem}</p>
-      </section>
-      <section>
-        <h2 class="project-h2">技术方案</h2>
-        <p class="project-p">{project.tech}</p>
-      </section>
-      <section>
-        <h2 class="project-h2">我的贡献</h2>
-        <p class="project-p">{project.contribution}</p>
-      </section>
-      <section>
-        <h2 class="project-h2">量化成果</h2>
-        <p class="project-p">{project.result}</p>
-      </section>
-    </div>
-
-    {
-      project.media?.arch && (
-        <section class="project-media">
-          <h2 class="project-h2">架构</h2>
-          <img class="project-media-img" src={project.media.arch} alt={`${project.name} 架构图`} loading="lazy" />
-        </section>
-      )
-    }
-
-    {
-      project.media?.video && (
-        <section class="project-media">
-          <h2 class="project-h2">实机演示</h2>
-          <video class="project-video" src={project.media.video} controls preload="none" playsinline></video>
-        </section>
-      )
-    }
-
-    {
-      project.media?.gallery && project.media.gallery.length > 0 && (
-        <section class="project-media">
-          <h2 class="project-h2">更多素材</h2>
-          <div class="project-gallery">
-            {project.media.gallery.map((g) => (
-              <img class="project-gallery-img" src={g} alt={`${project.name} 素材`} loading="lazy" />
             ))}
-          </div>
-        </section>
-      )
-    }
+          </section>
+        )
+      }
 
-    {
-      project.links.length > 0 && (
-        <div class="project-links">
-          {project.links.map((l) => (
-            <a class="project-link" href={l.url} target="_blank" rel="noopener">
-              {l.label} ↗
-            </a>
-          ))}
-        </div>
-      )
-    }
-  </main>
+      {
+        chapters.map((c) => (
+          <section class="pd-chapter">
+            <div>
+              <p class="pd-eyebrow"><b>{c.no}</b> {c.label}</p>
+              <h2 class="pd-chapter-title">{c.title}</h2>
+            </div>
+            <p class="pd-chapter-text">{c.text}</p>
+          </section>
+        ))
+      }
+
+      {
+        project.media?.arch && (
+          <figure class="pd-figure">
+            <img src={project.media.arch} alt={`${project.name} 架构图`} loading="lazy" />
+            <figcaption>架构 / Architecture</figcaption>
+          </figure>
+        )
+      }
+
+      {
+        project.media?.video && (
+          <figure class="pd-figure">
+            <video src={project.media.video} controls preload="none" playsinline></video>
+            <figcaption>实机演示 / Gameplay</figcaption>
+          </figure>
+        )
+      }
+
+      {
+        project.media?.gallery && project.media.gallery.length > 0 && (
+          <figure class="pd-figure">
+            <div class="pd-strip">
+              {project.media.gallery.map((g) => (
+                <img src={g} alt={`${project.name} 素材`} loading="lazy" />
+              ))}
+            </div>
+            <figcaption>过程稿 / Process</figcaption>
+          </figure>
+        )
+      }
+
+      <nav class="pd-foot">
+        <a class="pd-btn pd-btn--ghost" href={`/works/${prev.slug}`}>← {prev.name}</a>
+        <a class="pd-btn pd-btn--ghost" href={`/works/${next.slug}`}>{next.name} →</a>
+      </nav>
+    </div>
+  </article>
 </BaseLayout>
