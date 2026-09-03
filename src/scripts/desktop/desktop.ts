@@ -1,19 +1,12 @@
 // 拟物桌面系统（Phase 4）—— 窗口管理 / 拖拽 / 最小化 / 缩放
 // 群岛架构：纯 DOM/CSS/vanilla JS，仅 /desktop 加载；范式参考 Reactbits 桌面窗口
+import { desktopIcons, type DesktopIcon, type DesktopIconId } from "../../data/desktop";
 import { projects } from "../../data/projects";
 
-interface App {
-  id: string;
-  icon: string;
-  title: string;
-}
-
-const APPS: Record<string, App> = {
-  works: { id: "works", icon: "📁", title: "作品 Works（开发项目）" },
-  art: { id: "art", icon: "📁", title: "美术 Art（美术作品）" },
-  blog: { id: "blog", icon: "🏷", title: "博客 Blog" },
-  resume: { id: "resume", icon: "📄", title: "简历 Resume.pdf" },
-};
+const APPS = Object.fromEntries(desktopIcons.map((icon) => [icon.id, icon])) as Record<
+  DesktopIconId,
+  DesktopIcon
+>;
 
 interface WinInstance {
   id: string;
@@ -46,40 +39,43 @@ export function initDesktop(root: HTMLElement) {
       return `<div class="os-window-body">${items}</div>`;
     }
     if (id === "art") {
+      const href = APPS.art.href;
       return `
         <div class="os-window-body">
           <p class="os-empty">美术作品（绘画 / 设计 / 建模 / 剪辑）。</p>
-          <a class="os-file" href="/works?category=art"><span class="os-file-name">前往美术作品 →</span></a>
+          <a class="os-file" href="${href}"><span class="os-file-name">前往美术作品 →</span></a>
         </div>`;
     }
     if (id === "blog") {
+      const href = APPS.blog.href;
       return `
         <div class="os-window-body">
           <p class="os-empty">博客板块待启动（Phase 7 填充文章）。</p>
-          <a class="os-file" href="/blog"><span class="os-file-name">前往博客 →</span></a>
+          <a class="os-file" href="${href}"><span class="os-file-name">前往博客 →</span></a>
         </div>`;
     }
     if (id === "resume") {
+      const href = APPS.resume.href;
       return `
         <div class="os-window-body os-resume">
           <p class="os-empty">赵韵婷 · 游戏客户端开发工程师</p>
           <div class="os-resume-actions">
-            <a class="os-btn os-btn-primary" href="/resume.pdf" target="_blank" rel="noopener">预览</a>
-            <a class="os-btn" href="/resume.pdf" download>下载</a>
+            <a class="os-btn os-btn-primary" href="${href}" target="_blank" rel="noopener">预览</a>
+            <a class="os-btn" href="${href}" download>下载</a>
           </div>
         </div>`;
     }
     return "";
   }
 
-  function buildWindow(app: App): WinInstance {
+  function buildWindow(app: DesktopIcon): WinInstance {
     const el = document.createElement("div");
     el.className = "os-window";
     el.style.left = `${96 + Math.random() * 48}px`;
     el.style.top = `${72 + Math.random() * 36}px`;
     el.innerHTML = `
       <div class="os-window-titlebar">
-        <span class="os-window-title">${app.icon} ${app.title}</span>
+        <span class="os-window-title">${app.icon} ${app.windowTitle}</span>
         <div class="os-window-controls">
           <button class="os-btn os-min" title="最小化" aria-label="最小化">—</button>
           <button class="os-btn os-close" title="关闭" aria-label="关闭">✕</button>

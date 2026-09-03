@@ -28,3 +28,20 @@ assets/raw-materials/
 assets/images/
 assets/models/
 assets/videos/
+# 大型原始参考素材不入库（本地 + CI 用，不进历史）
+public/assets/raw-assets/
+handoff/references/recordings/*.mp4
+# 若需团队共享，改用 LFS 或在 CI 里单独拉取
+# ===== 大文件 / 原始素材（不入库，本地保留） =====
+
+# 3D 模型（用占位盒，glb 日后替换，不进 Git）
+public/models/*.glb
+public/models/*.gltf
+
+# 录制的参考视频 + 原始素材
+*.mp4
+raw-assets/
+public/assets/raw-assets/
+
+# 若 models 整个文件夹都是大文件，可整体忽略（按需启用）
+# public/models/

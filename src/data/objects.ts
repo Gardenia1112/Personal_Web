@@ -9,6 +9,7 @@ export interface DeskObject {
     | "box"
     | "monitor"
     | "gamepad"
+    | "desktop"
     | "lamp"
     | "folder"
     | "notebook"
@@ -45,7 +46,7 @@ export const p0Objects: DeskObject[] = [
     route: "/desktop",
     position: [0.2, 0, 1.7],
     color: "#00d9ff",
-    geometry: "box",
+    geometry: "desktop",
     size: [0.6, 0.9, 0.5],
   },
   {

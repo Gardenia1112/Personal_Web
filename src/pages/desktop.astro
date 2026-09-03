@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import { desktopIcons } from "../data/desktop";
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -32,22 +33,14 @@ import "../styles/global.css";
 
       <div class="os-desktop">
         <div class="os-icons">
-          <div class="os-icon" data-app="works">
-            <span class="os-icon-emoji os-folder-red">📁</span>
-            <span>作品（开发）</span>
-          </div>
-          <div class="os-icon" data-app="art">
-            <span class="os-icon-emoji os-folder-yellow">📁</span>
-            <span>美术作品</span>
-          </div>
-          <div class="os-icon" data-app="blog">
-            <span class="os-icon-emoji">🏷</span>
-            <span>博客</span>
-          </div>
-          <div class="os-icon" data-app="resume">
-            <span class="os-icon-emoji">📄</span>
-            <span>简历</span>
-          </div>
+          {
+            desktopIcons.map((icon) => (
+              <div class="os-icon" data-app={icon.id}>
+                <span class:list={["os-icon-emoji", icon.folderClass]}>{icon.icon}</span>
+                <span>{icon.label}</span>
+              </div>
+            ))
+          }
         </div>
 
         <div class="os-sticker" id="os-sticker">

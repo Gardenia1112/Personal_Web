@@ -152,6 +152,7 @@ function buildObject(obj: DeskObject): { group: THREE.Group; meshes: THREE.Mesh[
       mark.position.y = h / 2 + h * 0.5 + 0.02;
       break;
     }
+    case "desktop":
     case "folder":
     case "notebook":
     case "box":
