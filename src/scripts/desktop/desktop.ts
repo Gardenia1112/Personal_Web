@@ -9,8 +9,9 @@ interface App {
 }
 
 const APPS: Record<string, App> = {
-  works: { id: "works", icon: "📁", title: "作品 Works" },
-  blog: { id: "blog", icon: "📁", title: "博客 Blog" },
+  works: { id: "works", icon: "📁", title: "作品 Works（开发项目）" },
+  art: { id: "art", icon: "📁", title: "美术 Art（美术作品）" },
+  blog: { id: "blog", icon: "🏷", title: "博客 Blog" },
   resume: { id: "resume", icon: "📄", title: "简历 Resume.pdf" },
 };
 
@@ -43,6 +44,13 @@ export function initDesktop(root: HTMLElement) {
         )
         .join("");
       return `<div class="os-window-body">${items}</div>`;
+    }
+    if (id === "art") {
+      return `
+        <div class="os-window-body">
+          <p class="os-empty">美术作品（绘画 / 设计 / 建模 / 剪辑）。</p>
+          <a class="os-file" href="/works?category=art"><span class="os-file-name">前往美术作品 →</span></a>
+        </div>`;
     }
     if (id === "blog") {
       return `

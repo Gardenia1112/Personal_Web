@@ -21,9 +21,13 @@
 
 ## 入场状态
 
-⬜ **未开始**。路由已建（`/works` `/works/[slug]` `/awards` `/contact` `/blog`），但真实内容待灌。
+⬜ **未开始**（内容填充阶段）。路由已建（`/works` `/works/[slug]` `/awards` `/contact` `/blog`），但真实内容待灌。
 
-- 数据层已有 4 个项目、奖项、个人信息的骨架数据（`src/data/*.ts`），需核对/补全。
+- 数据层已有 4 个项目、奖项、个人信息、美术作品（`src/data/*.ts`），需核对/补全。
+- 证书素材已齐：数模省一已补（`2024-math-modeling-liaoning-1st.jpg`），`awards.ts` 全部 `file` 就位。
+- 美术素材已提供：绘画/设计/建模/剪辑源文件在 `assets/{images,models,videos}/`，发布缩略图待本卡。
+- 头像/品牌图已就位：`public/assets/brand/head.png` + `public/favicon.ico`。
+- 外链不含 B站/ArtStation/站酷（用户确认不需要，仅 github/gitee/email/wechat）。
 - 部署链路（GitHub + Cloudflare Pages + 域名）尚未搭建。
 
 ---
@@ -37,7 +41,7 @@
 3. **个人数据**：`profile.ts` 核对姓名/教育/技能/外链（github/gitee/email/wechat）。
 4. **奖项数据**：`awards.ts` 按 Phase 5 卡补证书、隐藏开关。
 5. **博客首批**：`src/content/blog/*.md`（或 `/blog` 数据）写 3 篇——《用 AI 工具链搭游戏客户端作品集》、《流浪尸潮 35→60FPS 优化实录》、《Unity 泛型状态机在肉鸽中的应用》。
-6. **待用户提供**（标 `⚠️ 待确认`，不编造）：数模省一证书、建模/剪辑素材、B站/ArtStation/站酷链接、头像/favicon。
+6. **发布美术素材**：`assets/{images,models,videos}/` 的绘画/设计/建模/剪辑源文件已提供，精选缩略图/演示片（英文命名）复制到 `public/assets/` 供 `/works?category=art` 展示。
 
 ### Part B：部署（最后写，见下方「风险与提醒」）
 

@@ -21,14 +21,12 @@ export const awards: Award[] = [
   { name: "2025 辽宁省第六届智能制造科普创意创新大赛", level: "二等奖", category: "省级及以上", file: "2025-smart-mfg-2nd.jpg", status: "done" },
   { name: "2025 辽宁大学 Proteus 仿真设计大赛暨辽宁赛区选拔赛", level: "二等奖", category: "省级及以上", file: "2025-proteus-2nd.jpg", status: "done" },
   { name: "中国国际大学生创新大赛（2025）辽宁大学选拔赛", level: "一等奖", category: "省级及以上", file: "2025-innovation-1st.xls", status: "done" },
+  { name: "全国大学生数学建模竞赛", level: "辽宁省一等奖", category: "省级及以上", file: "2024-math-modeling-liaoning-1st.jpg", status: "done" },
 
   // 校级 / 院级（可隐藏）
   { name: "辽宁大学智能技术应用大赛（2025）", level: "校级二等奖", category: "校级院级", file: "2025-lnu-intelligent-tech-2nd.pdf", status: "done", hide: true },
   { name: "辽宁大学 2024 校园合唱比赛", level: "校级二等奖", category: "校级院级", file: "2024-lnu-choir-2nd.jpg", status: "done", hide: true },
   { name: "2024「挑战杯」辽宁大学物理学院创业计划竞赛", level: "院级三等奖", category: "校级院级", file: "2024-challenge-cup-3rd.jpg", status: "done", hide: true },
-
-  // 待补
-  { name: "全国大学生数学建模竞赛", level: "辽宁省一等奖", category: "待补", status: "todo" },
 
   // 证书
   { name: "英语四级 CET-4", level: "大学英语四级", category: "证书", file: "CET4.pdf", status: "done" },

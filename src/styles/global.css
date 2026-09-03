@@ -288,6 +288,12 @@ body {
   font-size: 34px;
   line-height: 1;
 }
+.os-folder-red {
+  filter: hue-rotate(-50deg) saturate(1.15);
+}
+.os-folder-yellow {
+  filter: none;
+}
 .os-icon span:last-child {
   font-size: 12px;
   color: rgba(248, 250, 252, 0.85);
@@ -987,6 +993,30 @@ body {
 }
 
 /* ===== 作品列表 ===== */
+.works-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.works-tab {
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: rgba(248, 250, 252, 0.7);
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: none;
+}
+.works-tab:hover {
+  border-color: rgba(0, 217, 255, 0.4);
+}
+.works-tab.active {
+  background: rgba(0, 217, 255, 0.16);
+  border-color: var(--color-cyan);
+  color: #7ff3ff;
+}
 .works-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

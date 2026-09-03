@@ -1,15 +1,21 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { projects } from "../../data/projects";
+import { artworks } from "../../data/art";
 ---
 <BaseLayout title="作品 · lszbf.com">
   <main class="works-page">
     <div class="works-header">
-      <h1 class="works-title">作品</h1>
-      <p class="works-sub">开发项目 ×4 · 四段式</p>
+      <h1 class="works-title" id="works-title">作品</h1>
+      <p class="works-sub" id="works-sub">开发项目 ×4 · 四段式</p>
     </div>
 
-    <div class="works-grid">
+    <div class="works-tabs" id="works-tabs">
+      <a class="works-tab active" href="/works" data-cat="dev">开发项目</a>
+      <a class="works-tab" href="/works?category=art" data-cat="art">美术作品</a>
+    </div>
+
+    <div class="works-grid" id="works-dev">
       {
         projects.map((p) => (
           <a href={`/works/${p.slug}`} class="work-card">
@@ -29,5 +35,40 @@ import { projects } from "../../data/projects";
         ))
       }
     </div>
+
+    <div class="works-grid" id="works-art" style="display: none">
+      {
+        artworks.map((a) => (
+          <div class="work-card art-card">
+            <div class="work-card-ph">{a.status === "done" ? "🖼" : "⏳"}</div>
+            <div class="work-card-body">
+              <h2 class="work-card-name">{a.name}</h2>
+              <p class="work-card-meta">{a.category} · {a.status === "done" ? "✅ 已有" : "⚠️ 待补"}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
   </main>
+
+  <script>
+    // 读取 ?category 参数：缺省/其他 → 开发项目；art → 美术作品（静态站需在浏览器侧读 query）
+    const showArt = new URLSearchParams(location.search).get("category") === "art";
+    const dev = document.getElementById("works-dev");
+    const art = document.getElementById("works-art");
+    if (dev && art) {
+      dev.style.display = showArt ? "none" : "";
+      art.style.display = showArt ? "" : "none";
+    }
+    document.querySelectorAll("#works-tabs .works-tab").forEach((t) => {
+      const el = t as HTMLElement;
+      el.classList.toggle("active", el.dataset.cat === (showArt ? "art" : "dev"));
+    });
+    if (showArt) {
+      const title = document.getElementById("works-title");
+      const sub = document.getElementById("works-sub");
+      if (title) title.textContent = "美术作品";
+      if (sub) sub.textContent = "绘画 / 设计 / 建模 / 剪辑";
+    }
+  </script>
 </BaseLayout>

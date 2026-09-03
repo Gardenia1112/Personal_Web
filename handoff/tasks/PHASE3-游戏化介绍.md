@@ -14,7 +14,7 @@
 
 - `../docs/01-内容结构文档.md` §3（关于我：基本信息/自述/教育/技能）
 - `../docs/02-视觉交互设计系统.md` §1（色彩/像素描边）、§3.1（游戏化设计定稿）
-- `../docs/03-技术架构文档.md` §3（`/about` 路由）、§5.5（aboutGame.ts 字段）、§9（Phaser 版本冲突已知坑）
+- `../docs/03-技术架构文档.md` §3（`/about` 路由）、§5.5（aboutGame.ts 字段）、§9（Phaser 运行时已确认）
 
 ---
 
@@ -30,7 +30,7 @@
 
 ## 执行步骤（精修项）
 
-1. **Phaser 版本兼容实测（最高优先级）**：package.json 是 `phaser ^4.2.1`，但 `game.ts` 全用 Phaser 3 风格 API（`import Phaser from "phaser"`、`new Phaser.Game`、`Phaser.Scale.RESIZE`）。构建通过 ≠ 运行时可用，需浏览器打开 `/about` 实测小人能否渲染/移动。**若报错 → 锁回 `phaser@^3.x`（代码零改动）**。
+1. **Phaser 版本兼容**：✅ 已确认 —— 用户实测 `/about` 正常，Phaser 4 运行时兼容现有 API，代码零改动，无需锁版本。
 2. **三输入手感**：A/D、←/→、鼠标三通道并存且不打架，鼠标跟随用 `pointer.worldX` + 插值避免抖动。
 3. **展板触发与面板**：走到展板 `TRIGGER_RANGE=170` 内停下亮起，`renderPanel` 正确灌入 `title/tagline/lines`，移开淡出。
 4. **数据核对**：4 块展板（who/journey/core/education）文字与 `../docs/01` §3、`profile.ts` 一致。
@@ -41,7 +41,7 @@
 
 ## 验收标准
 
-- [ ] 首页点手柄进 `/about`，Phaser 场景正常加载（**含 Phaser 4 下的运行时实测**）。
+- [x] Phaser 4 运行时 ✅ 已确认，无需锁版本。
 - [ ] A/D、←/→、鼠标三输入均可操控小人移动。
 - [ ] 走到 4 块展板前停下，面板内容正确（数据来自 `aboutGame.ts` / `profile.ts`）。
 - [ ] ESC 返回工位。
@@ -51,7 +51,7 @@
 
 ## 风险与提醒
 
-- ⚠️ **Phaser 4 vs 3 API 兼容**是本卡最大风险，实测不过就锁版本，别硬改游戏代码去适配 Phaser 4。
+- Phaser 4 vs 3 API 兼容已实测通过（见验收标准），无需再锁版本。
 - 状态机（IDLE/WALK/STOP_AT_BOARD）避免边走边播；面板更新走 `renderPanel` 的统一入口，别在别处拼 HTML。
 - 像素小人可用 Kenney.nl 免费素材或代码绘制占位（先跑通再换图）。
 

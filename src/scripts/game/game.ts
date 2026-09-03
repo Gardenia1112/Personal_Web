@@ -30,6 +30,7 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    this.setPanelEl(this.registry.get("boardPanel") ?? null);
     const h = this.scale.height;
     this.groundY = h * 0.74;
 
@@ -103,13 +104,17 @@ class GameScene extends Phaser.Scene {
 }
 
 export function createGameIntro(container: HTMLElement, panelEl: HTMLElement | null) {
-  const game = new Phaser.Game({
+  new Phaser.Game({
     type: Phaser.AUTO,
     parent: container,
     backgroundColor: "#0f1115",
     scale: { mode: Phaser.Scale.RESIZE },
     scene: [GameScene],
+    callbacks: {
+      // 场景在 Game READY 之后才从 _pending 启动；preBoot 时写入 registry，create() 里取出
+      preBoot: (game) => {
+        game.registry.set("boardPanel", panelEl);
+      },
+    },
   });
-  const scene = game.scene.getScene("game") as GameScene;
-  scene.setPanelEl(panelEl);
 }

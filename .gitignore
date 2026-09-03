@@ -22,5 +22,9 @@ npm-debug.log*
 01基础信息/
 02项目作品/
 04-award/
-# 原始素材（源文件，非网站产物；已从根目录收拢到 assets/raw-materials/）
+# 原始素材（源文件，非网站产物；已从根目录收拢到 assets/）
+# 只提交发布到 public/assets/ 的精简缩略图；源文件不入库（体积大，含 .blend/.obj/.mb/.psd 等）
 assets/raw-materials/
+assets/images/
+assets/models/
+assets/videos/
