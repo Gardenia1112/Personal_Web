@@ -84,7 +84,7 @@ Astro 5 + 原生 Three.js + 原生 JS + GSAP + Tailwind v4 + Phaser ^4.2.1（⚠
 ## 8. 交互规范速查
 
 - **状态机**：`IDLE / HOVER / ACTIVE`，见 `src/scripts/desk.ts`，GSAP timeline 统一驱动。
-- **开场剧本**：①-⑧ 步，`localStorage["lszbf:intro:played"]` 控制只播一次。
+- **开场剧本**：①-⑧ 步，`sessionStorage["lszbf:intro:played"]` 控制每个会话播一次（2026-09-04 用户决策，原为 localStorage 只播一次）；`/?intro` 强制重播。
 - **主题切换**：台灯物件 ↔ `localStorage["lszbf:theme"]`。
 - **移动端降级**：`matchMedia("(pointer: coarse)")` 或 `clientWidth < 768` → 静态 DOM 菜单，不加载 3D。
 

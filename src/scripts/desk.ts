@@ -9,6 +9,8 @@ import { profile } from "../data/profile";
 import { navigateWithTransition } from "./transition";
 
 const MODEL_URL = "/models/room_full.glb";
+// 开场剧本标记走 sessionStorage：同一标签页内刷新/来回跳页会跳过，关掉标签页再来重播一次
+// （02 §1.1 原文写 localStorage 只播一次，2026-09-04 用户改为「每个会话播一次」）
 const INTRO_KEY = "lszbf:intro:played";
 const THEME_KEY = "lszbf:theme";
 
@@ -405,7 +407,7 @@ export function initDesk(container: HTMLElement) {
   // ── 开场剧本（02 §1.1 ①-⑧）──
   function markIntroPlayed() {
     try {
-      localStorage.setItem(INTRO_KEY, "1");
+      sessionStorage.setItem(INTRO_KEY, "1");
     } catch {
       /* 隐私模式下写不进去，下次仍会播 */
     }
@@ -597,9 +599,12 @@ export function initDesk(container: HTMLElement) {
       const computer = items.find((i) => i.data.id === "computer");
       if (loadingHint) loadingHint.style.display = "none";
 
+      // 每个会话播一次；带 ?intro 进来强制重播，省得调动效时要手动清标记
+      const forceIntro = new URLSearchParams(location.search).has("intro");
       const played = (() => {
+        if (forceIntro) return false;
         try {
-          return localStorage.getItem(INTRO_KEY) === "1";
+          return sessionStorage.getItem(INTRO_KEY) === "1";
         } catch {
           return false;
         }

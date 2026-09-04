@@ -8,6 +8,18 @@
   --color-cyan: #00d9ff;
   --color-purple: #a855f7;
   --color-warm: #ffb974;
+
+  /* /desktop 选择台的浅底鲜色（2026-09-04：先做的莫兰迪低饱和版用户嫌闷，改成高饱和撞色）
+     只在 desktop.css 里引用，别把它铺到深夜工位那几页 */
+  --color-paper: #f5f1e8; /* 暖奶油底 */
+  --color-paper-card: #fffdf7;
+  --color-ink: #1d2126;
+  --color-ink-soft: #6b7480;
+  --color-pop-red: #ef4a35; /* 红文件夹 · 开发项目 */
+  --color-pop-amber: #ffb400; /* 黄文件夹 · 美术 */
+  --color-pop-azure: #1f9df0; /* 美术占位色块 */
+  --color-pop-green: #17bf6b; /* 美术占位色块 */
+  --color-pop-pink: #e4007f; /* Logo 品红（不是糖果粉） */
 }
 
 html,
@@ -306,284 +318,28 @@ body {
   background: rgba(0, 217, 255, 0.15);
 }
 
-/* Phase 4 拟物桌面 OS */
-.os {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background:
-    radial-gradient(1200px 800px at 70% 20%, rgba(0, 217, 255, 0.06), transparent 60%),
-    radial-gradient(900px 700px at 20% 80%, rgba(168, 85, 247, 0.06), transparent 60%),
-    var(--color-deep);
-  color: #f8fafc;
-}
-.os-menubar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 14px;
-  background: rgba(15, 17, 21, 0.75);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  z-index: 100;
-  user-select: none;
-}
-.os-menubar-left,
-.os-menubar-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-.os-brand {
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--color-cyan);
-  text-decoration: none;
-  font-family: ui-monospace, monospace;
-}
-.os-menu-link {
-  color: rgba(248, 250, 252, 0.7);
-  text-decoration: none;
-  font-size: 13px;
-}
-.os-menu-link:hover {
-  color: #fff;
-}
-.os-menu {
-  position: relative;
-}
-.os-menu-btn {
-  background: transparent;
-  border: none;
-  color: #f8fafc;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 6px;
-}
-.os-menu-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-}
-.os-menu-dropdown {
-  position: absolute;
-  top: 36px;
-  right: 0;
-  min-width: 160px;
-  background: rgba(15, 17, 21, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  padding: 6px;
-  display: none;
-  flex-direction: column;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
-}
-.os-menu-dropdown.open {
-  display: flex;
-}
-.os-menu-dropdown a {
-  padding: 8px 12px;
-  border-radius: 6px;
-  color: rgba(248, 250, 252, 0.85);
-  text-decoration: none;
-  font-size: 13px;
-}
-.os-menu-dropdown a:hover {
-  background: rgba(0, 217, 255, 0.12);
-}
-.os-desktop {
-  position: absolute;
-  inset: 44px 0 0 0;
-}
-.os-icons {
-  position: absolute;
-  top: 18px;
-  left: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.os-icon {
-  width: 86px;
-  padding: 10px 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  border-radius: 10px;
-  cursor: pointer;
-  user-select: none;
-  border: 1px solid transparent;
-}
-.os-icon:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(0, 217, 255, 0.25);
-}
-.os-icon-emoji {
-  font-size: 34px;
-  line-height: 1;
-}
-.os-folder-red {
-  filter: hue-rotate(-50deg) saturate(1.15);
-}
-.os-folder-yellow {
-  filter: none;
-}
-.os-icon span:last-child {
-  font-size: 12px;
-  color: rgba(248, 250, 252, 0.85);
-}
-.os-sticker {
-  position: absolute;
-  top: 120px;
-  right: 48px;
-  width: 140px;
-  height: 140px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transform: rotate(-8deg);
-  background: linear-gradient(135deg, #ffb974, #a855f7);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-  cursor: grab;
-  user-select: none;
-}
-.os-sticker:active {
-  cursor: grabbing;
-}
-.os-sticker-title {
-  font-weight: 800;
-  font-size: 22px;
-  letter-spacing: 1px;
-  color: #0f1115;
-  font-family: ui-monospace, monospace;
-}
-.os-sticker-sub {
-  font-size: 11px;
-  color: rgba(15, 17, 21, 0.75);
-  letter-spacing: 1px;
-}
-.os-windows {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-.os-window {
-  position: absolute;
-  width: 400px;
-  min-width: 260px;
-  max-width: 640px;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  background: rgba(20, 23, 30, 0.96);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
-  pointer-events: auto;
-  overflow: hidden;
-}
-.os-window-titlebar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  cursor: move;
-  user-select: none;
-}
-.os-window-title {
-  font-size: 13px;
-  font-weight: 600;
-}
-.os-window-controls {
-  display: flex;
-  gap: 6px;
-}
-.os-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: none;
-  color: #f8fafc;
-  border-radius: 6px;
-  padding: 3px 8px;
-  cursor: pointer;
-  font-size: 12px;
-}
-.os-btn:hover {
-  background: rgba(255, 255, 255, 0.16);
-}
-.os-close:hover {
-  background: #e5484d;
-}
-.os-window-content {
-  padding: 12px;
-  overflow: auto;
-  flex: 1;
-}
-.os-window-body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.os-file {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 12px;
+/* /about 简历下载：固定在左上，跟右上「回工位」成对；不进 Phaser 画布 */
+.about-resume {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 50;
+  padding: 8px 16px;
   border-radius: 8px;
-  text-decoration: none;
-  color: #f8fafc;
-}
-.os-file:hover {
-  background: rgba(0, 217, 255, 0.1);
-}
-.os-file-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-cyan);
-}
-.os-file-meta {
-  font-size: 12px;
-  color: rgba(248, 250, 252, 0.5);
-}
-.os-empty {
+  background: rgba(15, 17, 21, 0.8);
+  border: 1px solid rgba(228, 0, 127, 0.5);
+  color: #ffb3d6;
   font-size: 13px;
-  color: rgba(248, 250, 252, 0.6);
-}
-.os-resume {
-  gap: 12px;
-}
-.os-resume-actions {
-  display: flex;
-  gap: 10px;
-}
-.os-btn-primary {
-  background: rgba(0, 217, 255, 0.18);
-  color: #7ff3ff;
-}
-.os-resume-actions .os-btn {
+  letter-spacing: 1px;
   text-decoration: none;
-  padding: 7px 14px;
+  transition: background 0.2s ease;
 }
-.os-window-resize {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 16px;
-  height: 16px;
-  cursor: nwse-resize;
+.about-resume:hover {
+  background: rgba(228, 0, 127, 0.16);
 }
 
+/* Phase 4 的拟物桌面 OS（.os-* 菜单栏 / 图标 / 贴纸 / 窗口）已整体删除：
+   2026-09-04 用户决策把 /desktop 改成「选择台 + 单张弹出详情」，样式移到 src/styles/desktop.css */
 /* ===== Phase 5-6：技能矩阵 / 彩蛋 / 证书墙 / 联系页 / 作品页 / 移动端降级 =====
    首页左下角的「流浪尸潮」性能 HUD 已按用户意见删除；02 §9 要求的 35→60FPS 量化可视化
    仍保留在项目详情页 /works/wandering-corpse-tide 的 .project-metrics 区块 */
@@ -1098,6 +854,45 @@ html.is-fallback #loading-hint.is-error {
 @media (prefers-reduced-motion: reduce) {
   #transition-overlay {
     transition: none;
+  }
+}
+
+/* 从 /desktop 选择台过来的入场动画（两个路由各一套，不走渐黑）：
+   离场动画在 desktop.ts 里跑完并写下 sessionStorage["lszbf:dtx"]，
+   TransitionOverlay.astro 的 inline 脚本在首屏绘制前把它读成 <html data-enter> */
+/* 项目详情页的内容根是 <article class="pd">，别的页是 <main>，两种都接上 */
+html[data-enter="rise"] body > main,
+html[data-enter="rise"] body > article {
+  animation: enter-rise 0.62s cubic-bezier(0.16, 0.84, 0.3, 1) both;
+}
+@keyframes enter-rise {
+  from {
+    transform: translateY(9vh);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+html[data-enter="veil"] body > main,
+html[data-enter="veil"] body > article {
+  animation: enter-veil 0.5s ease both;
+}
+@keyframes enter-veil {
+  from {
+    transform: scale(1.03);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-enter] body > main,
+  html[data-enter] body > article {
+    animation: none;
   }
 }
 

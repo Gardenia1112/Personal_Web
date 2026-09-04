@@ -35,7 +35,7 @@ const links = [
           <code class="contact-field-value">{profile.phone}</code>
           <button class="contact-copy" data-copy={profile.phone}>复制</button>
         </div>
-        <p class="contact-note">📄 简历下载：<a href="/resume.pdf" download>resume.pdf</a></p>
+        <p class="contact-note">📄 简历下载：<a href={profile.resume} download>resume.pdf</a></p>
       </section>
 
       <!-- 右页：外链 -->

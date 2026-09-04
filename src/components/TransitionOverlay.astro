@@ -19,6 +19,16 @@
   } catch (err) {
     /* localStorage 不可用，默认深色 */
   }
+  // /desktop 选择台的两条换页路径不走渐黑，各自留一个入场标记（keyframes 在 global.css）
+  try {
+    var enter = sessionStorage.getItem("lszbf:dtx");
+    if (enter === "rise" || enter === "veil") {
+      document.documentElement.dataset.enter = enter;
+      sessionStorage.removeItem("lszbf:dtx");
+    }
+  } catch (err) {
+    /* sessionStorage 不可用，目标页就没有入场动画 */
+  }
 </script>
 <script>
   import { initTransitions } from "../scripts/transition";

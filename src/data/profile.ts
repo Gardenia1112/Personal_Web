@@ -11,6 +11,7 @@ export const profile = {
   github: "https://github.com/Gardenia1112",
   gitee: "https://gitee.com/bfnya/Unity_Game2025.git",
   avatar: "/assets/brand/head.png",
+  resume: "/resume.pdf", // 简历文件；下载入口在 /about 与 /contact，不另开页面
 
   // 首页背景排版大字：铺满视口、位于 3D 工位之后形成前后空间感
   // ⚠️ 按用户要求不含真名；三行长度接近才能各自撑满一行宽度

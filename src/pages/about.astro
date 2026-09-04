@@ -1,6 +1,7 @@
 ---
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
+import { profile } from "../data/profile";
 import "../styles/global.css";
 ---
 <!doctype html>
@@ -15,6 +16,7 @@ import "../styles/global.css";
     <main id="game" class="relative w-full h-screen overflow-hidden">
       <div id="board-panel" aria-live="polite"></div>
       <a href="/" id="back-hint">ESC 返回工位</a>
+      <a class="about-resume" href={profile.resume} download>下载简历</a>
     </main>
 
     <script>

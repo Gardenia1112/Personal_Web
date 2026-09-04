@@ -1,63 +1,143 @@
 ---
+// /desktop —— 入口选择台（2026-09-04 决策：替掉拟物桌面 OS）
+// 三个图标：文件夹悬停扇出作品（触屏点一下），扇面卡片悬停出短标题，博客直接换页
+// 简历入口第三轮撤掉，改到 /about 左上角做下载链接
+// 内容全部来自 src/data/{desktop,projects,art}.ts，这里不写死文案
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
+import EntryArt from "../components/Desktop/EntryArt.astro";
 import "../styles/global.css";
-import { desktopIcons } from "../data/desktop";
+import "../styles/desktop.css";
+import { desktopEntries } from "../data/desktop";
+import { projects } from "../data/projects";
+import { artworks } from "../data/art";
+import { profile } from "../data/profile";
+
+const ART_TONE: Record<string, string> = {
+  绘画: "is-red",
+  设计: "is-amber",
+  建模: "is-azure",
+  剪辑: "is-green",
+};
+
+function shortTip(name: string) {
+  return name.split(/[：/（]/)[0].replace(/虚拟仿真实验$/, "").trim();
+}
+
+const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string }[]> = {
+  works: projects.map((p) => ({ src: p.media?.cover, tone: "is-red", alt: p.name })),
+  art: artworks.map((a) => ({ src: a.cover, tone: ART_TONE[a.category], alt: a.name })),
+};
 ---
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-page="desktop">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="赵韵婷 · 拟物桌面系统" />
-    <title>桌面 · lszbf.com</title>
+    <meta name="description" content={`${profile.name} · 项目 / 美术 / 博客三个入口`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:ital,wght@1,700&family=Great+Vibes&display=swap" rel="stylesheet" />
+    <title>入口 · lszbf.com</title>
   </head>
-  <body class="overflow-hidden">
-    <main id="os" class="os">
-      <div class="os-menubar">
-        <div class="os-menubar-left">
-          <a href="/" class="os-brand">lszbf.com</a>
-          <a href="/" class="os-menu-link">返回工位</a>
-        </div>
-        <div class="os-menubar-right">
-          <div class="os-menu">
-            <button class="os-menu-btn" id="os-menu-btn" aria-label="菜单">⚙️</button>
-            <div class="os-menu-dropdown" id="os-menu-dropdown">
-              <a href="/works">📁 作品</a>
-              <a href="/blog">📁 博客</a>
-              <a href="/about">🎮 关于我</a>
-              <a href="/awards">🏆 获奖</a>
-              <a href="/contact">📓 联系</a>
-            </div>
-          </div>
-        </div>
+  <body>
+    {/* 无字返回：回 3D 工位 */}
+    <a class="dt-home" href="/" aria-label="回工位">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+
+    <main class="dt-stage" id="dt-stage">
+      <div class="dt-welcome" aria-hidden="true">
+        <img class="dt-welcome-hero" src="/assets/desktop/welcome-balloon.png" alt="" />
       </div>
-
-      <div class="os-desktop">
-        <div class="os-icons">
-          {
-            desktopIcons.map((icon) => (
-              <div class="os-icon" data-app={icon.id}>
-                <span class:list={["os-icon-emoji", icon.folderClass]}>{icon.icon}</span>
-                <span>{icon.label}</span>
-              </div>
-            ))
-          }
-        </div>
-
-        <div class="os-sticker" id="os-sticker">
-          <span class="os-sticker-title">lszbf</span>
-          <span class="os-sticker-sub">赵韵婷 · Game Dev</span>
-        </div>
-      </div>
-
-      <div class="os-windows"></div>
+      <ul class="dt-cards" id="dt-shelf">
+        {
+          desktopEntries.map((e) => (
+            <li>
+              <button
+                class="dt-card"
+                type="button"
+                data-entry={e.id}
+                data-label={e.label}
+                data-kicker={e.kicker}
+                data-tip={e.tip}
+                aria-label={e.tip ?? e.label}
+              >
+                <EntryArt
+                  art={e.art}
+                  label={e.art !== "logo" ? e.label : undefined}
+                  thumbs={FOLDER_THUMBS[e.id]}
+                />
+                <span class="dt-card-name">{e.tip ?? e.label}</span>
+              </button>
+              {
+                e.id === "works" && (
+                  <section class="dt-pop" data-pop="works" hidden>
+                    <div class="dt-fan">
+                      {
+                        projects.slice(0, 6).map((p) => (
+                          <a
+                            class="dt-fan-item"
+                            href={`/works/${p.slug}`}
+                            data-no-transition
+                            data-rise
+                            data-tip={shortTip(p.name)}
+                            aria-label={p.name}
+                          >
+                            {p.media?.cover ? (
+                              <span class="dt-fan-thumb">
+                                <img src={p.media.cover} alt={p.name} loading="lazy" />
+                              </span>
+                            ) : (
+                              <span class="dt-fan-thumb is-blank is-red">
+                                <span>PROJECT</span>
+                              </span>
+                            )}
+                          </a>
+                        ))
+                      }
+                    </div>
+                  </section>
+                )
+              }
+              {
+                e.id === "art" && (
+                  <section class="dt-pop" data-pop="art" hidden>
+                    <div class="dt-fan">
+                      {
+                        artworks.slice(0, 6).map((a) => (
+                          <div class="dt-fan-item" data-tip={a.category} aria-label={a.name}>
+                            {a.cover ? (
+                              <span class="dt-fan-thumb">
+                                <img src={a.cover} alt={a.name} loading="lazy" />
+                              </span>
+                            ) : (
+                              <span class:list={["dt-fan-thumb", "is-blank", ART_TONE[a.category]]}>
+                                <span>{a.category}</span>
+                              </span>
+                            )}
+                          </div>
+                        ))
+                      }
+                    </div>
+                  </section>
+                )
+              }
+            </li>
+          ))
+        }
+      </ul>
     </main>
+
+    <div class="dt-card-tip" id="dt-card-tip" aria-hidden="true"></div>
+    <div class="dt-veil" id="dt-veil"></div>
 
     <script>
       import { initDesktop } from "../scripts/desktop/desktop";
-      const root = document.getElementById("os");
-      if (root) initDesktop(root);
+      const stage = document.getElementById("dt-stage");
+      if (stage) initDesktop(stage);
     </script>
     <TransitionOverlay />
     <CustomCursor />

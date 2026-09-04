@@ -1,0 +1,585 @@
+/* /desktop 选择台（2026-09-04 决策：替掉拟物桌面 OS；第二轮又去掉了全部页面文字与介绍详情页）
+   页面上只有三个鲜色图标：悬停浮出名字（跟着鼠标晃），文件夹悬停扇出作品。
+   色值全部取 global.css @theme 的 token；这份只在 desktop.astro 里引，且在 global.css 之后引 —— 靠层叠顺序压掉全站的深色 body */
+
+html[data-page="desktop"] body {
+  min-height: 100vh;
+  background: #ffffff;
+  color: var(--color-ink);
+  transition: none;
+  overflow: hidden;
+}
+
+html[data-page="desktop"] #cursor {
+  --cursor-core: var(--color-ink);
+  --cursor-glow: rgba(47, 134, 255, 0.4);
+  mix-blend-mode: normal;
+}
+
+/* 背景标题：气球字铺在三个图标上方的中心红框区域 */
+.dt-welcome {
+  position: absolute;
+  left: 50%;
+  top: 7vh;
+  z-index: 0;
+  width: min(96vw, 1360px);
+  height: calc(100vh - 8vh - 250px - 5vh);
+  translate: -50% 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  overflow: visible;
+}
+.dt-welcome-hero {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.72;
+  filter: brightness(1.38) saturate(0.42);
+}
+
+/* ── 唯一的导航元素：无字返回箭头（回 3D 工位）── */
+.dt-home {
+  position: fixed;
+  top: clamp(18px, 3vw, 32px);
+  left: clamp(18px, 3vw, 32px);
+  z-index: 30;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--color-ink);
+  border: 1.5px solid rgba(29, 33, 38, 0.16);
+  transition: background 0.24s ease, border-color 0.24s ease, transform 0.24s ease;
+}
+.dt-home svg {
+  width: 22px;
+  height: 22px;
+}
+.dt-home:hover {
+  transform: translateX(-3px);
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #ffffff;
+}
+
+/* ── 舞台：上半标题、下半三个图标，均分上下两半 ── */
+.dt-stage {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  min-height: 100vh;
+  max-height: 100vh;
+  overflow: visible;
+  box-sizing: border-box;
+}
+.dt-stage.is-fanned .dt-card:not(.is-open) {
+  opacity: 0.28;
+}
+@media (pointer: coarse) {
+  .dt-stage.is-fanned .dt-card:not(.is-open) {
+    pointer-events: none;
+  }
+}
+.dt-card.is-open {
+  z-index: 15;
+}
+
+/* ── 第 0 层：三个图标（没有白底卡片，也没有任何静态文字）── */
+.dt-cards {
+  position: absolute;
+  left: 50%;
+  bottom: 8vh;
+  z-index: 1;
+  translate: -50% 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: min(1280px, 94vw);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(44px, 6vw, 96px);
+  align-items: end;
+  justify-items: center;
+}
+.dt-card {
+  width: min(100%, 300px);
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  perspective: 900px;
+  perspective-origin: 50% 42%;
+  transition: transform 0.34s cubic-bezier(0.16, 0.84, 0.3, 1);
+}
+.dt-cards > li {
+  position: relative;
+  overflow: visible;
+  width: 100%;
+  max-width: 300px;
+  animation: dt-breathe 3.8s ease-in-out infinite;
+}
+.dt-cards > li:nth-child(2) {
+  animation-delay: -1.25s;
+}
+.dt-cards > li:nth-child(3) {
+  animation-delay: -2.5s;
+}
+.dt-cards > li:has(.is-open) {
+  z-index: 16;
+}
+@keyframes dt-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.dt-card:hover,
+.dt-card:focus-visible {
+  transform: translateY(-12px) scale(1.04);
+  outline: none;
+}
+/* 文件夹悬停不抬起，避免扇出原点跟着变、卡片时远时近 */
+.dt-card:has(.dt-folder):hover,
+.dt-card:has(.dt-folder):focus-visible {
+  transform: none;
+}
+/* ⚠️ 这里千万别加 filter（drop-shadow 之类）：filter 会让 3D 子层被压平成一张贴纸，
+   投影改用 .dt-ground 那片模糊椭圆 */
+/* 名字平时不在页面上，只有触屏（没有悬停可用）时才显示 */
+.dt-card-name {
+  display: none;
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+@media (pointer: coarse) {
+  .dt-card-name {
+    display: block;
+  }
+}
+/* ── 四个图标：CSS 3D 分层实体 ──
+   每个物件由若干张平面用 translateZ 拉开距离拼成，父级 preserve-3d；
+   desktop.ts 按鼠标位置转 .dt-depth 的 rotateX/rotateY，所以是真前后关系，不是画出来的假阴影。
+   ⚠️ 这几层的任何祖先都不能加 filter 或 overflow!=visible，会把 3D 压平 */
+.dt-art {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  transform-style: preserve-3d;
+}
+.dt-depth {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+/* 落在「桌面」上的投影，物件抬起来时摊大变淡。
+   ⚠️ 用 radial-gradient 而不是 filter: blur —— 带 filter 的元素会被排除在 3D 排序之外、
+   改按 DOM 顺序压到最上层，会在袋身上显出一道斜折痕 */
+.dt-ground {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -18%;
+  height: 26%;
+  transform: translateZ(-30px);
+  pointer-events: none;
+  background: radial-gradient(
+    75% 55% at 50% 42%,
+    rgba(70, 88, 112, 0.32) 0%,
+    rgba(90, 104, 126, 0.14) 46%,
+    rgba(120, 130, 145, 0) 74%
+  );
+  animation: dt-breathe-shadow 3.8s ease-in-out infinite;
+}
+.dt-cards > li:nth-child(2) .dt-ground {
+  animation-delay: -1.25s;
+}
+.dt-cards > li:nth-child(3) .dt-ground {
+  animation-delay: -2.5s;
+}
+@keyframes dt-breathe-shadow {
+  0%,
+  100% {
+    transform: translateZ(-30px) translateY(0) scale(0.92, 1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateZ(-30px) translateY(8px) scale(1.28, 0.72);
+    opacity: 0.42;
+  }
+}
+
+/* 文件夹跟图一：经典带签、正面平视；前袋磨砂，左下印小字 */
+.dt-card:has(.dt-folder) {
+  perspective: none;
+}
+.dt-folder .dt-depth {
+  transform: none !important;
+  transform-style: flat;
+}
+.dt-folder-back,
+.dt-folder-pocket {
+  position: absolute;
+}
+.dt-folder-back {
+  left: 10%;
+  right: 10%;
+  top: 18%;
+  bottom: 10%;
+  z-index: 1;
+  border-radius: 6px 20px 20px 20px;
+  background: rgba(96, 168, 240, 0.52);
+  backdrop-filter: blur(18px) saturate(1.2);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+.dt-folder.is-amber .dt-folder-back {
+  background: rgba(150, 205, 250, 0.46);
+}
+.dt-folder-back::before {
+  content: "";
+  position: absolute;
+  top: -17%;
+  left: 0;
+  width: 38%;
+  height: 22%;
+  border-radius: 14px 16px 0 0;
+  background: inherit;
+}
+.dt-folder-pocket {
+  left: 10%;
+  right: 10%;
+  top: 28%;
+  bottom: 10%;
+  z-index: 3;
+  border-radius: 18px;
+  background: rgba(130, 190, 245, 0.42);
+  backdrop-filter: blur(22px) saturate(1.3);
+  -webkit-backdrop-filter: blur(22px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -24px 32px rgba(90, 160, 220, 0.1);
+}
+.dt-folder.is-amber .dt-folder-pocket {
+  background: rgba(175, 220, 255, 0.4);
+}
+/* 作品纸一开始就前后叠在袋里，上沿从袋口探出来；悬停飞出后靠 .is-open 让位 */
+.dt-folder-sheet {
+  position: absolute;
+  z-index: 2;
+  left: calc(24% + var(--i) * 8%);
+  top: 7%;
+  width: 32%;
+  height: 50%;
+  border-radius: 3px;
+  overflow: hidden;
+  transform-origin: 50% 100%;
+  rotate: calc(-9deg + var(--i) * 6deg);
+  background: #fff;
+  padding: 3px 3px 8px;
+  box-sizing: border-box;
+  box-shadow: 0 2px 6px rgba(29, 33, 38, 0.12);
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.dt-folder-sheet img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.dt-folder-sheet.is-red {
+  background: var(--color-pop-red);
+}
+.dt-folder-sheet.is-amber {
+  background: var(--color-pop-amber);
+}
+.dt-folder-sheet.is-azure {
+  background: var(--color-pop-azure);
+}
+.dt-folder-sheet.is-green {
+  background: var(--color-pop-green);
+}
+.dt-card.is-open .dt-folder-sheet {
+  opacity: 0;
+}
+.dt-folder-mark {
+  position: absolute;
+  left: 12%;
+  bottom: 14%;
+  max-width: 70%;
+  color: #ffffff;
+  font-size: clamp(11px, 1.3vw, 15px);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-align: left;
+  pointer-events: none;
+  text-shadow: 0 1px 10px rgba(80, 140, 200, 0.35);
+}
+
+/* 项目文件夹：曲别针夹在袋口右上，笔从袋口里探出来 */
+.dt-deco-clip {
+  position: absolute;
+  top: -18%;
+  right: 14%;
+  width: 18%;
+  z-index: 5;
+  color: #9aa3ad;
+  filter: drop-shadow(0 1px 1px rgba(29, 33, 38, 0.25));
+  pointer-events: none;
+}
+.dt-deco-clip svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  rotate: 18deg;
+}
+.dt-deco-pen {
+  position: absolute;
+  left: 22%;
+  top: 8%;
+  z-index: 2;
+  width: 7%;
+  height: 38%;
+  border-radius: 4px 4px 2px 2px;
+  background: linear-gradient(180deg, #f2d27a 0%, #c9a227 18%, #1d2126 19%, #2c333c 72%, #ef4a35 88%, #f5f1e8 100%);
+  rotate: -18deg;
+  box-shadow: 1px 2px 4px rgba(29, 33, 38, 0.2);
+  pointer-events: none;
+}
+.dt-deco-pen::before {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 8%;
+  height: 10%;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* 美术文件夹：爱心条 + FIGHTING 椭圆，当贴纸贴在袋面上 */
+.dt-sticker {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+}
+.dt-sticker-hearts {
+  top: 10%;
+  right: 8%;
+  width: 42%;
+  rotate: 8deg;
+  filter: drop-shadow(0 1px 1px rgba(29, 33, 38, 0.18));
+}
+.dt-sticker-hearts svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.dt-sticker-fight {
+  right: 10%;
+  bottom: 18%;
+  width: 34%;
+  aspect-ratio: 1.45;
+  display: grid;
+  place-content: center;
+  gap: 0;
+  border-radius: 50%;
+  background: #c5e4f5;
+  color: #1e3a6e;
+  font-size: clamp(7px, 0.85vw, 11px);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 0.95;
+  text-align: center;
+  rotate: -12deg;
+  box-shadow: 0 2px 4px rgba(29, 33, 38, 0.16);
+}
+.dt-sticker-fight span {
+  display: block;
+}
+.dt-folder.is-red {
+  --dt-tone: #3b82f6;
+}
+.dt-folder.is-amber {
+  --dt-tone: #7eb6f7;
+}
+
+/* 博客 Logo：蓝白渐变圆角方片 + 白色 Z */
+.dt-card:has(.dt-logo) {
+  perspective: none;
+}
+.dt-logo {
+  container-type: inline-size;
+  transform-style: flat;
+}
+.dt-logo-face {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 22%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0;
+  background: rgba(155, 210, 250, 0.48);
+  backdrop-filter: blur(22px) saturate(1.25);
+  -webkit-backdrop-filter: blur(22px) saturate(1.25);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  color: #ffffff;
+}
+.dt-logo-z,
+.dt-logo-blog {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 0.86;
+}
+.dt-logo-z {
+  font-size: 34cqi;
+}
+.dt-logo-blog {
+  font-size: 12cqi;
+  line-height: 1;
+  margin-top: 0.02em;
+}
+
+/* 扇面卡片：跟文件夹绑在同一格里，避免视口坐标漂移 */
+.dt-pop[hidden] {
+  display: none;
+}
+.dt-pop {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  overflow: visible;
+  pointer-events: none;
+}
+.dt-fan {
+  display: contents;
+}
+.dt-fan-item {
+  display: block;
+  overflow: visible;
+  text-decoration: none;
+  color: inherit;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.dt-fan-thumb {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  height: auto;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--dt-tone, var(--color-pop-azure));
+  box-shadow: 0 10px 22px rgba(29, 33, 38, 0.16);
+  transition: box-shadow 0.4s ease;
+}
+.dt-fan-item.is-front .dt-fan-thumb {
+  box-shadow:
+    0 22px 36px rgba(29, 33, 38, 0.26),
+    0 6px 14px rgba(47, 134, 255, 0.12);
+}
+.dt-fan-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* 没有缩略图的条目（美术素材要等 Phase 7 才落 public/assets）用鲜色块 + 分类字占位 */
+.dt-fan-thumb.is-blank {
+  display: grid;
+  place-items: center;
+}
+.dt-fan-thumb.is-blank span {
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.95);
+}
+.dt-fan-thumb.is-red {
+  --dt-tone: var(--color-pop-red);
+}
+.dt-fan-thumb.is-amber {
+  --dt-tone: var(--color-pop-amber);
+}
+.dt-fan-thumb.is-azure {
+  --dt-tone: var(--color-pop-azure);
+}
+.dt-fan-thumb.is-green {
+  --dt-tone: var(--color-pop-green);
+}
+
+/* 扇面悬停标签：浅灰矩形 + 右下三角（不跟卡片一起旋转，所以用 fixed） */
+.dt-card-tip {
+  position: fixed;
+  z-index: 70;
+  left: 0;
+  top: 0;
+  padding: 8px 14px;
+  background: #e8e8e8;
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.dt-card-tip.is-on {
+  opacity: 1;
+  visibility: visible;
+}
+.dt-card-tip::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 100%;
+  border: 6px solid transparent;
+  border-top-color: #e8e8e8;
+}
+
+/* 换页离场时铺一层色（博客那条路径用，跟 Logo 同色） */
+.dt-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: #3b82f6;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dt-cards > li,
+  .dt-ground {
+    animation: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .dt-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(18px, 5vw, 36px);
+  }
+}

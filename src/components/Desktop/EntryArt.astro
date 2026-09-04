@@ -1,0 +1,86 @@
+---
+// /desktop 三个入口的图标。文件夹跟图一：经典带签、正面平视，袋面小字标明是哪一只。
+import type { DesktopEntry } from "../../data/desktop";
+
+export interface EntryThumb {
+  src?: string;
+  tone?: string;
+  alt?: string;
+}
+
+interface Props {
+  art: DesktopEntry["art"];
+  label?: string;
+  thumbs?: EntryThumb[];
+}
+const { art, label = "", thumbs = [] } = Astro.props;
+const isFolder = art === "folder-red" || art === "folder-amber";
+const sheets = thumbs.slice(0, 4);
+
+const heart =
+  "M10 20.4S3.2 16 1.2 11.4C-.4 7.2 1.6 3 6 3c2.1 0 3.5 1.3 4 2.8C10.5 4.3 11.9 3 14 3c4.4 0 6.4 4.2 4.8 8.4C16.8 16 10 20.4 10 20.4z";
+---
+{
+  isFolder ? (
+    <span class:list={["dt-art", "dt-folder", art === "folder-red" ? "is-red" : "is-amber"]}>
+      <span class="dt-ground" />
+      <span class="dt-depth">
+        <span class="dt-folder-back" />
+        {
+          sheets.map((t, i) => (
+            <span
+              class:list={["dt-folder-sheet", !t.src && t.tone]}
+              style={`--i: ${i}`}
+              aria-hidden="true"
+            >
+              {t.src ? <img src={t.src} alt="" /> : null}
+            </span>
+          ))
+        }
+        {art === "folder-red" && <span class="dt-deco-pen" aria-hidden="true" />}
+        <span class="dt-folder-pocket">
+          {label && <span class="dt-folder-mark">{label}</span>}
+          {
+            art === "folder-red" && (
+              <span class="dt-deco-clip" aria-hidden="true">
+                <svg viewBox="0 0 32 48" fill="none">
+                  <path
+                    d="M10 16v18a6 6 0 0 0 12 0V12a4.5 4.5 0 0 0-9 0v20a2.5 2.5 0 0 0 5 0V16"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </span>
+            )
+          }
+          {
+            art === "folder-amber" && (
+              <>
+                <span class="dt-sticker dt-sticker-hearts" aria-hidden="true">
+                  <svg viewBox="0 0 64 22" fill="#1e3a6e" stroke="#fff" stroke-width="2.2" stroke-linejoin="round">
+                    <path d={heart} transform="translate(0 0)" />
+                    <path d={heart} transform="translate(22 0)" />
+                    <path d={heart} transform="translate(44 0)" />
+                  </svg>
+                </span>
+                <span class="dt-sticker dt-sticker-fight" aria-hidden="true">
+                  <span>FIGH</span>
+                  <span>TING</span>
+                </span>
+              </>
+            )
+          }
+        </span>
+      </span>
+    </span>
+  ) : (
+    <span class="dt-art dt-logo">
+      <span class="dt-ground" />
+      <span class="dt-logo-face">
+        <span class="dt-logo-z">Z</span>
+        <span class="dt-logo-blog">blog</span>
+      </span>
+    </span>
+  )
+}
