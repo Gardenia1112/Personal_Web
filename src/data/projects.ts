@@ -18,6 +18,8 @@ export interface Project {
   result: string;
   links: { label: string; url: string }[];
   status: "done" | "todo";
+  /** 目录进详情：expand = 先胀缩略图，落地再整页（封面+纸底）滑入后出字；slide = 不胀，整页一起滑入 */
+  enter?: "expand" | "slide";
   media?: {
     cover?: string; // 封面
     arch?: string; // 架构图
@@ -42,6 +44,7 @@ export const projects: Project[] = [
     result: "平均帧率 35→60FPS、内存峰值 −18%；核心战斗与架构框架完善可扩展。",
     links: [{ label: "Gitee 源码", url: "https://gitee.com/bfnya/Unity_Game2025.git" }],
     status: "done",
+    enter: "expand",
     media: {
       cover: "/assets/projects/01-cover.png",
       arch: "/assets/projects/01-arch.png",
@@ -67,6 +70,7 @@ export const projects: Project[] = [
       "累计营收 2.7 万元；获 2 项国家软件著作权（2025SR0979528、2025SR2140826）。",
     links: [],
     status: "done",
+    enter: "expand",
     media: {
       cover: "/assets/projects/03-cover.png",
     },

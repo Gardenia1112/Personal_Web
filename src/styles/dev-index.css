@@ -1,7 +1,9 @@
-/* 桌面红文件夹 · 开发案例条。只用 --color-sheet*，不改桌面 --color-paper / --color-ink */
+/* 桌面红文件夹 · 开发案例条。Trevor 字阶 + REF 编号，只用 --color-sheet* */
 
 .wx {
   padding: 8px 0 64px;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .wx-list {
@@ -12,15 +14,17 @@
 .wx-row {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(120px, 22vw);
+  grid-template-columns: minmax(0, 1fr) minmax(160px, 34%);
   align-items: end;
-  gap: 24px;
-  min-height: 28vh;
-  padding: 36px clamp(24px, 5vw, 72px) 28px;
+  gap: clamp(16px, 2.4vw, 32px);
+  min-height: 34vh;
+  padding: 44px clamp(24px, 5vw, 72px) 32px;
   border-top: 1px solid color-mix(in srgb, var(--color-sheet-ink) 12%, transparent);
   text-decoration: none;
   color: inherit;
   overflow: hidden;
+  box-sizing: border-box;
+  max-width: 100%;
   transition: transform 0.35s ease;
 }
 
@@ -30,27 +34,27 @@
 
 .wx-row:hover,
 .wx-row.is-hot {
-  transform: translateX(16px);
+  transform: translateX(12px);
 }
 
 .wx-num {
   position: absolute;
   left: clamp(16px, 4vw, 56px);
-  bottom: -0.18em;
+  bottom: -0.22em;
   z-index: 0;
-  font-size: clamp(88px, 16vw, 180px);
+  font-size: clamp(80px, 14vw, 160px);
   font-weight: 800;
-  line-height: 0.8;
-  letter-spacing: -0.06em;
+  line-height: 0.75;
+  letter-spacing: -0.07em;
   color: var(--color-sheet-blue);
-  opacity: 0.22;
+  opacity: 0.2;
   pointer-events: none;
   transition: opacity 0.35s ease, color 0.35s ease;
 }
 
 .wx-row:hover .wx-num,
 .wx-row.is-hot .wx-num {
-  opacity: 0.55;
+  opacity: 0.42;
   color: var(--color-sheet-blue-deep);
 }
 
@@ -62,15 +66,15 @@
 
 .wx-title {
   margin: 0;
-  font-size: clamp(28px, 4.4vw, 52px);
+  font-size: clamp(2rem, 5vw, 4rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
   color: var(--color-sheet-ink);
 }
 
 .wx-lede {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   max-width: 46ch;
   font-size: 15px;
   line-height: 1.7;
@@ -103,16 +107,24 @@
   background: color-mix(in srgb, var(--color-sheet-blue) 16%, white);
 }
 
-.wx-thumb img {
+.wx-thumb img,
+.wx-ph {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transform: translateX(14%);
+  transition: transform 0.5s cubic-bezier(0.16, 0.84, 0.3, 1);
+}
+
+.wx-row:hover .wx-thumb img,
+.wx-row:hover .wx-ph,
+.wx-row.is-hot .wx-thumb img,
+.wx-row.is-hot .wx-ph {
+  transform: translateX(0);
 }
 
 .wx-ph {
-  width: 100%;
-  height: 100%;
   background: color-mix(in srgb, var(--color-sheet-blue) 22%, var(--color-sheet));
 }
 
@@ -124,22 +136,29 @@
   }
 
   .wx-num {
-    font-size: 72px;
+    font-size: 80px;
   }
 
   .wx-thumb {
-    max-width: 220px;
+    max-width: 280px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .wx-row,
-  .wx-num {
+  .wx-num,
+  .wx-thumb img,
+  .wx-ph {
     transition: none;
   }
 
   .wx-row:hover,
   .wx-row.is-hot {
+    transform: none;
+  }
+
+  .wx-thumb img,
+  .wx-ph {
     transform: none;
   }
 }

@@ -1,4 +1,4 @@
-// 桌面红文件夹：键盘高亮；确认 / 点击走当前页胀开再进详情
+// 桌面红文件夹：键盘高亮；滚轮时用坐标找行，避免 hover 丢；点击走 ThumbFull
 import { bindThumbFullLinks, expandThenGo } from "../thumbfull";
 
 export function initDevIndex(root: HTMLElement) {
@@ -7,6 +7,8 @@ export function initDevIndex(root: HTMLElement) {
 
   let index = 0;
   let armed = false;
+  let pointerX = 0;
+  let pointerY = 0;
 
   function live() {
     const layer = root.closest<HTMLElement>("[data-folder-layer]");
@@ -14,9 +16,9 @@ export function initDevIndex(root: HTMLElement) {
     return Boolean(layer && !layer.hidden && view && !view.hidden);
   }
 
-  function paint() {
+  function paint(opts: { scroll?: boolean } = {}) {
     rows.forEach((row, i) => row.classList.toggle("is-hot", armed && i === index));
-    if (armed) rows[index]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    if (opts.scroll && armed) rows[index]?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
   function move(delta: number) {
@@ -26,12 +28,23 @@ export function initDevIndex(root: HTMLElement) {
     } else {
       index = (index + delta + rows.length) % rows.length;
     }
-    paint();
+    paint({ scroll: true });
   }
 
   function go(row = rows[armed ? index : 0]) {
     if (!row) return;
     expandThenGo(row);
+  }
+
+  function hotFromPoint(x: number, y: number) {
+    if (!live()) return;
+    const hit = document.elementFromPoint(x, y)?.closest<HTMLAnchorElement>("[data-wx-row]");
+    if (!hit) return;
+    const i = rows.indexOf(hit);
+    if (i < 0 || (armed && i === index)) return;
+    armed = true;
+    index = i;
+    paint();
   }
 
   window.addEventListener("keydown", (e) => {
@@ -52,13 +65,25 @@ export function initDevIndex(root: HTMLElement) {
     }
   });
 
-  rows.forEach((row, i) => {
-    row.addEventListener("mouseenter", () => {
-      armed = true;
-      index = i;
-      paint();
-    });
-  });
+  window.addEventListener(
+    "pointermove",
+    (e) => {
+      if (!live() || e.pointerType === "touch") return;
+      pointerX = e.clientX;
+      pointerY = e.clientY;
+      hotFromPoint(pointerX, pointerY);
+    },
+    { passive: true }
+  );
+
+  const scroller = root.closest<HTMLElement>("[data-folder-layer]") ?? root;
+  function onScrollTrack() {
+    if (!live()) return;
+    hotFromPoint(pointerX, pointerY);
+    requestAnimationFrame(() => hotFromPoint(pointerX, pointerY));
+  }
+  scroller.addEventListener("wheel", onScrollTrack, { passive: true });
+  scroller.addEventListener("scroll", onScrollTrack, { passive: true });
 
   bindThumbFullLinks(root);
 }

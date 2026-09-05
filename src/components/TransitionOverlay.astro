@@ -20,9 +20,15 @@
     /* localStorage 不可用，默认深色 */
   }
   // /desktop 选择台的两条换页路径不走渐黑，各自留一个入场标记（keyframes 在 global.css）
+  // 文件夹目录的 ThumbFull 与扇叶 rise 互斥：有 thumbfull 就不再套 data-enter
   try {
+    var fromFolder = Boolean(sessionStorage.getItem("lszbf:thumbfull"));
+    var backFolder = sessionStorage.getItem("lszbf:folder");
     var enter = sessionStorage.getItem("lszbf:dtx");
-    if (enter === "rise" || enter === "veil" || enter === "fall") {
+    if (fromFolder || backFolder === "dev" || backFolder === "art" || backFolder === "awards") {
+      sessionStorage.removeItem("lszbf:dtx");
+      document.documentElement.removeAttribute("data-enter");
+    } else if (enter === "rise" || enter === "veil" || enter === "fall") {
       document.documentElement.dataset.enter = enter;
       sessionStorage.removeItem("lszbf:dtx");
     }

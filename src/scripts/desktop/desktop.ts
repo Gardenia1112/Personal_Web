@@ -260,6 +260,8 @@ export function initDesktop(stage: HTMLElement) {
 
   function leaveTo(href: string, kind: "rise" | "veil") {
     try {
+      sessionStorage.removeItem("lszbf:thumbfull");
+      sessionStorage.removeItem("lszbf:folder");
       sessionStorage.setItem(ENTER_FLAG, kind);
     } catch {
       /* 隐私模式：目标页没有入场动画 */
@@ -268,7 +270,12 @@ export function initDesktop(stage: HTMLElement) {
       window.location.href = href;
       return;
     }
-    const go = () => (window.location.href = href);
+    let gone = false;
+    const go = () => {
+      if (gone) return;
+      gone = true;
+      window.location.href = href;
+    };
     const tl = gsap.timeline({ onComplete: go });
     if (kind === "rise") {
       tl.to(stage, { y: "-14vh", opacity: 0, duration: 0.42, ease: "power2.in" }, 0);
@@ -276,7 +283,7 @@ export function initDesktop(stage: HTMLElement) {
       tl.to(stage, { scale: 0.96, opacity: 0.25, duration: 0.3, ease: "power2.in" }, 0);
       if (veil) tl.to(veil, { autoAlpha: 1, duration: 0.34, ease: "power2.out" }, 0.04);
     }
-    window.setTimeout(go, 900);
+    window.setTimeout(go, kind === "rise" ? 440 : 400);
   }
 
   function bindHoverZone(el: HTMLElement, id: string) {
@@ -395,6 +402,7 @@ export function initDesktop(stage: HTMLElement) {
     a.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
+      if (getCurrentFolder()) return;
       leaveTo(a.getAttribute("href")!, "rise");
     });
   });

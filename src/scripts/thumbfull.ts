@@ -10,8 +10,17 @@ function reducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function clearDeskEnter() {
+  try {
+    sessionStorage.removeItem("lszbf:dtx");
+  } catch {
+    /* ignore */
+  }
+}
+
 export function writeThumbFull(data: ThumbFullPayload) {
   try {
+    clearDeskEnter();
     sessionStorage.setItem(THUMB_KEY, JSON.stringify(data));
   } catch {
     /* 隐私模式：详情页按直链落地 */
@@ -63,24 +72,76 @@ function coverSrc(row: HTMLAnchorElement) {
 function destSize(row: HTMLAnchorElement) {
   const artCard = row.classList.contains("ag-item");
   return {
-    w: window.innerWidth,
+    w: document.documentElement.clientWidth,
     h: artCard ? window.innerHeight : Math.min(window.innerHeight * 0.72, 820),
   };
 }
 
-function goSlide(href: string, slug: string) {
-  writeThumbFull({ slug, src: "", expanded: false });
+function safeCoverSrc(src: string) {
+  if (!src.startsWith("/") || src.startsWith("//")) return "";
+  return src.replace(/["')\\\s]/g, "");
+}
+
+function wantsExpand(row: HTMLAnchorElement) {
+  return row.dataset.wxEnter === "expand";
+}
+
+function paintSheet() {
+  const root = document.documentElement;
+  root.style.backgroundColor = "#f0f8ff";
+  if (document.body) {
+    document.body.style.transition = "none";
+    document.body.style.background = "#f0f8ff";
+  }
+}
+
+/** 胀开终点垫在 html 上，换页时封面不动，蓝底留给落地再渐显 */
+function paintCoverHold(src: string) {
+  const clean = safeCoverSrc(src);
+  if (!clean) return;
+  const root = document.documentElement;
+  root.style.backgroundColor = "transparent";
+  root.style.backgroundImage = `url("${clean}")`;
+  root.style.backgroundRepeat = "no-repeat";
+  root.style.backgroundPosition = "top left";
+  root.style.backgroundSize = "100vw min(72vh, 820px)";
+  if (document.body) {
+    document.body.style.transition = "none";
+    document.body.style.background = "transparent";
+  }
+}
+
+function goNow(href: string, cover?: string) {
+  if (cover) paintCoverHold(cover);
+  else paintSheet();
   window.location.href = href;
 }
 
-/** 当前页：有封面则缩略图胀到 hero 尺寸再跳；缺封面 / 占位框走 slide-in */
+function rememberFolderFrom(row: HTMLElement) {
+  const view = row.closest<HTMLElement>("[data-folder-view]");
+  const id = view?.dataset.folderView;
+  try {
+    if (id === "dev" || id === "art") sessionStorage.setItem("lszbf:folder", id);
+    else sessionStorage.removeItem("lszbf:folder");
+  } catch {
+    /* ignore */
+  }
+}
+
+function goSlide(href: string, slug: string) {
+  writeThumbFull({ slug, src: "", expanded: false });
+  goNow(href);
+}
+
+/** 尸潮 / 不绘鸽：目录里胀开；智联 / 气垫：直接滑入详情 */
 export function expandThenGo(row: HTMLAnchorElement) {
   const href = row.getAttribute("href");
   if (!href) return;
+  rememberFolderFrom(row);
   const slug = slugFromHref(href);
   const src = coverSrc(row);
 
-  if (!src || reducedMotion()) {
+  if (!wantsExpand(row) || !src || reducedMotion()) {
     goSlide(href, slug);
     return;
   }
@@ -98,7 +159,8 @@ export function expandThenGo(row: HTMLAnchorElement) {
     return;
   }
 
-  const { w: destW, h: destH } = destSize(row);
+  const destW = window.innerWidth;
+  const destH = destSize(row).h;
   const sx = start.width / destW;
   const sy = start.height / destH;
   const from = `translate(${start.left}px, ${start.top}px) scale(${sx}, ${sy})`;
@@ -112,14 +174,14 @@ export function expandThenGo(row: HTMLAnchorElement) {
   document.documentElement.classList.add("is-thumbfull-leaving");
 
   thumb.classList.add("thumbfull-fly");
-  thumb.style.width = `${destW}px`;
-  thumb.style.height = `${destH}px`;
+  thumb.style.width = "100vw";
+  thumb.style.height = "min(72vh, 820px)";
   thumb.style.transform = from;
   document.body.appendChild(thumb);
 
   media.classList.add("thumbfull-fly-media");
-  media.style.width = `${destW}px`;
-  media.style.height = `${destH}px`;
+  media.style.width = "100%";
+  media.style.height = "100%";
   media.style.transform = `scale(${1 / sx}, ${1 / sy})`;
 
   const motion: KeyframeAnimationOptions = {
@@ -130,10 +192,7 @@ export function expandThenGo(row: HTMLAnchorElement) {
   const anim = thumb.animate([{ transform: from }, { transform: "translate(0, 0) scale(1, 1)" }], motion);
   media.animate([{ transform: `scale(${1 / sx}, ${1 / sy})` }, { transform: "scale(1, 1)" }], motion);
 
-  const go = () => {
-    window.location.href = href;
-  };
-  anim.finished.then(go).catch(go);
+  anim.finished.catch(() => undefined).then(() => goNow(href, src));
 }
 
 export function bindThumbFullLinks(root: HTMLElement) {
@@ -154,45 +213,89 @@ function slideRoot() {
   );
 }
 
-/** 详情 / 展示页：胀开已在上一页播完则只淡入文案；缺封面则整页 slide-in */
+function dropHold() {
+  const root = document.documentElement;
+  root.classList.remove("is-thumbfull-hold");
+  root.style.backgroundImage = "";
+  root.style.backgroundSize = "";
+  root.style.backgroundRepeat = "";
+  root.style.backgroundPosition = "";
+  root.style.backgroundColor = "";
+  if (document.body) {
+    document.body.style.background = "";
+    document.body.style.transition = "";
+  }
+  document.getElementById("thumbfull-hold-style")?.remove();
+  document.getElementById("thumbfull-hold")?.remove();
+  document.getElementById("thumbfull-vt")?.remove();
+}
+
+function slideIn(el: HTMLElement, distance = 36) {
+  return el.animate(
+    [
+      { transform: `translateY(${distance}px)`, opacity: 0 },
+      { transform: "none", opacity: 1 },
+    ],
+    { duration: 560, easing: "cubic-bezier(0.16, 0.84, 0.3, 1)", fill: "forwards" }
+  );
+}
+
+function fadeCopy(nodes: HTMLElement[]) {
+  nodes.forEach((el) => {
+    el.style.opacity = "0";
+    el.animate(
+      [
+        { transform: "translateY(16px)", opacity: 0 },
+        { transform: "none", opacity: 1 },
+      ],
+      { duration: 480, easing: "ease-out", fill: "forwards" }
+    );
+  });
+}
+
+/** 详情页：胀开项 = 封面+纸底一起滑入再出字；其余整页滑入 */
 export function arriveThumbFull(slug: string, copy?: HTMLElement | null) {
   const data = readThumbFull();
   const root = document.documentElement;
   const match = Boolean(data && data.slug === slug);
 
-  if (!match || reducedMotion()) {
-    root.classList.remove("is-thumbfull", "is-thumbfull-arrive", "is-thumbfull-slide");
+  const fanRise = root.dataset.enter === "rise" || root.dataset.enter === "veil";
+  if (fanRise || !match || reducedMotion()) {
+    root.classList.remove("is-thumbfull", "is-thumbfull-arrive", "is-thumbfull-slide", "is-thumbfull-hold");
+    dropHold();
     clearThumbFull();
     return;
   }
 
-  if (data?.expanded && copy) {
-    root.classList.remove("is-thumbfull", "is-thumbfull-slide", "is-thumbfull-arrive");
-    copy.animate(
-      [
-        { transform: "translateY(20px)", opacity: 0 },
-        { transform: "none", opacity: 1 },
-      ],
-      { duration: 560, easing: "ease-out", fill: "forwards" }
+  const page = slideRoot();
+
+  if (data?.expanded) {
+    const extras = Array.from(document.querySelectorAll<HTMLElement>(".pd-body, .sheet-home"));
+    const nodes = [copy, ...extras].filter((el): el is HTMLElement => Boolean(el));
+    nodes.forEach((el) => {
+      el.style.opacity = "0";
+    });
+    const sheet = document.body.animate(
+      [{ backgroundColor: "rgba(240, 248, 255, 0)" }, { backgroundColor: "#f0f8ff" }],
+      { duration: 480, easing: "ease-out", fill: "forwards" }
     );
-  } else if (!data?.expanded) {
+    fadeCopy(nodes);
+    const done = () => {
+      dropHold();
+      root.classList.remove("is-thumbfull", "is-thumbfull-arrive", "is-thumbfull-slide");
+    };
+    sheet.finished.then(done).catch(done);
+  } else if (!data?.expanded && page) {
     root.classList.remove("is-thumbfull", "is-thumbfull-arrive");
-    const page = slideRoot();
-    if (page) {
-      const anim = page.animate(
-        [
-          { transform: "translateY(30px)", opacity: 0 },
-          { transform: "none", opacity: 1 },
-        ],
-        { duration: 480, easing: "ease-out", fill: "forwards" }
-      );
-      const done = () => root.classList.remove("is-thumbfull-slide");
-      anim.finished.then(done).catch(done);
-    } else {
+    const anim = slideIn(page, 30);
+    const done = () => {
+      dropHold();
       root.classList.remove("is-thumbfull-slide");
-    }
+    };
+    anim.finished.then(done).catch(done);
   } else {
     root.classList.remove("is-thumbfull", "is-thumbfull-arrive", "is-thumbfull-slide");
+    dropHold();
   }
 
   clearThumbFull();

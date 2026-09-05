@@ -14,7 +14,9 @@
 .thumbfull-fly-media {
   display: block;
   object-fit: cover;
+  object-position: center;
   transform-origin: 0 0;
+  transition: none;
 }
 
 .wx-ph.thumbfull-fly-media {
@@ -38,20 +40,48 @@ html.is-thumbfull-leaving .wx-row.is-expanding .wx-num {
   pointer-events: none;
 }
 
+html.is-thumbfull-slide body > article {
+  opacity: 0;
+}
+
+html.is-thumbfull-arrive[data-enter] body > article,
+html.is-thumbfull-slide[data-enter] body > article,
+html.is-thumbfull-arrive[data-enter] body > main,
+html.is-thumbfull-slide[data-enter] body > main {
+  animation: none;
+}
+
+html.is-thumbfull-arrive,
+html.is-thumbfull-arrive body {
+  background-color: transparent;
+}
+
+html.is-thumbfull-arrive .pd-hero-media {
+  background: transparent;
+  width: 100vw;
+  height: min(72vh, 820px);
+  margin-left: 0;
+}
+
 html.is-thumbfull-arrive .pd-hero-copy,
+html.is-thumbfull-arrive .pd-body,
+html.is-thumbfull-arrive .sheet-home,
 html.is-thumbfull-arrive [data-art-show] .ag-bar,
 html.is-thumbfull-arrive [data-art-show] .ag-set-viewport {
   opacity: 0;
 }
 
-html.is-thumbfull-slide body > article {
-  opacity: 0;
+html.is-thumbfull-leaving body {
+  transition: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html.is-thumbfull-arrive .pd-hero-copy,
+  html.is-thumbfull-arrive .pd-body,
+  html.is-thumbfull-arrive .sheet-home,
   html.is-thumbfull-arrive [data-art-show] .ag-bar,
   html.is-thumbfull-arrive [data-art-show] .ag-set-viewport,
+  html.is-thumbfull-arrive body > article,
   html.is-thumbfull-slide body > article {
     opacity: 1;
   }

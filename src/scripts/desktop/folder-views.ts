@@ -20,6 +20,11 @@ export function getCurrentFolder() {
   return currentFolder;
 }
 
+function finishReturn() {
+  document.documentElement.classList.remove("is-folder-return");
+  delete document.documentElement.dataset.returnFolder;
+}
+
 export function openFolder(id: FolderId) {
   const layer = layerEl();
   if (!layer) return;
@@ -29,6 +34,7 @@ export function openFolder(id: FolderId) {
   });
   document.getElementById("dt-stage")?.classList.remove("is-fanned");
   document.querySelectorAll(".dt-card.is-open").forEach((el) => el.classList.remove("is-open"));
+  const returning = document.documentElement.classList.contains("is-folder-return");
   const alreadyIn = !layer.hidden && layer.classList.contains("is-in");
   currentFolder = id;
   layer.querySelectorAll<HTMLElement>("[data-folder-view]").forEach((view) => {
@@ -40,6 +46,15 @@ export function openFolder(id: FolderId) {
   layer.classList.remove("is-out");
   layer.hidden = false;
   document.documentElement.classList.add("is-folder-open");
+  if (returning) {
+    if (!layer.classList.contains("is-in") && !reducedMotion()) {
+      requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add("is-in")));
+    } else {
+      layer.classList.add("is-in");
+    }
+    window.setTimeout(finishReturn, reducedMotion() ? 0 : 440);
+    return;
+  }
   if (alreadyIn || reducedMotion()) {
     layer.classList.add("is-in");
     return;
@@ -87,11 +102,15 @@ export function initFolderViews() {
   }
 
   const baked = document.documentElement.dataset.initialFolder;
+  const returning = document.documentElement.dataset.returnFolder;
   if (baked === "dev" || baked === "art" || baked === "awards") {
     openFolder(baked);
   } else {
     try {
-      const pending = sessionStorage.getItem("lszbf:folder");
+      const pending =
+        returning === "dev" || returning === "art" || returning === "awards"
+          ? returning
+          : sessionStorage.getItem("lszbf:folder");
       if (pending === "dev" || pending === "art" || pending === "awards") {
         sessionStorage.removeItem("lszbf:folder");
         openFolder(pending);

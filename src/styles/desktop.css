@@ -577,7 +577,9 @@ html[data-page="desktop"] #cursor {
   }
 
   .dt-folder-layer,
-  .dt-folder-layer.is-out {
+  .dt-folder-layer.is-out,
+  html.is-folder-return .dt-folder-layer,
+  html.is-folder-return .dt-folder-layer.is-in {
     transform: none;
     opacity: 1;
     transition: none;
@@ -597,11 +599,33 @@ html[data-page="desktop"].is-folder-open .dt-stage {
   pointer-events: none;
 }
 
+html[data-page="desktop"].is-folder-open .dt-pop {
+  pointer-events: none;
+}
+
+html.is-folder-return[data-enter] body > main {
+  animation: none;
+}
+
+/* 从详情回目录：第一帧目录已盖住桌面，顺着 fall 从上方落下 */
+html.is-folder-return .dt-folder-layer {
+  transform: translateY(-9vh);
+  opacity: 1;
+  transition: none;
+}
+
+html.is-folder-return .dt-folder-layer.is-in {
+  transform: none;
+  opacity: 1;
+  transition: transform 0.42s cubic-bezier(0.16, 0.84, 0.3, 1);
+}
+
 .dt-folder-layer {
   position: fixed;
   inset: 0;
   z-index: 40;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: color-mix(in srgb, var(--color-paper) 82%, white);
   transform: translateY(12vh);
   opacity: 0;

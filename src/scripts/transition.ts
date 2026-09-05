@@ -44,11 +44,21 @@ function resolveUrl(url: string) {
   return "/desktop";
 }
 
-/** 上滑进 / 下滑回，不盖黑。详情页返回桌面走 fall。 */
+function pendingFolder() {
+  try {
+    const id = sessionStorage.getItem("lszbf:folder");
+    return id === "dev" || id === "art" || id === "awards";
+  } catch {
+    return false;
+  }
+}
+
+/** 上滑进 / 下滑回，不盖黑。回目录不写 dtx，避免先播桌面 fall 再滑开文件夹。 */
 export function navigateSlide(url: string, dir: "rise" | "fall") {
   url = resolveUrl(url);
   try {
-    sessionStorage.setItem(SLIDE_FLAG, dir);
+    if (pendingFolder()) sessionStorage.removeItem(SLIDE_FLAG);
+    else sessionStorage.setItem(SLIDE_FLAG, dir);
   } catch {
     /* 隐私模式：目标页没有入场动画 */
   }

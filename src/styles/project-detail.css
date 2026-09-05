@@ -1,5 +1,9 @@
 /* 作品 / 美术详情：浅纸底，无旧顶栏 */
 
+html[data-page="sheet"] {
+  overflow-x: hidden;
+}
+
 html[data-page="sheet"] body {
   min-height: 100vh;
   background: var(--color-sheet);
@@ -58,7 +62,7 @@ html[data-page="sheet"] body {
   position: relative;
   width: 100vw;
   height: min(72vh, 820px);
-  margin-left: calc(50% - 50vw);
+  margin-left: 0;
   overflow: hidden;
   background: color-mix(in srgb, var(--color-sheet-blue) 14%, var(--color-sheet));
 }

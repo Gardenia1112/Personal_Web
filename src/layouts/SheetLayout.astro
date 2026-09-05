@@ -19,6 +19,35 @@ const { title } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
+    <script is:inline>
+      try {
+        var raw = sessionStorage.getItem("lszbf:thumbfull");
+        if (raw) {
+          var data = JSON.parse(raw);
+          if (data && data.slug) {
+            sessionStorage.removeItem("lszbf:dtx");
+            var root = document.documentElement;
+            root.removeAttribute("data-enter");
+            root.classList.add(data.expanded ? "is-thumbfull-arrive" : "is-thumbfull-slide");
+            var hold = document.createElement("style");
+            hold.id = "thumbfull-hold-style";
+            if (data.expanded && data.src && String(data.src).charAt(0) === "/" && String(data.src).indexOf("//") !== 0) {
+              var src = String(data.src).replace(/["')\\\s]/g, "");
+              root.style.backgroundImage = 'url("' + src + '")';
+              root.style.backgroundRepeat = "no-repeat";
+              root.style.backgroundPosition = "top left";
+              root.style.backgroundSize = "100vw min(72vh, 820px)";
+              hold.textContent =
+                "html.is-thumbfull-arrive,html.is-thumbfull-arrive body{background-color:transparent!important}";
+            } else {
+              root.style.backgroundColor = "#f0f8ff";
+              hold.textContent = "html,body{background:#f0f8ff!important}";
+            }
+            root.appendChild(hold);
+          }
+        }
+      } catch (err) {}
+    </script>
   </head>
   <body>
     <a class="sheet-home" href="/desktop" data-fall aria-label="回桌面">
@@ -26,6 +55,15 @@ const { title } = Astro.props;
         <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </a>
+    <script is:inline>
+      try {
+        var from = sessionStorage.getItem("lszbf:folder");
+        if (from === "dev" || from === "art") {
+          var home = document.querySelector(".sheet-home");
+          if (home) home.setAttribute("aria-label", "回目录");
+        }
+      } catch (err) {}
+    </script>
     <slot />
     <TransitionOverlay />
     <CustomCursor />
