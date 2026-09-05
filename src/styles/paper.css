@@ -1,0 +1,29 @@
+/* 作品 / 奖项浅纸底骨架（Phase 6B）—— 只给带 .paper-page 的页，不进 /desktop */
+
+:root {
+  --paper: var(--color-sheet);
+  --paper-pink: var(--color-sheet-pink);
+  --ink: var(--color-sheet-ink);
+  --blue: var(--color-sheet-blue);
+  --blue-deep: var(--color-sheet-blue-deep);
+  --pink: var(--color-sheet-blush);
+  --pink-hot: var(--color-sheet-hot);
+}
+
+body:has(.paper-page--works) {
+  background: var(--color-sheet);
+  color: var(--color-sheet-ink);
+}
+
+body:has(.paper-page--awards) {
+  background: var(--color-sheet-pink);
+  color: var(--color-sheet-ink);
+}
+
+body:has(.paper-page) > footer {
+  color: color-mix(in srgb, var(--color-sheet-ink) 48%, transparent);
+}
+
+body:has(.paper-page) > footer a:hover {
+  color: var(--color-sheet-blue-deep);
+}

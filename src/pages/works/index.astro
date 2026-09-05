@@ -7,10 +7,17 @@ import { artworks } from "../../data/art";
 
 // 分组键与 ?category= 取值一一对应；默认 dev（无 query 时），?category=art → 美术
 const tabs: GalleryTab[] = [
-  { key: "dev", label: "开发项目", param: "dev" },
-  { key: "art", label: "美术作品", param: "art" },
   { key: "all", label: "全部", param: "all" },
+  { key: "dev", label: "开发", param: "dev" },
+  { key: "art", label: "美术", param: "art" },
 ];
+
+const ART_TONE: Record<(typeof artworks)[number]["category"], string> = {
+  绘画: "paint",
+  设计: "design",
+  建模: "model",
+  剪辑: "edit",
+};
 
 const devItems: GalleryItem[] = projects.map((p) => ({
   id: p.slug,
@@ -20,6 +27,7 @@ const devItems: GalleryItem[] = projects.map((p) => ({
   tag: p.metrics?.map((m) => m.note).join(" · "),
   cover: p.media?.cover,
   href: `/works/${p.slug}`,
+  shape: "landscape",
 }));
 
 // 美术作品按 01 §5 四类平铺，不再分子类（cover 待 Phase 7 落位缩略图后填 art.ts）
@@ -30,15 +38,16 @@ const artItems: GalleryItem[] = artworks.map((a) => ({
   meta: a.category,
   tag: a.category,
   cover: a.cover,
+  shape: "tile",
+  tone: ART_TONE[a.category],
 }));
 ---
 <BaseLayout title="作品 · lszbf.com">
-  <main class="gallery-page">
+  <main class="gallery-page paper-page paper-page--works">
     <header class="gallery-page-header">
+      <p class="gallery-page-kicker"><b>01</b> Works</p>
       <h1 class="gallery-page-title">作品</h1>
-      <p class="gallery-page-sub">
-        开发项目 {projects.length} 项按「问题 → 技术方案 → 我的贡献 → 量化成果」四段式展开；美术作品含绘画 / 设计 / 建模 / 剪辑。
-      </p>
+      <p class="gallery-page-sub">开发四段式 · 绘画 / 设计 / 建模 / 剪辑</p>
     </header>
 
     <HorizontalGallery items={[...devItems, ...artItems]} tabs={tabs} activeKey="dev" />

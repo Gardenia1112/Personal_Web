@@ -28,18 +28,19 @@ const items: GalleryItem[] = awards.map((a) => {
     cover: isImage ? url : undefined,
     preview: isImage ? url : undefined,
     download: isImage ? undefined : url,
-    actionLabel: ext === "pdf" ? "下载 PDF" : url ? "下载文件" : undefined,
+    actionLabel: ext === "pdf" ? "PDF" : url ? "文件" : undefined,
     optional: a.hide,
+    shape: isImage ? "landscape" : "tile",
+    tone: isImage ? undefined : "doc",
   };
 });
 ---
 <BaseLayout title="获奖与证书 · lszbf.com">
-  <main class="gallery-page">
+  <main class="gallery-page paper-page paper-page--awards">
     <header class="gallery-page-header">
+      <p class="gallery-page-kicker"><b>02</b> Awards</p>
       <h1 class="gallery-page-title">获奖与证书</h1>
-      <p class="gallery-page-sub">
-        省级及以上竞赛、英语等级证书与软件著作权；校级 / 院级奖项默认收起，可用右侧开关放出。
-      </p>
+      <p class="gallery-page-sub">省级及以上竞赛、英语等级与软著；校级 / 院级默认收起</p>
     </header>
 
     <HorizontalGallery
@@ -57,7 +58,6 @@ const items: GalleryItem[] = awards.map((a) => {
   </div>
 
   <script>
-    // 图片证书点击放大（画廊卡片上的 [data-preview] 按钮）
     const lightbox = document.getElementById("lightbox") as HTMLElement | null;
     const lightboxImg = document.getElementById("lightbox-img") as HTMLImageElement | null;
 
@@ -72,6 +72,7 @@ const items: GalleryItem[] = awards.map((a) => {
       const btn = (e.target as HTMLElement).closest("[data-preview]") as HTMLElement | null;
       if (!btn || !lightbox || !lightboxImg) return;
       lightboxImg.src = btn.dataset.preview ?? "";
+      lightboxImg.alt = btn.querySelector(".gallery__title")?.textContent ?? "";
       lightbox.classList.add("show");
       lightbox.setAttribute("aria-hidden", "false");
     });
