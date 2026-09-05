@@ -31,7 +31,7 @@ const cases = projects.map((p, i) => {
   <section class="wx-list" aria-label="开发项目">
     {
       cases.map((c) => (
-        <a class="wx-row" href={`/works/${c.slug}`} data-wx-row>
+        <a class="wx-row" href={`/works/${c.slug}`} data-wx-row data-no-transition>
           <span class="wx-num" aria-hidden="true">{c.num}</span>
           <div class="wx-copy">
             <h3 class="wx-title">{c.title}</h3>

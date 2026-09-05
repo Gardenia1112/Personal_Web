@@ -1,0 +1,143 @@
+/* /works/[slug] 浅纸底详情。只用 --color-sheet*，压过 global 里暗调 .pd */
+
+.pd.paper-page {
+  min-height: 100vh;
+  color: var(--color-sheet-ink);
+}
+
+.pd.paper-page .pd-hero {
+  min-height: 0;
+  display: block;
+  padding: 72px 0 0;
+  overflow: visible;
+}
+
+.pd-hero-media {
+  position: relative;
+  width: 100vw;
+  height: min(72vh, 820px);
+  margin-left: calc(50% - 50vw);
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-sheet-blue) 14%, var(--color-sheet));
+}
+
+.pd-hero-media .thumbfull-inner,
+.pd-hero-media img,
+.pd-hero-media .wx-ph {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+html.is-thumbfull:not(.is-thumbfull-ready) .pd-hero-media,
+html.is-thumbfull:not(.is-thumbfull-ready) .pd-hero-copy {
+  visibility: hidden;
+}
+
+.pd.paper-page .pd-hero-inner,
+.pd.paper-page .pd-hero-copy {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 100%);
+  padding: 36px clamp(24px, 6vw, 96px) 8px;
+}
+
+.pd.paper-page .pd-back {
+  color: var(--color-sheet-blue-deep);
+}
+
+.pd.paper-page .pd-back:hover {
+  color: var(--color-sheet-ink);
+}
+
+.pd.paper-page .pd-eyebrow {
+  color: color-mix(in srgb, var(--color-sheet-ink) 48%, transparent);
+}
+
+.pd.paper-page .pd-eyebrow b {
+  color: var(--color-sheet-blue);
+}
+
+.pd-hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+}
+
+.pd-hero-tags li {
+  padding: 3px 10px;
+  border: 1px solid var(--color-sheet-blue);
+  color: var(--color-sheet-blue-deep);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.pd.paper-page .pd-hero-title {
+  color: var(--color-sheet-ink);
+}
+
+.pd.paper-page .pd-hero-meta,
+.pd.paper-page .pd-hero-lede {
+  color: color-mix(in srgb, var(--color-sheet-ink) 68%, transparent);
+}
+
+.pd.paper-page .pd-btn {
+  color: var(--color-sheet-blue-deep);
+  border-bottom-color: color-mix(in srgb, var(--color-sheet-blue) 55%, transparent);
+}
+
+.pd.paper-page .pd-btn:hover {
+  color: var(--color-sheet-ink);
+  border-bottom-color: var(--color-sheet-ink);
+}
+
+.pd.paper-page .pd-btn--ghost {
+  color: color-mix(in srgb, var(--color-sheet-ink) 62%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--color-sheet-ink) 18%, transparent);
+}
+
+.pd.paper-page .pd-chapter,
+.pd.paper-page .pd-figure,
+.pd.paper-page .pd-foot {
+  border-top-color: color-mix(in srgb, var(--color-sheet-ink) 12%, transparent);
+}
+
+.pd.paper-page .pd-chapter-text,
+.pd.paper-page .pd-figure figcaption {
+  color: color-mix(in srgb, var(--color-sheet-ink) 70%, transparent);
+}
+
+.pd.paper-page .pd-figure img,
+.pd.paper-page .pd-figure video {
+  background: color-mix(in srgb, var(--color-sheet-blue) 10%, white);
+}
+
+.pd.paper-page .project-metrics {
+  background: color-mix(in srgb, var(--color-sheet-blue) 8%, white);
+  border-color: color-mix(in srgb, var(--color-sheet-blue) 28%, transparent);
+}
+
+.pd.paper-page .metric-head,
+.pd.paper-page .metric-values,
+.pd.paper-page .metric-note {
+  color: var(--color-sheet-ink);
+}
+
+.pd.paper-page .metric-bar {
+  background: color-mix(in srgb, var(--color-sheet-ink) 10%, transparent);
+}
+
+.pd.paper-page .metric-bar i {
+  background: var(--color-sheet-blue);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.is-thumbfull .pd-hero-media,
+  html.is-thumbfull .pd-hero-copy {
+    visibility: visible;
+  }
+}

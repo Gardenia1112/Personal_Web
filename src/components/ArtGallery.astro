@@ -1,20 +1,30 @@
 ---
 import { artworks } from "../data/art";
 ---
-<div class="dt-stub" data-art-gallery>
+<div class="wx" data-art-gallery>
   <header class="dt-folder-head">
     <p class="dt-folder-kicker"><b>02</b> Art</p>
     <h2 class="dt-folder-title">美术</h2>
-    <p class="dt-folder-sub">横向视差画廊 · 占位（6E'）</p>
+    <p class="dt-folder-sub">绘画 / 设计 / 建模 / 剪辑</p>
   </header>
-  <ul class="dt-stub-list">
+  <section class="wx-list" aria-label="美术作品">
     {
-      artworks.map((a) => (
-        <li>
-          <span class="dt-stub-tag">{a.category}</span>
-          <span>{a.name}</span>
-        </li>
+      artworks.map((a, i) => (
+        <a class="wx-row" href={`/art/${a.slug}`} data-wx-row data-no-transition>
+          <span class="wx-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+          <div class="wx-copy">
+            <h3 class="wx-title">{a.name}</h3>
+            {a.category && (
+              <ul class="wx-tags">
+                <li>{a.category}</li>
+              </ul>
+            )}
+          </div>
+          <div class="wx-thumb">
+            {a.cover ? <img src={a.cover} alt="" /> : <div class="wx-ph" aria-hidden="true"></div>}
+          </div>
+        </a>
       ))
     }
-  </ul>
+  </section>
 </div>

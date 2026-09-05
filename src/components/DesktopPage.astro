@@ -1,0 +1,175 @@
+---
+// /desktop 与 /awards 共用：同一套三图标选择台 + 文件夹叠层
+import TransitionOverlay from "./TransitionOverlay.astro";
+import CustomCursor from "./CustomCursor.astro";
+import EntryArt from "./Desktop/EntryArt.astro";
+import DevIndex from "./DevIndex.astro";
+import ArtGallery from "./ArtGallery.astro";
+import AwardsStack from "./AwardsStack.astro";
+import "../styles/global.css";
+import "../styles/desktop.css";
+import "../styles/dev-index.css";
+import "../styles/thumbfull.css";
+import { desktopEntries } from "../data/desktop";
+import { projects } from "../data/projects";
+import { artworks } from "../data/art";
+import { profile } from "../data/profile";
+
+interface Props {
+  initialFolder?: "dev" | "art" | "awards";
+  title?: string;
+}
+
+const { initialFolder, title = "入口 · lszbf.com" } = Astro.props;
+
+const ART_TONE: Record<string, string> = {
+  绘画: "is-red",
+  设计: "is-amber",
+  建模: "is-azure",
+  剪辑: "is-green",
+};
+
+function shortTip(name: string) {
+  return name.split(/[：/（]/)[0].replace(/虚拟仿真实验$/, "").trim();
+}
+
+const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string }[]> = {
+  works: projects.map((p) => ({ src: p.media?.cover, tone: "is-red", alt: p.name })),
+  art: artworks.map((a) => ({ src: a.cover, tone: ART_TONE[a.category], alt: a.name })),
+};
+---
+<!doctype html>
+<html lang="zh-CN" data-page="desktop" data-initial-folder={initialFolder} class:list={[{ "is-folder-open": Boolean(initialFolder) }]}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={`${profile.name} · 项目 / 美术 / 博客三个入口`} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:ital,wght@1,700&family=Great+Vibes&display=swap" rel="stylesheet" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="dt-home" href="/" aria-label="回工位">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+
+    <main class="dt-stage" id="dt-stage">
+      <div class="dt-welcome" aria-hidden="true">
+        <img class="dt-welcome-hero" src="/assets/desktop/welcome-balloon.png" alt="" />
+      </div>
+      <ul class="dt-cards" id="dt-shelf">
+        {
+          desktopEntries.map((e) => (
+            <li>
+              <button
+                class="dt-card"
+                type="button"
+                data-entry={e.id}
+                data-open-folder={e.id === "works" ? "dev" : e.id === "art" ? "art" : undefined}
+                data-label={e.label}
+                data-kicker={e.kicker}
+                data-tip={e.tip}
+                aria-label={e.tip ?? e.label}
+              >
+                <EntryArt
+                  art={e.art}
+                  label={e.art !== "logo" ? e.label : undefined}
+                  thumbs={FOLDER_THUMBS[e.id]}
+                />
+                <span class="dt-card-name">{e.tip ?? e.label}</span>
+              </button>
+              {
+                e.id === "works" && (
+                  <section class="dt-pop" data-pop="works" hidden>
+                    <div class="dt-fan">
+                      {
+                        projects.slice(0, 6).map((p) => (
+                          <a
+                            class="dt-fan-item"
+                            href={`/works/${p.slug}`}
+                            data-no-transition
+                            data-rise
+                            data-tip={shortTip(p.name)}
+                            aria-label={p.name}
+                          >
+                            {p.media?.cover ? (
+                              <span class="dt-fan-thumb">
+                                <img src={p.media.cover} alt={p.name} loading="lazy" />
+                              </span>
+                            ) : (
+                              <span class="dt-fan-thumb is-blank is-red">
+                                <span>PROJECT</span>
+                              </span>
+                            )}
+                          </a>
+                        ))
+                      }
+                    </div>
+                  </section>
+                )
+              }
+              {
+                e.id === "art" && (
+                  <section class="dt-pop" data-pop="art" hidden>
+                    <div class="dt-fan">
+                      {
+                        artworks.slice(0, 6).map((a) => (
+                          <div class="dt-fan-item" data-tip={a.category} aria-label={a.name}>
+                            {a.cover ? (
+                              <span class="dt-fan-thumb">
+                                <img src={a.cover} alt={a.name} loading="lazy" />
+                              </span>
+                            ) : (
+                              <span class:list={["dt-fan-thumb", "is-blank", ART_TONE[a.category]]}>
+                                <span>{a.category}</span>
+                              </span>
+                            )}
+                          </div>
+                        ))
+                      }
+                    </div>
+                  </section>
+                )
+              }
+            </li>
+          ))
+        }
+      </ul>
+    </main>
+
+    <div class="dt-card-tip" id="dt-card-tip" aria-hidden="true"></div>
+    <div class="dt-veil" id="dt-veil"></div>
+
+    <div class="dt-folder-layer" id="dt-folder-layer" data-folder-layer hidden={!initialFolder}>
+      <button type="button" class="dt-folder-close" data-folder-close aria-label="关闭文件夹">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="dt-folder-view" data-folder-view="dev" hidden={initialFolder !== "dev"}>
+        <DevIndex />
+      </div>
+      <div class="dt-folder-view" data-folder-view="art" hidden={initialFolder !== "art"}>
+        <ArtGallery />
+      </div>
+      <div class="dt-folder-view" data-folder-view="awards" hidden={initialFolder !== "awards"}>
+        <AwardsStack />
+      </div>
+    </div>
+
+    <script>
+      import { initFolderViews } from "../scripts/desktop/folder-views";
+      initFolderViews();
+    </script>
+    <script>
+      import { initDesktop } from "../scripts/desktop/desktop";
+      const stage = document.getElementById("dt-stage");
+      if (stage) initDesktop(stage);
+    </script>
+    <TransitionOverlay />
+    <CustomCursor />
+  </body>
+</html>

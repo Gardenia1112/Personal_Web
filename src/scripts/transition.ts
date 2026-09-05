@@ -5,14 +5,48 @@
 const FLAG = "lszbf:tx";
 const COVER_CLASS = "tx-covered";
 const FADE_MS = 380; // 必须与 global.css 里 #transition-overlay 的 transition 时长一致
+const THUMB_KEY = "lszbf:thumbfull";
+
+function hasThumbFull() {
+  try {
+    return Boolean(sessionStorage.getItem(THUMB_KEY));
+  } catch {
+    return false;
+  }
+}
 
 function reducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+function folderEntry(url: string) {
+  try {
+    const path = new URL(url, location.href).pathname.replace(/\/$/, "") || "/";
+    if (path === "/awards") return "awards";
+    if (path === "/works") return "dev";
+    if (path === "/art") return "art";
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+function resolveUrl(url: string) {
+  const folder = folderEntry(url);
+  if (!folder) return url;
+  try {
+    sessionStorage.setItem("lszbf:folder", folder);
+  } catch {
+    /* ignore */
+  }
+  return "/desktop";
+}
+
 /** 渐黑后跳转（供 desk.ts 等程序化导航调用） */
 export function navigateWithTransition(url: string) {
-  if (reducedMotion() || !document.getElementById("transition-overlay")) {
+  url = resolveUrl(url);
+  // ThumbFull：有封面 rect 时不盖黑，让详情页从缩略图位置连续胀开
+  if (hasThumbFull() || reducedMotion() || !document.getElementById("transition-overlay")) {
     window.location.href = url;
     return;
   }

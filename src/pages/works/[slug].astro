@@ -1,46 +1,74 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { projects } from "../../data/projects";
+import "../../styles/project-detail.css";
+import "../../styles/thumbfull.css";
 
-// 排版参考 christoph-nagel.dev：满幅暗调大图 + 左侧窄栏文字 + 编号小标题 + 大字标题
 export function getStaticPaths() {
   return projects.map((p, i) => ({
     params: { slug: p.slug },
     props: {
       project: p,
       index: i,
-      prev: projects[(i - 1 + projects.length) % projects.length],
       next: projects[(i + 1) % projects.length],
     },
   }));
 }
 
-const { project, index, prev, next } = Astro.props;
+const { project, index, next } = Astro.props;
 const num = String(index + 1).padStart(2, "0");
+const tags = [project.role.split("·")[0]?.trim(), project.period.match(/\d{4}/)?.[0]].filter(
+  (t): t is string => Boolean(t)
+);
 
 const chapters = [
   { no: "01", label: "问题", title: "要解决什么", text: project.problem },
   { no: "02", label: "技术方案", title: "怎么搭起来", text: project.tech },
   { no: "03", label: "我的贡献", title: "我做了哪部分", text: project.contribution },
   { no: "04", label: "量化成果", title: "最后拿到什么", text: project.result },
-];
+].filter((c) => Boolean(c.text));
 ---
 <BaseLayout title={`${project.name} · lszbf.com`}>
-  <article class="pd">
+  <script is:inline define:vars={{ slug: project.slug }}>
+    try {
+      var raw = sessionStorage.getItem("lszbf:thumbfull");
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data && data.slug === slug && data.expanded) {
+          document.documentElement.classList.add("is-thumbfull-arrive");
+        }
+      }
+    } catch (err) {}
+  </script>
+
+  <article class="pd paper-page paper-page--works" data-project-slug={project.slug}>
     <header class="pd-hero">
       {
         project.media?.cover && (
-          <div class="pd-hero-bg">
-            <img src={project.media.cover} alt={`${project.name} 封面`} />
+          <div class="pd-hero-media thumbfull-outer" data-thumbfull-outer>
+            <div class="thumbfull-inner" data-thumbfull-inner>
+              <img src={project.media.cover} alt={`${project.name} 封面`} />
+            </div>
           </div>
         )
       }
-      <div class="pd-hero-inner">
+      <div class="pd-hero-copy" data-thumbfull-copy>
         <a class="pd-back" href="/works">← 作品</a>
-        <p class="pd-eyebrow"><b>{num}</b> {project.role}</p>
+        <p class="pd-eyebrow">
+          <b>{num}</b>
+          {project.period}
+        </p>
+        {
+          tags.length > 0 && (
+            <ul class="pd-hero-tags">
+              {tags.map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+          )
+        }
         <h1 class="pd-hero-title">{project.name}</h1>
-        <p class="pd-hero-meta">{project.period}</p>
-        <p class="pd-hero-lede">{project.result}</p>
+        {project.problem && <p class="pd-hero-lede">{project.problem}</p>}
         {
           project.links.length > 0 && (
             <div class="pd-hero-actions">
@@ -57,30 +85,35 @@ const chapters = [
 
     <div class="pd-body">
       {
-        project.metrics && (
-          <section class="project-metrics">
-            {project.metrics.map((m) => (
-              <div class="metric">
-                <div class="metric-head">
-                  <span class="metric-label">{m.label}</span>
-                  <span class="metric-values">{m.before} → {m.after}</span>
-                  <span class="metric-note">{m.note}</span>
-                </div>
-                <div class="metric-bar"><i style={`width:${m.pct}%`}></i></div>
-              </div>
-            ))}
-          </section>
-        )
-      }
-
-      {
         chapters.map((c) => (
           <section class="pd-chapter">
             <div>
-              <p class="pd-eyebrow"><b>{c.no}</b> {c.label}</p>
+              <p class="pd-eyebrow">
+                <b>{c.no}</b> {c.label}
+              </p>
               <h2 class="pd-chapter-title">{c.title}</h2>
             </div>
-            <p class="pd-chapter-text">{c.text}</p>
+            <div>
+              <p class="pd-chapter-text">{c.text}</p>
+              {c.no === "04" && project.metrics && (
+                <section class="project-metrics">
+                  {project.metrics.map((m) => (
+                    <div class="metric">
+                      <div class="metric-head">
+                        <span class="metric-label">{m.label}</span>
+                        <span class="metric-values">
+                          {m.before} → {m.after}
+                        </span>
+                        <span class="metric-note">{m.note}</span>
+                      </div>
+                      <div class="metric-bar">
+                        <i style={`width:${m.pct}%`}></i>
+                      </div>
+                    </div>
+                  ))}
+                </section>
+              )}
+            </div>
           </section>
         ))
       }
@@ -117,9 +150,17 @@ const chapters = [
       }
 
       <nav class="pd-foot">
-        <a class="pd-btn pd-btn--ghost" href={`/works/${prev.slug}`}>← {prev.name}</a>
-        <a class="pd-btn pd-btn--ghost" href={`/works/${next.slug}`}>{next.name} →</a>
+        <a class="pd-btn pd-btn--ghost" href={`/works/${next.slug}`}>
+          {next.name} →
+        </a>
       </nav>
     </div>
   </article>
 </BaseLayout>
+
+<script>
+  import { arriveThumbFull } from "../../scripts/thumbfull";
+  const root = document.querySelector<HTMLElement>("[data-project-slug]");
+  const copy = document.querySelector<HTMLElement>("[data-thumbfull-copy]");
+  arriveThumbFull(root?.dataset.projectSlug ?? "", copy);
+</script>

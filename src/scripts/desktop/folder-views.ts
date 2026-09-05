@@ -16,6 +16,7 @@ export function getCurrentFolder() {
 export function openFolder(id: FolderId) {
   const layer = layerEl();
   if (!layer) return;
+  if (currentFolder === id && !layer.hidden) return;
   document.querySelectorAll<HTMLElement>("[data-pop]").forEach((el) => {
     el.hidden = true;
   });
@@ -46,6 +47,26 @@ export function initFolderViews() {
   if (devIndex && !devIndex.dataset.wxBound) {
     devIndex.dataset.wxBound = "1";
     initDevIndex(devIndex);
+  }
+  const artGallery = layer?.querySelector<HTMLElement>("[data-art-gallery]");
+  if (artGallery && !artGallery.dataset.wxBound) {
+    artGallery.dataset.wxBound = "1";
+    initDevIndex(artGallery);
+  }
+
+  const baked = document.documentElement.dataset.initialFolder;
+  if (baked === "dev" || baked === "art" || baked === "awards") {
+    openFolder(baked);
+  } else {
+    try {
+      const pending = sessionStorage.getItem("lszbf:folder");
+      if (pending === "dev" || pending === "art" || pending === "awards") {
+        sessionStorage.removeItem("lszbf:folder");
+        openFolder(pending);
+      }
+    } catch {
+      /* ignore */
+    }
   }
 
   if (document.documentElement.dataset.folderViews === "1") return;

@@ -101,15 +101,6 @@
   aspect-ratio: 4 / 3;
   overflow: hidden;
   background: color-mix(in srgb, var(--color-sheet-blue) 16%, white);
-  transform: translateX(28%);
-  opacity: 0;
-  transition: transform 0.4s ease, opacity 0.4s ease;
-}
-
-.wx-row:hover .wx-thumb,
-.wx-row.is-hot .wx-thumb {
-  transform: none;
-  opacity: 1;
 }
 
 .wx-thumb img {
@@ -138,24 +129,17 @@
 
   .wx-thumb {
     max-width: 220px;
-    transform: translateX(18%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .wx-row,
-  .wx-num,
-  .wx-thumb {
+  .wx-num {
     transition: none;
   }
 
   .wx-row:hover,
   .wx-row.is-hot {
     transform: none;
-  }
-
-  .wx-thumb {
-    transform: none;
-    opacity: 1;
   }
 }

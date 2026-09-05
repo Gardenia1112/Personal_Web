@@ -1,0 +1,36 @@
+/* 当前页：点中的卡片缩略图当场胀到全宽（只动 transform） */
+
+.thumbfull-fly {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 80;
+  overflow: hidden;
+  transform-origin: 0 0;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--color-sheet-blue) 14%, var(--color-sheet));
+}
+
+.thumbfull-fly-media {
+  display: block;
+  object-fit: cover;
+  transform-origin: 0 0;
+}
+
+.wx-ph.thumbfull-fly-media {
+  background: color-mix(in srgb, var(--color-sheet-blue) 22%, var(--color-sheet));
+}
+
+html.is-thumbfull-leaving .dt-folder-head,
+html.is-thumbfull-leaving .dt-folder-close,
+html.is-thumbfull-leaving .wx-row.is-leaving,
+html.is-thumbfull-leaving .wx-row.is-expanding .wx-copy,
+html.is-thumbfull-leaving .wx-row.is-expanding .wx-num {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+html.is-thumbfull-arrive .pd-hero-copy {
+  opacity: 0;
+}

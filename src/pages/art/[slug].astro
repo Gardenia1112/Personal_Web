@@ -1,0 +1,58 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { artworks } from "../../data/art";
+import "../../styles/project-detail.css";
+import "../../styles/thumbfull.css";
+
+export function getStaticPaths() {
+  return artworks.map((a, i) => ({
+    params: { slug: a.slug },
+    props: { art: a, index: i },
+  }));
+}
+
+const { art, index } = Astro.props;
+const num = String(index + 1).padStart(2, "0");
+---
+<BaseLayout title={`${art.name} · lszbf.com`}>
+  <script is:inline define:vars={{ slug: art.slug }}>
+    try {
+      var raw = sessionStorage.getItem("lszbf:thumbfull");
+      if (raw) {
+        var data = JSON.parse(raw);
+        if (data && data.slug === slug && data.expanded) {
+          document.documentElement.classList.add("is-thumbfull-arrive");
+        }
+      }
+    } catch (err) {}
+  </script>
+
+  <article class="pd paper-page paper-page--works" data-art-slug={art.slug}>
+    <header class="pd-hero">
+      <div class="pd-hero-media">
+        {
+          art.cover ? (
+            <img src={art.cover} alt={`${art.name} 封面`} />
+          ) : (
+            <div class="wx-ph" aria-hidden="true"></div>
+          )
+        }
+      </div>
+      <div class="pd-hero-copy" data-thumbfull-copy>
+        <a class="pd-back" href="/art">← 美术</a>
+        <p class="pd-eyebrow"><b>{num}</b> {art.category}</p>
+        <ul class="pd-hero-tags">
+          <li>{art.category}</li>
+        </ul>
+        <h1 class="pd-hero-title">{art.name}</h1>
+      </div>
+    </header>
+  </article>
+</BaseLayout>
+
+<script>
+  import { arriveThumbFull } from "../../scripts/thumbfull";
+  const root = document.querySelector<HTMLElement>("[data-art-slug]");
+  const copy = document.querySelector<HTMLElement>("[data-thumbfull-copy]");
+  arriveThumbFull(root?.dataset.artSlug ?? "", copy);
+</script>

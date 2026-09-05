@@ -1,5 +1,5 @@
-// 桌面红文件夹：开发案例条键盘高亮，确认键走全站渐黑
-import { navigateWithTransition } from "../transition";
+// 桌面红文件夹：键盘高亮；确认 / 点击走当前页胀开再进详情
+import { bindThumbFullLinks, expandThenGo } from "../thumbfull";
 
 export function initDevIndex(root: HTMLElement) {
   const rows = Array.from(root.querySelectorAll<HTMLAnchorElement>("[data-wx-row]"));
@@ -29,10 +29,9 @@ export function initDevIndex(root: HTMLElement) {
     paint();
   }
 
-  function go() {
-    const href = rows[armed ? index : 0]?.getAttribute("href");
-    if (!href) return;
-    navigateWithTransition(href);
+  function go(row = rows[armed ? index : 0]) {
+    if (!row) return;
+    expandThenGo(row);
   }
 
   window.addEventListener("keydown", (e) => {
@@ -60,4 +59,6 @@ export function initDevIndex(root: HTMLElement) {
       paint();
     });
   });
+
+  bindThumbFullLinks(root);
 }
