@@ -144,7 +144,7 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
     <div class="dt-veil" id="dt-veil"></div>
 
     <div class="dt-folder-layer" id="dt-folder-layer" data-folder-layer hidden={!initialFolder}>
-      <button type="button" class="dt-folder-close" data-folder-close aria-label="关闭文件夹">
+      <button type="button" class="dt-folder-close" data-folder-close aria-label="关闭文件夹" hidden={initialFolder === "awards"}>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
         </svg>

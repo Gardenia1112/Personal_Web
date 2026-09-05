@@ -78,6 +78,7 @@
 - `assets/` —— 源素材（美术素材已提供：`images/` 绘画·设计、`models/` 建模、`videos/` 剪辑；`raw-materials/` 已 gitignore）。
 - `public/assets/{brand,projects,awards,about}/` —— 站点产物资源（`awards/` 含数模省一，全部证书已齐；`about/` 是 `/about` 页四章图文图片）。
 - `src/data/` —— 内容唯一来源（profile/projects/awards/art/objects/aboutGame）。
+- `src/layouts/` —— 页面壳：`BaseLayout.astro`（主壳 Nav+Footer）、`SheetLayout.astro`（详情壳，无 Nav，回工位/关闭两圆钮）。
 - `src/scripts/{desk.ts, game/, desktop/}` —— 三套交互代码，按需加载。
 - `src/styles/` —— `global.css`（全站 + `@theme` token）、`cursor.css`（自定义光标）、`desktop.css`（只给 `/desktop` 选择台，须在 global 之后引）。
 

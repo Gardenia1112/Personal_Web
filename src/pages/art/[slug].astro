@@ -1,8 +1,6 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import SheetLayout from "../../layouts/SheetLayout.astro";
 import { artworks } from "../../data/art";
-import "../../styles/project-detail.css";
-import "../../styles/thumbfull.css";
 
 export function getStaticPaths() {
   return artworks.map((a, i) => ({
@@ -14,7 +12,7 @@ export function getStaticPaths() {
 const { art, index } = Astro.props;
 const num = String(index + 1).padStart(2, "0");
 ---
-<BaseLayout title={`${art.name} · lszbf.com`}>
+<SheetLayout title={`${art.name} · lszbf.com`} backHref="/art" backLabel="关闭，回美术">
   <script is:inline define:vars={{ slug: art.slug }}>
     try {
       var raw = sessionStorage.getItem("lszbf:thumbfull");
@@ -39,7 +37,6 @@ const num = String(index + 1).padStart(2, "0");
         }
       </div>
       <div class="pd-hero-copy" data-thumbfull-copy>
-        <a class="pd-back" href="/art">← 美术</a>
         <p class="pd-eyebrow"><b>{num}</b> {art.category}</p>
         <ul class="pd-hero-tags">
           <li>{art.category}</li>
@@ -48,7 +45,7 @@ const num = String(index + 1).padStart(2, "0");
       </div>
     </header>
   </article>
-</BaseLayout>
+</SheetLayout>
 
 <script>
   import { arriveThumbFull } from "../../scripts/thumbfull";

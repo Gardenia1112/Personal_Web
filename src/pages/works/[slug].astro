@@ -1,8 +1,6 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro";
+import SheetLayout from "../../layouts/SheetLayout.astro";
 import { projects } from "../../data/projects";
-import "../../styles/project-detail.css";
-import "../../styles/thumbfull.css";
 
 export function getStaticPaths() {
   return projects.map((p, i) => ({
@@ -28,7 +26,7 @@ const chapters = [
   { no: "04", label: "量化成果", title: "最后拿到什么", text: project.result },
 ].filter((c) => Boolean(c.text));
 ---
-<BaseLayout title={`${project.name} · lszbf.com`}>
+<SheetLayout title={`${project.name} · lszbf.com`} backHref="/works" backLabel="关闭，回作品">
   <script is:inline define:vars={{ slug: project.slug }}>
     try {
       var raw = sessionStorage.getItem("lszbf:thumbfull");
@@ -53,7 +51,6 @@ const chapters = [
         )
       }
       <div class="pd-hero-copy" data-thumbfull-copy>
-        <a class="pd-back" href="/works">← 作品</a>
         <p class="pd-eyebrow">
           <b>{num}</b>
           {project.period}
@@ -156,7 +153,7 @@ const chapters = [
       </nav>
     </div>
   </article>
-</BaseLayout>
+</SheetLayout>
 
 <script>
   import { arriveThumbFull } from "../../scripts/thumbfull";

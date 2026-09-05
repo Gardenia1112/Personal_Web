@@ -26,6 +26,8 @@ export function openFolder(id: FolderId) {
   layer.querySelectorAll<HTMLElement>("[data-folder-view]").forEach((view) => {
     view.hidden = view.dataset.folderView !== id;
   });
+  const closeBtn = layer.querySelector<HTMLElement>("[data-folder-close]");
+  if (closeBtn) closeBtn.hidden = id === "awards";
   layer.hidden = false;
   document.documentElement.classList.add("is-folder-open");
 }
@@ -92,6 +94,6 @@ export function initFolderViews() {
   );
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && currentFolder) closeFolder();
+    if (e.key === "Escape" && currentFolder && currentFolder !== "awards") closeFolder();
   });
 }

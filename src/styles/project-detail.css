@@ -1,4 +1,46 @@
-/* /works/[slug] 浅纸底详情。只用 --color-sheet*，压过 global 里暗调 .pd */
+/* 作品 / 美术详情：浅纸底，无旧顶栏 */
+
+html[data-page="sheet"] body {
+  min-height: 100vh;
+  background: var(--color-sheet);
+  color: var(--color-sheet-ink);
+}
+
+.sheet-home,
+.sheet-close {
+  position: fixed;
+  top: clamp(18px, 3vw, 32px);
+  z-index: 50;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--color-sheet-ink);
+  border: 1.5px solid rgba(0, 50, 98, 0.16);
+  background: color-mix(in srgb, var(--color-sheet) 82%, white);
+}
+
+.sheet-home {
+  left: clamp(18px, 3vw, 32px);
+}
+
+.sheet-close {
+  right: clamp(18px, 3vw, 32px);
+}
+
+.sheet-home svg,
+.sheet-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.sheet-home:hover,
+.sheet-close:hover {
+  background: var(--color-sheet-ink);
+  border-color: var(--color-sheet-ink);
+  color: #ffffff;
+}
 
 .pd.paper-page {
   min-height: 100vh;
@@ -8,7 +50,7 @@
 .pd.paper-page .pd-hero {
   min-height: 0;
   display: block;
-  padding: 72px 0 0;
+  padding: 0;
   overflow: visible;
 }
 

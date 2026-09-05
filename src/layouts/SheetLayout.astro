@@ -1,0 +1,40 @@
+---
+// 作品 / 美术详情：浅纸底，不要 BaseLayout 那条旧顶栏
+import TransitionOverlay from "../components/TransitionOverlay.astro";
+import CustomCursor from "../components/CustomCursor.astro";
+import "../styles/global.css";
+import "../styles/paper.css";
+import "../styles/project-detail.css";
+import "../styles/thumbfull.css";
+
+interface Props {
+  title: string;
+  backHref: string;
+  backLabel: string;
+}
+
+const { title, backHref, backLabel } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN" data-page="sheet">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="sheet-home" href="/" aria-label="回工位">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+    <a class="sheet-close" href={backHref} aria-label={backLabel}>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+      </svg>
+    </a>
+    <slot />
+    <TransitionOverlay />
+    <CustomCursor />
+  </body>
+</html>
