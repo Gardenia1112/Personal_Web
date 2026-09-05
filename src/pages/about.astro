@@ -1,22 +1,31 @@
 ---
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
-import { profile } from "../data/profile";
 import "../styles/global.css";
 ---
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-page="about">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="赵韵婷 · 游戏化个人介绍" />
+    <meta name="description" content="游戏化个人介绍" />
     <title>关于我 · lszbf.com</title>
   </head>
   <body class="overflow-hidden">
     <main id="game" class="relative w-full h-screen overflow-hidden">
-      <div id="board-panel" aria-live="polite"></div>
-      <a href="/" id="back-hint">ESC 返回工位</a>
-      <a class="about-resume" href={profile.resume} download>下载简历</a>
+      <a class="about-home" href="/" aria-label="回工位">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+      <div id="about-wipe" aria-hidden="true"></div>
+      <div id="about-hint" class="about-hint is-on" aria-hidden="true">
+        <p>A/D 或 ←/→ 移动</p>
+      </div>
+      <div id="board-panel" aria-live="polite">
+        <div class="about-panel-body" id="board-panel-body"></div>
+      </div>
+      <a id="about-ending-cta" class="about-ending-cta" href="/contact">联系我 →</a>
     </main>
 
     <script>

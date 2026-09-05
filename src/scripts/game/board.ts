@@ -1,45 +1,82 @@
-// 展板实体：走进触发区「亮起」（发光边框 + 缩放 pop）
+// 小旗子：碰到就收起消失，不再当底边大卡
 import Phaser from "phaser";
-import type { GameBoardData } from "../../data/aboutGame";
+import { type GameBoardData } from "../../data/aboutGame";
 
-export class Board {
+const POLE_H = 86;
+const COLORS = [0xffef00, 0xffd700, 0xf5c400, 0xff8ab8];
+
+export class Flag {
   readonly container: Phaser.GameObjects.Container;
   readonly x: number;
   readonly data: GameBoardData;
+  collected = false;
   private scene: Phaser.Scene;
-  private glow: Phaser.GameObjects.Rectangle;
-  private label: Phaser.GameObjects.Text;
-  private active = false;
+  private cloth: Phaser.GameObjects.Graphics;
 
-  constructor(scene: Phaser.Scene, data: GameBoardData, x: number, y: number) {
+  constructor(scene: Phaser.Scene, data: GameBoardData, x: number, floorY: number, tintIndex: number) {
     this.scene = scene;
     this.data = data;
     this.x = x;
 
-    const panel = scene.add.rectangle(0, 0, 230, 150, 0x1a1d24).setStrokeStyle(2, 0x2a2f3a);
-    this.glow = scene.add.rectangle(0, 0, 244, 164, 0x00d9ff, 0);
-    this.label = scene.add
-      .text(0, 0, String(data.index).padStart(2, "0"), {
-        fontFamily: "monospace",
-        fontSize: "34px",
-        color: "#00d9ff",
-      })
-      .setOrigin(0.5);
+    const pole = scene.add.rectangle(0, -POLE_H / 2, 5, POLE_H, 0x6b5344);
+    const cap = scene.add.circle(0, -POLE_H, 5, 0xffd700);
+    this.cloth = scene.add.graphics();
+    this.drawCloth(COLORS[tintIndex % COLORS.length]);
 
-    this.container = scene.add.container(x, y, [this.glow, panel, this.label]);
+    this.container = scene.add.container(x, floorY, [pole, this.cloth, cap]);
+    scene.tweens.add({
+      targets: this.cloth,
+      scaleX: { from: 1, to: 0.86 },
+      duration: 700 + tintIndex * 80,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
   }
 
-  setActive(active: boolean) {
-    if (active === this.active) return;
-    this.active = active;
-    if (active) {
-      this.scene.tweens.add({ targets: this.glow, fillAlpha: 0.55, duration: 220, ease: "Sine.easeOut" });
-      this.scene.tweens.add({ targets: this.container, scale: 1.06, duration: 220, ease: "Back.easeOut" });
-      this.label.setColor("#7ff3ff");
-    } else {
-      this.scene.tweens.add({ targets: this.glow, fillAlpha: 0, duration: 180 });
-      this.scene.tweens.add({ targets: this.container, scale: 1, duration: 180 });
-      this.label.setColor("#00d9ff");
-    }
+  setY(floorY: number) {
+    this.container.y = floorY;
+  }
+
+  get y() {
+    return this.container.y;
+  }
+
+  get hitY() {
+    return this.container.y - 56;
+  }
+
+  hide() {
+    this.scene.tweens.killTweensOf(this.cloth);
+    this.container.setVisible(false);
+  }
+
+  collect() {
+    if (this.collected) return;
+    this.collected = true;
+    this.scene.tweens.killTweensOf(this.cloth);
+    this.scene.tweens.add({
+      targets: this.container,
+      alpha: 0,
+      y: this.container.y - 28,
+      scaleX: 0.4,
+      scaleY: 1.15,
+      duration: 280,
+      ease: "Back.easeIn",
+      onComplete: () => this.container.setVisible(false),
+    });
+  }
+
+  private drawCloth(color: number) {
+    this.cloth.clear();
+    this.cloth.fillStyle(color, 1);
+    this.cloth.beginPath();
+    this.cloth.moveTo(4, -POLE_H + 6);
+    this.cloth.lineTo(54, -POLE_H + 28);
+    this.cloth.lineTo(4, -POLE_H + 48);
+    this.cloth.closePath();
+    this.cloth.fillPath();
+    this.cloth.lineStyle(2, 0xb8860b, 0.55);
+    this.cloth.strokePath();
   }
 }
