@@ -22,7 +22,7 @@
   // /desktop 选择台的两条换页路径不走渐黑，各自留一个入场标记（keyframes 在 global.css）
   try {
     var enter = sessionStorage.getItem("lszbf:dtx");
-    if (enter === "rise" || enter === "veil") {
+    if (enter === "rise" || enter === "veil" || enter === "fall") {
       document.documentElement.dataset.enter = enter;
       sessionStorage.removeItem("lszbf:dtx");
     }

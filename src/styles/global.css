@@ -1773,6 +1773,37 @@ html[data-enter="rise"] body > article {
     opacity: 1;
   }
 }
+html[data-enter="fall"] body > main,
+html[data-enter="fall"] body > article {
+  animation: enter-fall 0.62s cubic-bezier(0.16, 0.84, 0.3, 1) both;
+}
+@keyframes enter-fall {
+  from {
+    transform: translateY(-9vh);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+html.is-slide-leaving body > main,
+html.is-slide-leaving body > article,
+html.is-slide-leaving .sheet-home {
+  transition: transform 0.42s cubic-bezier(0.4, 0, 1, 1), opacity 0.42s ease;
+}
+html.is-slide-leaving[data-slide="rise"] body > main,
+html.is-slide-leaving[data-slide="rise"] body > article,
+html.is-slide-leaving[data-slide="rise"] .sheet-home {
+  transform: translateY(-14vh);
+  opacity: 0;
+}
+html.is-slide-leaving[data-slide="fall"] body > main,
+html.is-slide-leaving[data-slide="fall"] body > article,
+html.is-slide-leaving[data-slide="fall"] .sheet-home {
+  transform: translateY(14vh);
+  opacity: 0;
+}
 html[data-enter="veil"] body > main,
 html[data-enter="veil"] body > article {
   animation: enter-veil 0.5s ease both;
@@ -1789,8 +1820,14 @@ html[data-enter="veil"] body > article {
 }
 @media (prefers-reduced-motion: reduce) {
   html[data-enter] body > main,
-  html[data-enter] body > article {
+  html[data-enter] body > article,
+  html.is-slide-leaving body > main,
+  html.is-slide-leaving body > article,
+  html.is-slide-leaving .sheet-home {
     animation: none;
+    transition: none;
+    transform: none;
+    opacity: 1;
   }
 }
 

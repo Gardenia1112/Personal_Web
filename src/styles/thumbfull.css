@@ -21,9 +21,16 @@
   background: color-mix(in srgb, var(--color-sheet-blue) 22%, var(--color-sheet));
 }
 
+.ag-ph.thumbfull-fly-media,
+.ag-media.thumbfull-fly {
+  background: linear-gradient(160deg, #fff7fa 0%, #f19cbb 58%, #ff91af 100%);
+}
+
 html.is-thumbfull-leaving .dt-folder-head,
 html.is-thumbfull-leaving .dt-folder-close,
+html.is-thumbfull-leaving .ag-bar,
 html.is-thumbfull-leaving .wx-row.is-leaving,
+html.is-thumbfull-leaving .ag-item.is-leaving,
 html.is-thumbfull-leaving .wx-row.is-expanding .wx-copy,
 html.is-thumbfull-leaving .wx-row.is-expanding .wx-num {
   opacity: 0;
@@ -31,6 +38,21 @@ html.is-thumbfull-leaving .wx-row.is-expanding .wx-num {
   pointer-events: none;
 }
 
-html.is-thumbfull-arrive .pd-hero-copy {
+html.is-thumbfull-arrive .pd-hero-copy,
+html.is-thumbfull-arrive [data-art-show] .ag-bar,
+html.is-thumbfull-arrive [data-art-show] .ag-set-viewport {
   opacity: 0;
+}
+
+html.is-thumbfull-slide body > article {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.is-thumbfull-arrive .pd-hero-copy,
+  html.is-thumbfull-arrive [data-art-show] .ag-bar,
+  html.is-thumbfull-arrive [data-art-show] .ag-set-viewport,
+  html.is-thumbfull-slide body > article {
+    opacity: 1;
+  }
 }

@@ -317,6 +317,7 @@ export function initDesktop(stage: HTMLElement) {
       });
       card.addEventListener("pointerleave", (e) => {
         if (e.pointerType === "touch") return;
+        if (belongsTo(id, e.relatedTarget)) return;
         hideCardTip();
       });
     }

@@ -3,8 +3,10 @@
 // 因此这里用「离场盖黑 → 真实跳转 → 新页首屏前盖黑 → 淡出」实现跨页不闪烁：
 // 离场时写 sessionStorage 标记，新页面由 TransitionOverlay.astro 的 inline 脚本在首屏绘制前读标记直接盖黑。
 const FLAG = "lszbf:tx";
+const SLIDE_FLAG = "lszbf:dtx";
 const COVER_CLASS = "tx-covered";
 const FADE_MS = 380; // 必须与 global.css 里 #transition-overlay 的 transition 时长一致
+const SLIDE_MS = 420;
 const THUMB_KEY = "lszbf:thumbfull";
 
 function hasThumbFull() {
@@ -40,6 +42,30 @@ function resolveUrl(url: string) {
     /* ignore */
   }
   return "/desktop";
+}
+
+/** 上滑进 / 下滑回，不盖黑。详情页返回桌面走 fall。 */
+export function navigateSlide(url: string, dir: "rise" | "fall") {
+  url = resolveUrl(url);
+  try {
+    sessionStorage.setItem(SLIDE_FLAG, dir);
+  } catch {
+    /* 隐私模式：目标页没有入场动画 */
+  }
+  if (reducedMotion() || hasThumbFull()) {
+    window.location.href = url;
+    return;
+  }
+  const root = document.documentElement;
+  root.dataset.slide = dir;
+  root.classList.add("is-slide-leaving");
+  window.setTimeout(() => {
+    window.location.href = url;
+  }, SLIDE_MS);
+}
+
+function isSlideBack(a: HTMLAnchorElement) {
+  return a.classList.contains("sheet-home") || a.dataset.fall !== undefined;
 }
 
 /** 渐黑后跳转（供 desk.ts 等程序化导航调用） */
@@ -84,7 +110,16 @@ export function initTransitions() {
 
   document.addEventListener("click", (e) => {
     const a = (e.target as HTMLElement | null)?.closest("a") as HTMLAnchorElement | null;
-    if (!a || !shouldIntercept(a, e)) return;
+    if (!a) return;
+    if (isSlideBack(a)) {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const href = a.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      e.preventDefault();
+      navigateSlide(a.href, "fall");
+      return;
+    }
+    if (!shouldIntercept(a, e)) return;
     e.preventDefault();
     navigateWithTransition(a.href);
   });

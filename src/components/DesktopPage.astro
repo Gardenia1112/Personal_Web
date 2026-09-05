@@ -9,6 +9,7 @@ import AwardsStack from "./AwardsStack.astro";
 import "../styles/global.css";
 import "../styles/desktop.css";
 import "../styles/dev-index.css";
+import "../styles/art-gallery.css";
 import "../styles/thumbfull.css";
 import { desktopEntries } from "../data/desktop";
 import { projects } from "../data/projects";
@@ -72,14 +73,14 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
                 data-label={e.label}
                 data-kicker={e.kicker}
                 data-tip={e.tip}
-                aria-label={e.tip ?? e.label}
+                aria-label={e.action === "pop" ? `${e.label}，点击进入目录` : (e.tip ?? e.label)}
               >
                 <EntryArt
                   art={e.art}
                   label={e.art !== "logo" ? e.label : undefined}
                   thumbs={FOLDER_THUMBS[e.id]}
                 />
-                <span class="dt-card-name">{e.tip ?? e.label}</span>
+                <span class="dt-card-name">{e.label}</span>
               </button>
               {
                 e.id === "works" && (
@@ -117,7 +118,14 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
                     <div class="dt-fan">
                       {
                         artworks.slice(0, 6).map((a) => (
-                          <div class="dt-fan-item" data-tip={a.category} aria-label={a.name}>
+                          <a
+                            class="dt-fan-item"
+                            href={`/art/${a.slug}`}
+                            data-no-transition
+                            data-rise
+                            data-tip={a.category}
+                            aria-label={a.name}
+                          >
                             {a.cover ? (
                               <span class="dt-fan-thumb">
                                 <img src={a.cover} alt={a.name} loading="lazy" />
@@ -127,7 +135,7 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
                                 <span>{a.category}</span>
                               </span>
                             )}
-                          </div>
+                          </a>
                         ))
                       }
                     </div>
@@ -143,8 +151,8 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
     <div class="dt-card-tip" id="dt-card-tip" aria-hidden="true"></div>
     <div class="dt-veil" id="dt-veil"></div>
 
-    <div class="dt-folder-layer" id="dt-folder-layer" data-folder-layer hidden={!initialFolder}>
-      <button type="button" class="dt-folder-close" data-folder-close aria-label="关闭文件夹" hidden={initialFolder === "awards"}>
+    <div class:list={["dt-folder-layer", { "is-in": Boolean(initialFolder) }]} id="dt-folder-layer" data-folder-layer hidden={!initialFolder}>
+      <button type="button" class="dt-folder-close" data-folder-close aria-label="关闭文件夹" hidden>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
         </svg>

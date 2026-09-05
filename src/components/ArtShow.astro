@@ -1,0 +1,57 @@
+---
+import type { Artwork } from "../data/art";
+
+interface Props {
+  artwork: Artwork;
+}
+
+const { artwork } = Astro.props;
+const video = artwork.pieces[0]?.kind === "video";
+const unit = video ? "支" : "件";
+---
+<article class="ag ag--sheet" data-art-show data-art-slug={artwork.slug}>
+  {
+    artwork.cover && (
+      <div class="ag-hero thumbfull-outer" data-thumbfull-outer>
+        <div class="thumbfull-inner" data-thumbfull-inner>
+          <img src={artwork.cover} alt="" />
+        </div>
+      </div>
+    )
+  }
+  <header class="ag-bar" data-thumbfull-copy>
+    <p class="ag-kicker">
+      <b>{artwork.category}</b> {artwork.pieces.length} {unit}
+    </p>
+    <p class="ag-hint">{video ? "Play / Drag" : "Scroll / Drag"}</p>
+  </header>
+
+  <div class="ag-set-viewport" data-ag-set-view tabindex="0" role="group" aria-label={`${artwork.category}展示`}>
+    <div class="ag-set-track">
+      {
+        artwork.pieces.map((p, i) => (
+          <figure class:list={["ag-piece", p.kind === "video" && "is-video"]}>
+            {p.kind === "video" ? (
+              p.src ? (
+                <video src={p.src} controls playsinline preload="metadata" />
+              ) : (
+                <div class="ag-piece-ph">
+                  <span class="ag-piece-num">{String(i + 1).padStart(2, "0")}</span>
+                  <span class="ag-piece-label">{p.label}</span>
+                  <span class="ag-piece-note">视频待补</span>
+                </div>
+              )
+            ) : p.src ? (
+              <img src={p.src} alt={p.label} draggable="false" />
+            ) : (
+              <div class="ag-piece-ph">
+                <span class="ag-piece-num">{String(i + 1).padStart(2, "0")}</span>
+                <span class="ag-piece-label">{p.label}</span>
+              </div>
+            )}
+          </figure>
+        ))
+      }
+    </div>
+  </div>
+</article>

@@ -1,55 +1,39 @@
 ---
 import SheetLayout from "../../layouts/SheetLayout.astro";
+import ArtShow from "../../components/ArtShow.astro";
 import { artworks } from "../../data/art";
+import "../../styles/art-gallery.css";
 
 export function getStaticPaths() {
-  return artworks.map((a, i) => ({
+  return artworks.map((a) => ({
     params: { slug: a.slug },
-    props: { art: a, index: i },
+    props: { artwork: a },
   }));
 }
 
-const { art, index } = Astro.props;
-const num = String(index + 1).padStart(2, "0");
+const { artwork } = Astro.props;
 ---
-<SheetLayout title={`${art.name} · lszbf.com`} backHref="/art" backLabel="关闭，回美术">
-  <script is:inline define:vars={{ slug: art.slug }}>
+<SheetLayout title={`${artwork.category} · lszbf.com`}>
+  <script is:inline define:vars={{ slug: artwork.slug }}>
     try {
       var raw = sessionStorage.getItem("lszbf:thumbfull");
       if (raw) {
         var data = JSON.parse(raw);
-        if (data && data.slug === slug && data.expanded) {
-          document.documentElement.classList.add("is-thumbfull-arrive");
+        if (data && data.slug === slug) {
+          document.documentElement.classList.add(data.expanded ? "is-thumbfull-arrive" : "is-thumbfull-slide");
         }
       }
     } catch (err) {}
   </script>
-
-  <article class="pd paper-page paper-page--works" data-art-slug={art.slug}>
-    <header class="pd-hero">
-      <div class="pd-hero-media">
-        {
-          art.cover ? (
-            <img src={art.cover} alt={`${art.name} 封面`} />
-          ) : (
-            <div class="wx-ph" aria-hidden="true"></div>
-          )
-        }
-      </div>
-      <div class="pd-hero-copy" data-thumbfull-copy>
-        <p class="pd-eyebrow"><b>{num}</b> {art.category}</p>
-        <ul class="pd-hero-tags">
-          <li>{art.category}</li>
-        </ul>
-        <h1 class="pd-hero-title">{art.name}</h1>
-      </div>
-    </header>
-  </article>
+  <ArtShow artwork={artwork} />
 </SheetLayout>
 
 <script>
   import { arriveThumbFull } from "../../scripts/thumbfull";
-  const root = document.querySelector<HTMLElement>("[data-art-slug]");
-  const copy = document.querySelector<HTMLElement>("[data-thumbfull-copy]");
-  arriveThumbFull(root?.dataset.artSlug ?? "", copy);
+  import { initArtShow } from "../../scripts/desktop/art-gallery";
+  const root = document.querySelector<HTMLElement>("[data-art-show]");
+  if (root) {
+    arriveThumbFull(root.dataset.artSlug ?? "", root.querySelector("[data-thumbfull-copy]"));
+    initArtShow(root);
+  }
 </script>

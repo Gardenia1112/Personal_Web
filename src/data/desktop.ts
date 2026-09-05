@@ -20,7 +20,7 @@ export interface DesktopEntry {
 }
 
 export const desktopEntries: DesktopEntry[] = [
-  { id: "works", art: "folder-red", label: "项目与作品", kicker: "01 · 开发", action: "pop" },
-  { id: "art", art: "folder-amber", label: "画与设计", kicker: "02 · 美术", action: "pop" },
+  { id: "works", art: "folder-red", label: "项目与作品", kicker: "01 · 开发", tip: "点击进入目录", action: "pop" },
+  { id: "art", art: "folder-amber", label: "画与设计", kicker: "02 · 美术", tip: "点击进入目录", action: "pop" },
   { id: "blog", art: "logo", label: "博客", kicker: "03 · 写作", tip: "博客入口", action: "route", href: "/blog" },
 ];

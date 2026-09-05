@@ -575,6 +575,13 @@ html[data-page="desktop"] #cursor {
   .dt-ground {
     animation: none;
   }
+
+  .dt-folder-layer,
+  .dt-folder-layer.is-out {
+    transform: none;
+    opacity: 1;
+    transition: none;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -584,7 +591,7 @@ html[data-page="desktop"] #cursor {
   }
 }
 
-/* 文件夹子状态：奶油底上的 overlay，内部再用 sheet token */
+/* 文件夹子状态：奶油底上的 overlay；进上滑、出下滑，对齐卡片 rise/fall */
 html[data-page="desktop"].is-folder-open .dt-stage {
   opacity: 0.22;
   pointer-events: none;
@@ -596,6 +603,20 @@ html[data-page="desktop"].is-folder-open .dt-stage {
   z-index: 40;
   overflow: auto;
   background: color-mix(in srgb, var(--color-paper) 82%, white);
+  transform: translateY(12vh);
+  opacity: 0;
+  transition: transform 0.48s cubic-bezier(0.16, 0.84, 0.3, 1), opacity 0.4s ease;
+}
+
+.dt-folder-layer.is-in {
+  transform: none;
+  opacity: 1;
+}
+
+.dt-folder-layer.is-out {
+  transform: translateY(14vh);
+  opacity: 0;
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
 }
 
 .dt-folder-close {

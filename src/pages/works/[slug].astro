@@ -26,14 +26,14 @@ const chapters = [
   { no: "04", label: "量化成果", title: "最后拿到什么", text: project.result },
 ].filter((c) => Boolean(c.text));
 ---
-<SheetLayout title={`${project.name} · lszbf.com`} backHref="/works" backLabel="关闭，回作品">
+<SheetLayout title={`${project.name} · lszbf.com`}>
   <script is:inline define:vars={{ slug: project.slug }}>
     try {
       var raw = sessionStorage.getItem("lszbf:thumbfull");
       if (raw) {
         var data = JSON.parse(raw);
-        if (data && data.slug === slug && data.expanded) {
-          document.documentElement.classList.add("is-thumbfull-arrive");
+        if (data && data.slug === slug) {
+          document.documentElement.classList.add(data.expanded ? "is-thumbfull-arrive" : "is-thumbfull-slide");
         }
       }
     } catch (err) {}

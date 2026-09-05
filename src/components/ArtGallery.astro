@@ -1,30 +1,39 @@
 ---
 import { artworks } from "../data/art";
 ---
-<div class="wx" data-art-gallery>
-  <header class="dt-folder-head">
-    <p class="dt-folder-kicker"><b>02</b> Art</p>
-    <h2 class="dt-folder-title">美术</h2>
-    <p class="dt-folder-sub">绘画 / 设计 / 建模 / 剪辑</p>
+<div class="ag" data-art-gallery>
+  <header class="ag-bar">
+    <p class="ag-kicker"><b>02</b> Art</p>
+    <p class="ag-hint">Scroll / Drag</p>
   </header>
-  <section class="wx-list" aria-label="美术作品">
-    {
-      artworks.map((a, i) => (
-        <a class="wx-row" href={`/art/${a.slug}`} data-wx-row data-no-transition>
-          <span class="wx-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
-          <div class="wx-copy">
-            <h3 class="wx-title">{a.name}</h3>
-            {a.category && (
-              <ul class="wx-tags">
-                <li>{a.category}</li>
-              </ul>
-            )}
-          </div>
-          <div class="wx-thumb">
-            {a.cover ? <img src={a.cover} alt="" /> : <div class="wx-ph" aria-hidden="true"></div>}
-          </div>
-        </a>
-      ))
-    }
-  </section>
+
+  <div class="ag-viewport" tabindex="0" role="group" aria-label="美术分类">
+    <div class="ag-track">
+      {
+        artworks.map((a, i) => (
+          <a
+            class="ag-item"
+            href={`/art/${a.slug}`}
+            data-ag-item
+            data-no-transition
+          >
+            <span class="ag-media">
+              {a.cover ? (
+                <img class="ag-img" src={a.cover} alt="" draggable="false" />
+              ) : (
+                <span class="ag-ph" aria-hidden="true">
+                  <span class="ag-ph-num">{String(i + 1).padStart(2, "0")}</span>
+                  <span class="ag-ph-title">{a.name}</span>
+                  <span class="ag-ph-sub">
+                    {a.category} · {a.pieces.length}
+                    {a.pieces[0]?.kind === "video" ? " 支" : " 件"}
+                  </span>
+                </span>
+              )}
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
 </div>

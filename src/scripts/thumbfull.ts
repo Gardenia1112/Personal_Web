@@ -50,41 +50,63 @@ function slugFromHref(href: string) {
   return href.split("/").filter(Boolean).pop() ?? "";
 }
 
-function mediaSrc(media: HTMLElement) {
-  return media instanceof HTMLImageElement ? media.currentSrc || media.src : "";
+function mediaSrc(media: HTMLImageElement) {
+  return media.currentSrc || media.src || "";
 }
 
-/** 当前页：点中的卡片缩略图当场胀到全宽，再进详情（Codrops ThumbFull） */
+function coverSrc(row: HTMLAnchorElement) {
+  const img = row.querySelector<HTMLImageElement>(".wx-thumb img, .ag-media img, img.ag-img");
+  if (!img) return "";
+  return mediaSrc(img);
+}
+
+function destSize(row: HTMLAnchorElement) {
+  const artCard = row.classList.contains("ag-item");
+  return {
+    w: window.innerWidth,
+    h: artCard ? window.innerHeight : Math.min(window.innerHeight * 0.72, 820),
+  };
+}
+
+function goSlide(href: string, slug: string) {
+  writeThumbFull({ slug, src: "", expanded: false });
+  window.location.href = href;
+}
+
+/** 当前页：有封面则缩略图胀到 hero 尺寸再跳；缺封面 / 占位框走 slide-in */
 export function expandThenGo(row: HTMLAnchorElement) {
   const href = row.getAttribute("href");
   if (!href) return;
   const slug = slugFromHref(href);
-  const thumb = row.querySelector<HTMLElement>(".wx-thumb");
-  const media = thumb?.querySelector<HTMLElement>("img, .wx-ph");
+  const src = coverSrc(row);
 
-  if (!thumb || !media || reducedMotion()) {
-    writeThumbFull({ slug, src: media ? mediaSrc(media) : "", expanded: true });
-    window.location.href = href;
+  if (!src || reducedMotion()) {
+    goSlide(href, slug);
+    return;
+  }
+
+  const thumb = row.querySelector<HTMLElement>(".wx-thumb, .ag-media");
+  const media = thumb?.querySelector<HTMLImageElement>("img");
+  if (!thumb || !media) {
+    goSlide(href, slug);
     return;
   }
 
   const start = thumb.getBoundingClientRect();
   if (start.width < 8 || start.height < 8) {
-    writeThumbFull({ slug, src: mediaSrc(media), expanded: true });
-    window.location.href = href;
+    goSlide(href, slug);
     return;
   }
 
-  const destW = window.innerWidth;
-  const destH = Math.min(window.innerHeight * 0.72, 820);
+  const { w: destW, h: destH } = destSize(row);
   const sx = start.width / destW;
   const sy = start.height / destH;
   const from = `translate(${start.left}px, ${start.top}px) scale(${sx}, ${sy})`;
 
-  writeThumbFull({ slug, src: mediaSrc(media), expanded: true });
+  writeThumbFull({ slug, src, expanded: true });
 
   row.classList.add("is-expanding");
-  row.closest(".wx-list")?.querySelectorAll<HTMLElement>(".wx-row").forEach((el) => {
+  row.closest(".wx-list, .ag-track")?.querySelectorAll<HTMLElement>(".wx-row, .ag-item").forEach((el) => {
     if (el !== row) el.classList.add("is-leaving");
   });
   document.documentElement.classList.add("is-thumbfull-leaving");
@@ -125,12 +147,27 @@ export function bindThumbFullLinks(root: HTMLElement) {
   });
 }
 
-/** 详情页：胀开已在上一页播完，这里只淡入文案 */
+function slideRoot() {
+  return (
+    document.querySelector<HTMLElement>("body > article") ??
+    document.querySelector<HTMLElement>("[data-art-show]")
+  );
+}
+
+/** 详情 / 展示页：胀开已在上一页播完则只淡入文案；缺封面则整页 slide-in */
 export function arriveThumbFull(slug: string, copy?: HTMLElement | null) {
   const data = readThumbFull();
-  document.documentElement.classList.remove("is-thumbfull", "is-thumbfull-arrive");
-  const match = Boolean(data && data.slug === slug && data.expanded);
-  if (match && copy && !reducedMotion()) {
+  const root = document.documentElement;
+  const match = Boolean(data && data.slug === slug);
+
+  if (!match || reducedMotion()) {
+    root.classList.remove("is-thumbfull", "is-thumbfull-arrive", "is-thumbfull-slide");
+    clearThumbFull();
+    return;
+  }
+
+  if (data?.expanded && copy) {
+    root.classList.remove("is-thumbfull", "is-thumbfull-slide", "is-thumbfull-arrive");
     copy.animate(
       [
         { transform: "translateY(20px)", opacity: 0 },
@@ -138,6 +175,25 @@ export function arriveThumbFull(slug: string, copy?: HTMLElement | null) {
       ],
       { duration: 560, easing: "ease-out", fill: "forwards" }
     );
+  } else if (!data?.expanded) {
+    root.classList.remove("is-thumbfull", "is-thumbfull-arrive");
+    const page = slideRoot();
+    if (page) {
+      const anim = page.animate(
+        [
+          { transform: "translateY(30px)", opacity: 0 },
+          { transform: "none", opacity: 1 },
+        ],
+        { duration: 480, easing: "ease-out", fill: "forwards" }
+      );
+      const done = () => root.classList.remove("is-thumbfull-slide");
+      anim.finished.then(done).catch(done);
+    } else {
+      root.classList.remove("is-thumbfull-slide");
+    }
+  } else {
+    root.classList.remove("is-thumbfull", "is-thumbfull-arrive", "is-thumbfull-slide");
   }
+
   clearThumbFull();
 }
