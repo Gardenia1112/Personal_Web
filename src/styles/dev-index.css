@@ -1,0 +1,161 @@
+/* 桌面红文件夹 · 开发案例条。只用 --color-sheet*，不改桌面 --color-paper / --color-ink */
+
+.wx {
+  padding: 8px 0 64px;
+}
+
+.wx-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.wx-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 22vw);
+  align-items: end;
+  gap: 24px;
+  min-height: 28vh;
+  padding: 36px clamp(24px, 5vw, 72px) 28px;
+  border-top: 1px solid color-mix(in srgb, var(--color-sheet-ink) 12%, transparent);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: transform 0.35s ease;
+}
+
+.wx-row:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-sheet-ink) 12%, transparent);
+}
+
+.wx-row:hover,
+.wx-row.is-hot {
+  transform: translateX(16px);
+}
+
+.wx-num {
+  position: absolute;
+  left: clamp(16px, 4vw, 56px);
+  bottom: -0.18em;
+  z-index: 0;
+  font-size: clamp(88px, 16vw, 180px);
+  font-weight: 800;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  color: var(--color-sheet-blue);
+  opacity: 0.22;
+  pointer-events: none;
+  transition: opacity 0.35s ease, color 0.35s ease;
+}
+
+.wx-row:hover .wx-num,
+.wx-row.is-hot .wx-num {
+  opacity: 0.55;
+  color: var(--color-sheet-blue-deep);
+}
+
+.wx-copy {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 8px;
+}
+
+.wx-title {
+  margin: 0;
+  font-size: clamp(28px, 4.4vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--color-sheet-ink);
+}
+
+.wx-lede {
+  margin: 14px 0 0;
+  max-width: 46ch;
+  font-size: 15px;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--color-sheet-ink) 68%, transparent);
+}
+
+.wx-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+}
+
+.wx-tags li {
+  padding: 3px 10px;
+  border: 1px solid var(--color-sheet-blue);
+  color: var(--color-sheet-blue-deep);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
+.wx-thumb {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--color-sheet-blue) 16%, white);
+  transform: translateX(28%);
+  opacity: 0;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.wx-row:hover .wx-thumb,
+.wx-row.is-hot .wx-thumb {
+  transform: none;
+  opacity: 1;
+}
+
+.wx-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.wx-ph {
+  width: 100%;
+  height: 100%;
+  background: color-mix(in srgb, var(--color-sheet-blue) 22%, var(--color-sheet));
+}
+
+@media (max-width: 767px) {
+  .wx-row {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding-top: 28px;
+  }
+
+  .wx-num {
+    font-size: 72px;
+  }
+
+  .wx-thumb {
+    max-width: 220px;
+    transform: translateX(18%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wx-row,
+  .wx-num,
+  .wx-thumb {
+    transition: none;
+  }
+
+  .wx-row:hover,
+  .wx-row.is-hot {
+    transform: none;
+  }
+
+  .wx-thumb {
+    transform: none;
+    opacity: 1;
+  }
+}

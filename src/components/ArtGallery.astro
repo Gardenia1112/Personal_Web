@@ -1,0 +1,20 @@
+---
+import { artworks } from "../data/art";
+---
+<div class="dt-stub" data-art-gallery>
+  <header class="dt-folder-head">
+    <p class="dt-folder-kicker"><b>02</b> Art</p>
+    <h2 class="dt-folder-title">美术</h2>
+    <p class="dt-folder-sub">横向视差画廊 · 占位（6E'）</p>
+  </header>
+  <ul class="dt-stub-list">
+    {
+      artworks.map((a) => (
+        <li>
+          <span class="dt-stub-tag">{a.category}</span>
+          <span>{a.name}</span>
+        </li>
+      ))
+    }
+  </ul>
+</div>

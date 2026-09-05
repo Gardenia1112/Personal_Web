@@ -1,17 +1,14 @@
 // /desktop 选择台（原生 JS + GSAP）
-// 文件夹（细指针）：悬停即从袋面左下沿弧线扇出；离开文件夹和扇面后收回
-// 触屏没有稳定悬停，改点一下开合。博客仍直接换页
+// 文件夹：悬停仍扇出预览；点击打开桌面子状态（开发索引 / 美术占位）
+// 博客仍直接换页。Escape / 关闭钮收回子状态
 import gsap from "gsap";
 import { desktopEntries } from "../../data/desktop";
+import { getCurrentFolder } from "./folder-views";
 
 const ENTER_FLAG = "lszbf:dtx";
 
 function reducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-function hoverOpens() {
-  return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 }
 
 export function initDesktop(stage: HTMLElement) {
@@ -223,7 +220,7 @@ export function initDesktop(stage: HTMLElement) {
     });
   };
 
-  const close = () => {
+  const closeFan = () => {
     if (!current) return;
     const id = current;
     const card = cards.get(id)!;
@@ -246,6 +243,7 @@ export function initDesktop(stage: HTMLElement) {
   };
 
   function intendOpen(id: string) {
+    if (getCurrentFolder()) return;
     window.clearTimeout(closeTimer);
     window.clearTimeout(openTimer);
     if (current === id) return;
@@ -256,7 +254,7 @@ export function initDesktop(stage: HTMLElement) {
     window.clearTimeout(openTimer);
     window.clearTimeout(closeTimer);
     closeTimer = window.setTimeout(() => {
-      if (current === id) close();
+      if (current === id) closeFan();
     }, 180);
   }
 
@@ -309,12 +307,7 @@ export function initDesktop(stage: HTMLElement) {
     card.addEventListener("click", () => {
       if (entry?.action === "route" && entry.href) {
         leaveTo(entry.href, "veil");
-        return;
       }
-      if (!canFan) return;
-      if (hoverOpens()) return;
-      if (current === id) close();
-      else open(id);
     });
 
     if (card.dataset.tip) {
@@ -406,6 +399,6 @@ export function initDesktop(stage: HTMLElement) {
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && current) close();
+    if (e.key === "Escape" && current && !getCurrentFolder()) closeFan();
   });
 }

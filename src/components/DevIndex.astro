@@ -1,0 +1,54 @@
+---
+import { projects } from "../data/projects";
+
+function yearFrom(period: string) {
+  return period.match(/\d{4}/)?.[0];
+}
+
+function typeFrom(role: string) {
+  const part = role.split("·")[0]?.trim();
+  return part || undefined;
+}
+
+const cases = projects.map((p, i) => {
+  const tags = [typeFrom(p.role), yearFrom(p.period)].filter((t): t is string => Boolean(t));
+  return {
+    slug: p.slug,
+    title: p.name,
+    lede: p.problem,
+    tags,
+    cover: p.media?.cover ?? "",
+    num: String(i + 1).padStart(2, "0"),
+  };
+});
+---
+<div class="wx" data-dev-index>
+  <header class="dt-folder-head">
+    <p class="dt-folder-kicker"><b>01</b> Works</p>
+    <h2 class="dt-folder-title">开发</h2>
+    <p class="dt-folder-sub">四段式案例</p>
+  </header>
+  <section class="wx-list" aria-label="开发项目">
+    {
+      cases.map((c) => (
+        <a class="wx-row" href={`/works/${c.slug}`} data-wx-row>
+          <span class="wx-num" aria-hidden="true">{c.num}</span>
+          <div class="wx-copy">
+            <h3 class="wx-title">{c.title}</h3>
+            <p class="wx-lede">{c.lede}</p>
+            {c.tags.length > 0 && (
+              <ul class="wx-tags">
+                {c.tags.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <div class="wx-thumb">
+            {c.cover ? <img src={c.cover} alt="" /> : <div class="wx-ph" aria-hidden="true"></div>}
+          </div>
+        </a>
+      ))
+    }
+  </section>
+</div>

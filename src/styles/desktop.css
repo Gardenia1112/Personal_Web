@@ -47,7 +47,7 @@ html[data-page="desktop"] #cursor {
   position: fixed;
   top: clamp(18px, 3vw, 32px);
   left: clamp(18px, 3vw, 32px);
-  z-index: 30;
+  z-index: 50;
   width: 44px;
   height: 44px;
   display: grid;
@@ -582,4 +582,106 @@ html[data-page="desktop"] #cursor {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(18px, 5vw, 36px);
   }
+}
+
+/* 文件夹子状态：奶油底上的 overlay，内部再用 sheet token */
+html[data-page="desktop"].is-folder-open .dt-stage {
+  opacity: 0.22;
+  pointer-events: none;
+}
+
+.dt-folder-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  overflow: auto;
+  background: color-mix(in srgb, var(--color-paper) 82%, white);
+}
+
+.dt-folder-close {
+  position: fixed;
+  top: clamp(18px, 3vw, 32px);
+  right: clamp(18px, 3vw, 32px);
+  z-index: 51;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 999px;
+  border: 1.5px solid rgba(29, 33, 38, 0.16);
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.dt-folder-close svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dt-folder-close:hover {
+  background: var(--color-ink);
+  border-color: var(--color-ink);
+  color: #ffffff;
+}
+
+.dt-folder-head {
+  padding: 72px clamp(24px, 5vw, 72px) 12px;
+}
+
+.dt-folder-kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-sheet-ink) 50%, transparent);
+}
+
+.dt-folder-kicker b {
+  color: var(--color-sheet-blue);
+}
+
+.dt-folder-title {
+  margin: 0;
+  font-size: clamp(36px, 5vw, 64px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--color-sheet-ink);
+}
+
+.dt-folder-sub {
+  margin: 10px 0 0;
+  font-size: 14px;
+  color: color-mix(in srgb, var(--color-sheet-ink) 55%, transparent);
+}
+
+.dt-stub-list,
+.dt-stub-stack {
+  list-style: none;
+  margin: 0;
+  padding: 12px clamp(24px, 5vw, 72px) 72px;
+}
+
+.dt-stub-list li,
+.dt-stub-stack li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  align-items: baseline;
+  padding: 18px 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-sheet-ink) 12%, transparent);
+  color: var(--color-sheet-ink);
+}
+
+.dt-stub-list li:last-child,
+.dt-stub-stack li:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--color-sheet-ink) 12%, transparent);
+}
+
+.dt-stub-tag,
+.dt-stub-stack b {
+  color: var(--color-sheet-blue-deep);
+  font-size: 12px;
+  letter-spacing: 0.06em;
 }

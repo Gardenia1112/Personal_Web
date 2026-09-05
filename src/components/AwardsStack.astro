@@ -1,0 +1,22 @@
+---
+import { awards } from "../data/awards";
+
+const visible = awards.filter((a) => !a.hide);
+---
+<div class="dt-stub" data-awards-stack>
+  <header class="dt-folder-head">
+    <p class="dt-folder-kicker"><b>03</b> Awards</p>
+    <h2 class="dt-folder-title">获奖</h2>
+    <p class="dt-folder-sub">文件夹层叠 · 占位（6F'）</p>
+  </header>
+  <ul class="dt-stub-stack">
+    {
+      visible.map((a) => (
+        <li>
+          <b>{a.level}</b>
+          <span>{a.name}</span>
+        </li>
+      ))
+    }
+  </ul>
+</div>

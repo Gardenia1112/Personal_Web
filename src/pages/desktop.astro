@@ -1,13 +1,17 @@
 ---
 // /desktop —— 入口选择台（2026-09-04 决策：替掉拟物桌面 OS）
-// 三个图标：文件夹悬停扇出作品（触屏点一下），扇面卡片悬停出短标题，博客直接换页
+// 三个图标：悬停扇出预览；点击文件夹打开子状态（开发索引 / 美术占位）；博客直接换页
 // 简历入口第三轮撤掉，改到 /about 左上角做下载链接
 // 内容全部来自 src/data/{desktop,projects,art}.ts，这里不写死文案
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
 import EntryArt from "../components/Desktop/EntryArt.astro";
+import DevIndex from "../components/DevIndex.astro";
+import ArtGallery from "../components/ArtGallery.astro";
+import AwardsStack from "../components/AwardsStack.astro";
 import "../styles/global.css";
 import "../styles/desktop.css";
+import "../styles/dev-index.css";
 import { desktopEntries } from "../data/desktop";
 import { projects } from "../data/projects";
 import { artworks } from "../data/art";
@@ -60,6 +64,7 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
                 class="dt-card"
                 type="button"
                 data-entry={e.id}
+                data-open-folder={e.id === "works" ? "dev" : e.id === "art" ? "art" : undefined}
                 data-label={e.label}
                 data-kicker={e.kicker}
                 data-tip={e.tip}
@@ -134,6 +139,27 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
     <div class="dt-card-tip" id="dt-card-tip" aria-hidden="true"></div>
     <div class="dt-veil" id="dt-veil"></div>
 
+    <div class="dt-folder-layer" id="dt-folder-layer" data-folder-layer hidden>
+      <button type="button" class="dt-folder-close" data-folder-close aria-label="关闭文件夹">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div class="dt-folder-view" data-folder-view="dev" hidden>
+        <DevIndex />
+      </div>
+      <div class="dt-folder-view" data-folder-view="art" hidden>
+        <ArtGallery />
+      </div>
+      <div class="dt-folder-view" data-folder-view="awards" hidden>
+        <AwardsStack />
+      </div>
+    </div>
+
+    <script>
+      import { initFolderViews } from "../scripts/desktop/folder-views";
+      initFolderViews();
+    </script>
     <script>
       import { initDesktop } from "../scripts/desktop/desktop";
       const stage = document.getElementById("dt-stage");

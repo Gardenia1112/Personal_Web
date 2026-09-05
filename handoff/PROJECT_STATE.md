@@ -16,6 +16,7 @@
 - 已落地 §4，但**换了方案**（2026-09-04 用户决策，已提交）：`/desktop` 不再是拟物桌面 OS。现状是：页面上只有三个图标（红/黄文件夹、粉白 Z Logo）+ 左上角一个无字返回箭头；悬停时名字浮在鼠标边上跟着晃；**红/黄文件夹悬停扇出**作品卡片（触屏改为点按），Logo 直接换页进 `/blog`。窗口系统 / 双击开窗 / 图标位置持久化 / 桌面贴纸 / 右上角路由菜单五项连同 `.os-*` 样式一起删除。
 - 开场剧本播放策略已改（2026-09-04，已提交）：标记从 `localStorage` 换成 `sessionStorage["lszbf:intro:played"]`，即「每个会话播一次」——同标签页刷新/跳页回来跳过，关掉标签页再进重播；`/?intro` 强制重播。
 - Phase 3 重做（提交 `6109a98`，2026-09-05）：`/about` 从「横版小人走过 4 展板」改成**碰旗弹卡**——黄色小球用 A/D 或 ←/→ 走到小旗前，碰到就弹出一张图文卡片；四章（`start / turning / now / ending`）各带封面 + 拍立得图墙，`ending` 章触发庆祝烟花 + 滚轮左右翻阅全章 + 「联系我」CTA。整页统一成奶油黄清新配色，图片落在 `public/assets/about/`。任务卡 `PHASE3` 里「横版小人 + 4 展板」的旧描述已被本实现取代（以 docs/03 §5.5/§6 为准）。
+- Phase 6 作品/奖项入口收敛（决策 **D21 / D21-2**，2026-09-05）：`/works`、`/awards` 独立列表页废弃——开发作品/美术画廊迁入 `/desktop` 文件夹，奖项证书改为工位「文件堆·获奖证书」触发的 AwardsStack overlay；顶部导航本阶段不动（用户 lszbf 自改）。详见 执行手册 §0.2。
 - 未做：手册 §7 的昼夜全局化（光标已提前做完）、§8/§9（Phase 7 内容与部署）。
 
 ---
@@ -50,10 +51,20 @@
 | Phase 3 | 游戏化介绍（Phaser 碰旗弹卡 + 四章图文卡片） | ✅ 重做已提交（`6109a98`） | Cursor | `handoff/tasks/PHASE3-游戏化介绍.md`（旧「横版+4展板」描述已被实现取代，以 docs/03 §5.5 为准） |
 | Phase 4 | `/desktop` 四入口选择台（原生 JS + GSAP + View Transition） | ✅ 精修已做，**换方案**：任务卡里的窗口系统与图标持久化按用户决策作废，待人工验收 | Cursor | `handoff/tasks/PHASE4-桌面OS.md`（部分作废，实现以 docs/03 §3 为准） |
 | Phase 5 | 细节物件（键盘技能矩阵 + 证书墙 + 本子 Links + 台灯主题） | ✅（证书墙完成，其余精修） | Cursor | `handoff/tasks/PHASE5-细节物件.md` |
-| Phase 6 | 彩蛋 + 优化（咖啡/耳机/贴纸 + 移动端降级 + 性能） | ✅ | Cursor | `handoff/tasks/PHASE6-彩蛋与优化.md` |
+| Phase 6 | 作品/奖项横向画廊（6A 组件 / 6B 分类 tab / 6C 详情页 / 6D 奖项页）+ 彩蛋优化 | ⚠️ 6B ✅；6C 产物（独立 `/works` 页）待迁入桌面（D21）；6E 美术画廊挂桌面黄文件夹；6F 奖项改工位文件堆（D21-2） | Cursor | `handoff/tasks/PHASE6-彩蛋与优化.md` |
 | Phase 7 | 内容填充 + 部署（Cloudflare Pages + 域名） | ⬜ 未开始 | Claude（部署）+ Cursor（填数据） | `handoff/tasks/PHASE7-内容填充与部署.md` |
 
 > git 记录：Phase 1 → 6 逐阶段提交。最近（作者 Gardenia1112）：`6109a98`（Phase 3 重做碰旗弹卡）、`0fbc003`（保存进度 + 同步文档）、`beec50d`（Phase 1-2 精修）。
+
+### 场景入口清单（D21-2，2026-09-05）
+
+| 内容 | 场景 | 入口物件 | 视图组件 |
+|---|---|---|---|
+| 开发作品 | `/desktop`（电脑桌面） | 红文件夹 | DevIndex |
+| 美术作品 | `/desktop`（电脑桌面） | 黄文件夹 | ArtGallery |
+| 奖项/证书 | 工位（3D 等距场景） | 文件堆·获奖证书（储物架上浅蓝色文件堆，边缘贴黄色便签） | AwardsStack |
+
+> 奖项不走 `/desktop`：AwardsStack 是工位场景内的 **overlay**（点击文件堆触发、场景内状态切换，非路由跳转），不是桌面文件夹视图。
 
 ---
 
@@ -80,7 +91,8 @@
 - ✅ 已补全：数模省一证书已就位（`2024-math-modeling-liaoning-1st.jpg`），`awards.ts` 全部 `file` 已齐。
 - ✅ 已补全：头像 `public/assets/brand/head.png`、favicon `public/favicon.ico` 已就位。
 - ✅ 已提供：美术素材（绘画/设计/建模/剪辑）源文件已在 `assets/{images,models,videos}/`，发布缩略图待 Phase 7。
-- ⚠️ **`/works` 横向画廊没有入口了**：选择台去掉 CTA 后，红文件夹里的封面直接进 `/works/[slug]`，画廊页只剩二级页 Nav 能进；首页 3D 工位也没有直达作品的物件（模型里没有多余的 `obj_*`，要补得先回 Blender）。待决定：选择台补个无字入口，还是就让画廊只作为 Nav 目标。
+- 🔴 **D21（2026-09-05）已决策 · 作品/获奖入口收敛**：`/works`、`/awards` 独立列表页废弃——作品/美术画廊并入 `/desktop` 文件夹，奖项改为工位「文件堆·获奖证书」AwardsStack overlay（D21-2）——「画廊没入口」问题随之作废。顶部导航「作品/获奖」跳转本阶段不动（用户 lszbf 自改）。
+- 🔴 **D21/D21-2 受影响文件（待回收/扩展，见 执行手册 §0.2）**：`src/pages/works/index.astro`（删除）、`src/components/HorizontalGallery.astro`（画廊组件，删除或复用）、`src/scripts/gallery.ts`（删除，逻辑迁入桌面）、`src/pages/awards.astro`（删除，AwardsStack 改工位文件堆 overlay）、`src/pages/desktop.astro`（扩展：红/黄文件夹打开 → 渲染 DevIndex/ArtGallery）、`src/styles/global.css`（画廊样式随迁清理）、工位场景 `src/scripts/desk.ts`（文件堆物件加 `data-interactable="awards"` + AwardsStack overlay）、桌面脚本新增（文件夹子状态管理）。⚠️ **Cursor 动手 6E/6F 前必须先读本决策（D21/D21-2）最新版。**
 - ⚠️ **博客内容**：`/blog` 路由已建，内容待填（Phase 7）。
 - ⚠️ **`room_full.glb` 未入库**（`.gitignore` 规则 `public/models/*.glb`）：本地正常，但 Cloudflare Pages 上取不到模型，首页会降级成静态导航。上线前必须决定「放开 gitignore 让 13MB 入库」或「托到 R2/CDN 改 `MODEL_URL`」。详见 docs/03 §9。
 - ⚠️ **首页 4 物件已下线**：显示器 / 键盘 / 耳机 / 贴纸在模型中无 `obj_*` 节点，按 2026-09-03 决策整体下线。

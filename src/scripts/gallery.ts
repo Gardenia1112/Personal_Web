@@ -23,15 +23,20 @@ export interface GalleryItem {
   download?: string; // 点击下载（PDF / Office 证书）
   actionLabel?: string; // download 卡片上的提示文案
   optional?: boolean; // 默认隐藏，由画廊上的开关显示（如校级 / 院级奖项）
+  shape?: "landscape" | "portrait" | "tile";
+  tone?: string; // 无封面时的色板键，由调用页从分类映射
 }
 
-const EASE = 0.08; // lerp 系数，过大会抖（见手册附录 B）
-const PARALLAX = 10; // 图片自身宽度的百分比；图片 125% 宽 + left:-12.5%，10% 刚好吃满预留量
-const WHEEL_SCALE = 1.1;
-const KEY_STEP = 420;
+const EASE = 0.085;
+const PARALLAX = 16; // 图片 140% 宽 + left:-20%，约 ±16% 刚好吃满预留量
+const WHEEL_SCALE = 1.15;
 
 function clamp(v: number, min: number, max: number) {
   return v < min ? min : v > max ? max : v;
+}
+
+function reducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
 export function initGallery(root: HTMLElement) {
@@ -43,6 +48,7 @@ export function initGallery(root: HTMLElement) {
   const tabsBar = root.querySelector<HTMLElement>(".gallery__tabs");
   const optionalToggle = root.querySelector<HTMLInputElement>("[data-gallery-toggle]");
   const allItems = Array.from(track.querySelectorAll<HTMLElement>(".gallery__item"));
+  const ease = reducedMotion() ? 1 : EASE;
 
   let target = 0;
   let current = 0;
@@ -55,23 +61,36 @@ export function initGallery(root: HTMLElement) {
     target = clamp(target, 0, max);
     current = clamp(current, 0, max);
     root.classList.toggle("is-static", max === 0);
+    root.querySelectorAll<HTMLButtonElement>(".gallery__nav").forEach((btn) => {
+      btn.disabled = max === 0;
+    });
   }
 
-  // 图片在容器内反向位移：离视口中心越远，位移越大（视差）
+  function renumber() {
+    visible.forEach((el, i) => {
+      const num = String(i + 1).padStart(2, "0");
+      const slot = el.querySelector(".gallery__num");
+      if (slot) slot.textContent = num;
+    });
+  }
+
   function applyParallax() {
+    if (reducedMotion()) return;
     const mid = viewport.clientWidth / 2;
     const vpLeft = viewport.getBoundingClientRect().left;
     for (const item of visible) {
-      const img = item.querySelector<HTMLElement>(".gallery__img");
-      if (!img) continue;
+      const layer = item.querySelector<HTMLElement>(".gallery__img, .gallery__paper");
+      if (!layer) continue;
+      // 证书要看全文，不做大位移裁切
+      if (item.classList.contains("gallery__item--portrait")) continue;
       const rect = item.getBoundingClientRect();
       const delta = (rect.left - vpLeft + rect.width / 2 - mid) / viewport.clientWidth;
-      img.style.transform = `translate3d(${clamp(delta, -1, 1) * -PARALLAX}%, 0, 0)`;
+      layer.style.transform = `translate3d(${clamp(delta, -1, 1) * -PARALLAX}%, 0, 0)`;
     }
   }
 
   function frame() {
-    current += (target - current) * EASE;
+    current += (target - current) * ease;
     if (Math.abs(target - current) < 0.05) current = target;
     track.style.transform = `translate3d(${-current}px, 0, 0)`;
     if (progress) progress.style.transform = `scaleX(${max === 0 ? 1 : current / max})`;
@@ -79,7 +98,6 @@ export function initGallery(root: HTMLElement) {
     requestAnimationFrame(frame);
   }
 
-  // ── 输入：滚轮 / 拖拽（含触屏）/ 方向键 ──
   viewport.addEventListener(
     "wheel",
     (e) => {
@@ -91,7 +109,7 @@ export function initGallery(root: HTMLElement) {
     { passive: false }
   );
 
-  const DRAG_SLOP = 6; // 超过这个位移算拖拽，不算点击
+  const DRAG_SLOP = 6;
   let dragId: number | null = null;
   let dragStartX = 0;
   let dragStartTarget = 0;
@@ -123,7 +141,6 @@ export function initGallery(root: HTMLElement) {
   viewport.addEventListener("pointerup", endDrag);
   viewport.addEventListener("pointercancel", endDrag);
 
-  // 拖完松手别顺手触发卡片跳转
   viewport.addEventListener(
     "click",
     (e) => {
@@ -135,15 +152,28 @@ export function initGallery(root: HTMLElement) {
     true
   );
 
+  function step(dir: number) {
+    const first = visible[0];
+    const width = first ? first.getBoundingClientRect().width + 32 : 480;
+    target = clamp(target + dir * width, 0, max);
+  }
+
   viewport.addEventListener("keydown", (e) => {
     if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-    target = clamp(target + (e.key === "ArrowRight" ? KEY_STEP : -KEY_STEP), 0, max);
+    step(e.key === "ArrowRight" ? 1 : -1);
     e.preventDefault();
+  });
+
+  root.querySelectorAll<HTMLButtonElement>(".gallery__nav").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const dir = Number(btn.dataset.dir);
+      if (!Number.isFinite(dir) || dir === 0) return;
+      step(dir);
+    });
   });
 
   window.addEventListener("resize", measure);
 
-  // ── 分组 tab（仅 /works 传入；GSAP 负责重排过渡）──
   function applyFilter(animate: boolean) {
     const showOptional = optionalToggle?.checked ?? false;
     visible = allItems.filter(
@@ -155,11 +185,12 @@ export function initGallery(root: HTMLElement) {
     target = 0;
     current = 0;
     measure();
-    if (animate) {
+    renumber();
+    if (animate && !reducedMotion()) {
       gsap.fromTo(
         visible,
-        { opacity: 0, y: 28 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: "power2.out", clearProps: "opacity,transform" }
+        { opacity: 0, x: 40 },
+        { opacity: 1, x: 0, duration: 0.55, stagger: 0.05, ease: "power2.out", clearProps: "opacity,transform" }
       );
     }
     const empty = root.querySelector<HTMLElement>(".gallery__empty");
@@ -174,7 +205,6 @@ export function initGallery(root: HTMLElement) {
       btn.classList.add("is-active");
       group = btn.dataset.group ?? "all";
       applyFilter(true);
-      // ⚠️ 静态站构建期没有 query，分类一律客户端读写（手册硬约束）
       const url = new URL(location.href);
       const param = btn.dataset.param;
       if (param) url.searchParams.set("category", param);
@@ -183,7 +213,6 @@ export function initGallery(root: HTMLElement) {
     });
   }
 
-  // 初始分组：客户端读 location.search（禁用 Astro.url.searchParams）
   const initialParam = new URLSearchParams(location.search).get("category");
   const initialBtn = initialParam
     ? tabsBar?.querySelector<HTMLElement>(`.gallery__tab[data-param="${CSS.escape(initialParam)}"]`)
@@ -197,20 +226,33 @@ export function initGallery(root: HTMLElement) {
   optionalToggle?.addEventListener("change", () => applyFilter(true));
   applyFilter(false);
 
-  // 入场：GSAP（滚动本体仍是 lerp）
-  gsap.fromTo(
-    visible,
-    { opacity: 0, y: 36 },
-    {
-      opacity: 1,
-      y: 0,
-      duration: 0.7,
-      stagger: 0.07,
-      ease: "power3.out",
-      clearProps: "opacity,transform",
-      delay: 0.1,
-    }
-  );
+  if (!reducedMotion()) {
+    gsap.fromTo(
+      visible,
+      { opacity: 0, x: 56 },
+      {
+        opacity: 1,
+        x: 0,
+        duration: 0.75,
+        stagger: 0.07,
+        ease: "power3.out",
+        clearProps: "opacity,transform",
+        delay: 0.08,
+      }
+    );
+  }
+
+  const images = Array.from(track.querySelectorAll("img"));
+  void Promise.all(
+    images.map(
+      (img) =>
+        img.complete ||
+        new Promise<void>((resolve) => {
+          img.addEventListener("load", () => resolve(), { once: true });
+          img.addEventListener("error", () => resolve(), { once: true });
+        })
+    )
+  ).then(measure);
 
   requestAnimationFrame(frame);
 }

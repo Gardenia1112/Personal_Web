@@ -8,6 +8,8 @@
   --blue-deep: var(--color-sheet-blue-deep);
   --pink: var(--color-sheet-blush);
   --pink-hot: var(--color-sheet-hot);
+  --color-blue: var(--color-sheet-blue);
+  --color-blue-deep: var(--color-sheet-blue-deep);
 }
 
 body:has(.paper-page--works) {

@@ -17,7 +17,7 @@ const {
   tabs,
   activeKey = tabs?.[0]?.key,
   toggleLabel,
-  hint = "滚轮 / 拖拽 / ← → 横向浏览",
+  hint = "滚轮 / 拖拽 / ← →",
   emptyText = "该分类暂无内容",
 } = Astro.props;
 ---
@@ -55,18 +55,29 @@ const {
               {item.cover ? (
                 <img class="gallery__img" src={item.cover} alt={item.title} loading="lazy" draggable="false" />
               ) : (
-                <div class="gallery__paper">
-                  <span class="gallery__paper-num">{num}</span>
-                  <span class="gallery__paper-title">{item.title}</span>
-                  {item.meta && <span class="gallery__paper-meta">{item.meta}</span>}
-                </div>
+                <div class="gallery__paper" aria-hidden="true"></div>
               )}
-              {item.tag && <figcaption class="gallery__tag">{item.tag}</figcaption>}
+              <span class="gallery__num">{num}</span>
+              <figcaption class="gallery__overlay">
+                <div class="gallery__copy">
+                  {item.tag && <span class="gallery__tag">{item.tag}</span>}
+                  <h2 class="gallery__title">{item.title}</h2>
+                  {item.meta && <p class="gallery__meta">{item.meta}</p>}
+                </div>
+                {item.href && <span class="gallery__arrow" aria-hidden="true">→</span>}
+                {item.preview && <span class="gallery__hint">查看</span>}
+                {item.download && <span class="gallery__hint">{item.actionLabel ?? "下载"}</span>}
+              </figcaption>
             </figure>
           );
 
           return (
-            <article class="gallery__item" data-group={item.group} data-optional={item.optional ? "1" : undefined}>
+            <article
+              class:list={["gallery__item", item.shape && `gallery__item--${item.shape}`]}
+              data-group={item.group}
+              data-optional={item.optional ? "1" : undefined}
+              data-tone={item.tone}
+            >
               {item.href ? (
                 <a class="gallery__link" href={item.href}>
                   {media}
@@ -82,17 +93,6 @@ const {
               ) : (
                 <div class="gallery__link gallery__link--plain">{media}</div>
               )}
-
-              <div class="gallery__caption">
-                <span class="gallery__num">{num}</span>
-                <div>
-                  <h2 class="gallery__title">{item.title}</h2>
-                  {item.meta && <p class="gallery__meta">{item.meta}</p>}
-                </div>
-                {item.href && <span class="gallery__arrow" aria-hidden="true">→</span>}
-                {item.preview && <span class="gallery__hint">点击放大</span>}
-                {item.download && <span class="gallery__hint">{item.actionLabel ?? "下载"}</span>}
-              </div>
             </article>
           );
         })
@@ -102,7 +102,9 @@ const {
   </div>
 
   <div class="gallery__footer">
+    <button type="button" class="gallery__nav" data-dir="-1" aria-label="上一张">←</button>
     <div class="gallery__progress"><i></i></div>
+    <button type="button" class="gallery__nav" data-dir="1" aria-label="下一张">→</button>
     <span class="gallery__scrollhint">{hint}</span>
   </div>
 </section>
