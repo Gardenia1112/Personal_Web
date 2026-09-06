@@ -1,5 +1,5 @@
 // A / D / ← / → 推小球。鼠标只转眼睛，不推球。
-import Phaser from "phaser";
+import * as Phaser from "phaser";
 
 export class InputManager {
   private keys: Record<string, Phaser.Input.Keyboard.Key> | null;

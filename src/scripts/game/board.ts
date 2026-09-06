@@ -1,5 +1,5 @@
 // 小旗子：碰到就收起消失，不再当底边大卡
-import Phaser from "phaser";
+import * as Phaser from "phaser";
 import { type GameBoardData } from "../../data/aboutGame";
 
 const POLE_H = 86;

@@ -1,5 +1,5 @@
 // About 特效：配色与 Animocons / mo.js 的 Burst + 环 + 射线同构，画在 Phaser 里
-import Phaser from "phaser";
+import * as Phaser from "phaser";
 
 export const FX_LEMON = 0xffef00;
 export const FX_CREAM = 0xfffdd0;

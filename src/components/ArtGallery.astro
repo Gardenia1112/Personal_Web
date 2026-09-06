@@ -6,33 +6,44 @@ import { artworks } from "../data/art";
     <p class="ag-kicker"><b>02</b> Art</p>
     <p class="ag-hint">Scroll / Drag</p>
   </header>
+  <i class="ag-pollen" aria-hidden="true"></i>
 
   <div class="ag-viewport" tabindex="0" role="group" aria-label="美术分类">
     <div class="ag-track">
       {
-        artworks.map((a, i) => (
-          <a
-            class="ag-item"
-            href={`/art/${a.slug}`}
-            data-ag-item
-            data-no-transition
-          >
-            <span class="ag-media">
-              {a.cover ? (
-                <img class="ag-img" src={a.cover} alt="" draggable="false" />
-              ) : (
-                <span class="ag-ph" aria-hidden="true">
-                  <span class="ag-ph-num">{String(i + 1).padStart(2, "0")}</span>
-                  <span class="ag-ph-title">{a.name}</span>
-                  <span class="ag-ph-sub">
-                    {a.category} · {a.pieces.length}
-                    {a.pieces[0]?.kind === "video" ? " 支" : " 件"}
-                  </span>
-                </span>
-              )}
-            </span>
-          </a>
-        ))
+        artworks.map((a, i) => {
+          const no = String(i + 1).padStart(2, "0");
+          const n = a.pieces.length;
+          const unit = a.pieces[0]?.kind === "video" ? "支" : "件";
+          return (
+            <a
+              class="ag-item ag-item--object"
+              href={`/art/${a.slug}`}
+              data-ag-item
+              data-art-cat={a.slug}
+              data-wx-enter="expand"
+              data-no-transition
+            >
+              <div class="ag-media">
+                <div class="ag-photo">
+                  {a.cover ? (
+                    <img class="ag-img" src={a.cover} alt="" draggable="false" />
+                  ) : (
+                    <div class="ag-ph" aria-hidden="true">
+                      <span class="ag-ph-num">{no}</span>
+                      <span class="ag-ph-title">{a.name}</span>
+                      <span class="ag-ph-sub">
+                        {a.category} · {n}{unit}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div class="ag-sticker ag-sticker--title">{a.category}</div>
+              <div class="ag-sticker ag-sticker--meta">No.{no} · {n}{unit}</div>
+            </a>
+          );
+        })
       }
     </div>
   </div>

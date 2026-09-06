@@ -129,7 +129,7 @@ export function initArtGallery(root: HTMLElement) {
 
   const cards = Array.from(track.querySelectorAll<HTMLAnchorElement>("[data-ag-item]"));
   const cardLayers = cards
-    .map((el) => el.querySelector<HTMLElement>(".ag-img, .ag-ph"))
+    .map((el) => el.querySelector<HTMLElement>(".ag-photo > *"))
     .filter((el): el is HTMLElement => Boolean(el));
 
   const live = () => folderLive(root);

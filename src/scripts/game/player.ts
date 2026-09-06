@@ -1,5 +1,5 @@
 // 侧面黄球：圆眼睛跟着鼠标看；只有键盘走路，碰到旗子会跳一下
-import Phaser from "phaser";
+import * as Phaser from "phaser";
 import { WORLD_WIDTH } from "../../data/aboutGame";
 import { footFx } from "./fx";
 

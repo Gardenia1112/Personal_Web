@@ -1,6 +1,6 @@
 // 游戏化 About —— Phaser 3 入口 + 主场景
 // 群岛架构：Phaser 只在 /about 加载，首页 3D 与二级页 DOM 互不干扰
-import Phaser from "phaser";
+import * as Phaser from "phaser";
 import {
   gameBoards,
   WORLD_WIDTH,
