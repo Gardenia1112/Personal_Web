@@ -1,0 +1,74 @@
+---
+import type { ArtPiece } from "../data/art";
+
+interface Props {
+  piece: ArtPiece;
+  cat: string;
+  index: number;
+  role?: "static" | "hero" | "thumb" | "reel";
+}
+
+const { piece, cat, index, role = "static" } = Astro.props;
+const no = String(index + 1).padStart(2, "0");
+const Tag = role === "thumb" ? "button" : "div";
+---
+
+{
+  role === "reel" ? (
+    <article class="as-card as-reel" data-as-reel data-cat={cat} data-index={index}>
+      <div class="as-reel-bar">
+        <div class="as-media">
+          {
+            piece.src && piece.kind === "image" ? (
+              <img class="as-img" src={piece.src} alt="" />
+            ) : (
+              <div class="as-ph">
+                <i class="as-ph-mark" aria-hidden="true"></i>
+                <span class="as-ph-no">{no}</span>
+                <span class="as-ph-title">{piece.label}</span>
+              </div>
+            )
+          }
+        </div>
+      </div>
+      <div class="as-reel-stage">
+        <div class="as-reel-stage-inner">
+          {
+            piece.src && piece.kind === "video" ? (
+              <video src={piece.src} playsinline controls preload="metadata"></video>
+            ) : (
+              <div class="as-ph">
+                <i class="as-ph-mark" aria-hidden="true"></i>
+                <span class="as-ph-no">{no}</span>
+                <span class="as-ph-title">{piece.label}</span>
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </article>
+  ) : (
+    <Tag
+      class:list={["as-card", role === "hero" && "as-hero"]}
+      type={role === "thumb" ? "button" : undefined}
+      data-as-hero={role === "hero" ? "" : undefined}
+      data-as-thumb={role === "thumb" ? "" : undefined}
+      data-cat={cat}
+      data-index={index}
+    >
+      <div class="as-media">
+        {
+          piece.src ? (
+            <img class="as-img" src={piece.src} alt="" />
+          ) : (
+            <div class="as-ph">
+              <i class="as-ph-mark" aria-hidden="true"></i>
+              <span class="as-ph-no">{no}</span>
+              <span class="as-ph-title">{piece.label}</span>
+            </div>
+          )
+        }
+      </div>
+    </Tag>
+  )
+}

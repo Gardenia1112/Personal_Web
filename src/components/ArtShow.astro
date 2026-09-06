@@ -1,57 +1,53 @@
 ---
 import type { Artwork } from "../data/art";
+import { artworks } from "../data/art";
+import ArtPieceCard from "./ArtPieceCard.astro";
+import "../styles/art-show.css";
 
 interface Props {
   artwork: Artwork;
 }
 
 const { artwork } = Astro.props;
-const video = artwork.pieces[0]?.kind === "video";
-const unit = video ? "支" : "件";
+const unit = artwork.pieces[0]?.kind === "video" ? "支" : "件";
+const no = String(artworks.findIndex((a) => a.slug === artwork.slug) + 1).padStart(2, "0");
+const hint =
+  artwork.slug === "editing" ? "Click to play" : artwork.slug === "modeling" ? "Click a still" : "Scroll";
 ---
-<article class="ag ag--sheet" data-art-show data-art-slug={artwork.slug}>
+<section class="as" data-art-show={artwork.slug} data-art-slug={artwork.slug}>
+  <header class="as-bar" data-thumbfull-copy>
+    <p class="as-kicker"><b>{no}</b> {artwork.category} · {artwork.pieces.length}{unit}</p>
+    <p class="as-hint">{hint}</p>
+  </header>
   {
-    artwork.cover && (
-      <div class="ag-hero thumbfull-outer" data-thumbfull-outer>
-        <div class="thumbfull-inner" data-thumbfull-inner>
-          <img src={artwork.cover} alt="" />
+    artwork.slug === "modeling" ? (
+      <>
+        <ArtPieceCard piece={artwork.pieces[0]} cat={artwork.slug} index={0} role="hero" />
+        <div class="as-grid">
+          {artwork.pieces.slice(1).map((p, i) => (
+            <ArtPieceCard piece={p} cat={artwork.slug} index={i + 1} role="thumb" />
+          ))}
         </div>
+      </>
+    ) : (
+      <div class="as-grid">
+        {artwork.pieces.map((p, i) => (
+          <ArtPieceCard
+            piece={p}
+            cat={artwork.slug}
+            index={i}
+            role={artwork.slug === "editing" ? "reel" : "static"}
+          />
+        ))}
       </div>
     )
   }
-  <header class="ag-bar" data-thumbfull-copy>
-    <p class="ag-kicker">
-      <b>{artwork.category}</b> {artwork.pieces.length} {unit}
-    </p>
-    <p class="ag-hint">{video ? "Play / Drag" : "Scroll / Drag"}</p>
-  </header>
+</section>
 
-  <div class="ag-set-viewport" data-ag-set-view tabindex="0" role="group" aria-label={`${artwork.category}展示`}>
-    <div class="ag-set-track">
-      {
-        artwork.pieces.map((p, i) => (
-          <figure class:list={["ag-piece", p.kind === "video" && "is-video"]}>
-            {p.kind === "video" ? (
-              p.src ? (
-                <video src={p.src} controls playsinline preload="metadata" />
-              ) : (
-                <div class="ag-piece-ph">
-                  <span class="ag-piece-num">{String(i + 1).padStart(2, "0")}</span>
-                  <span class="ag-piece-label">{p.label}</span>
-                  <span class="ag-piece-note">视频待补</span>
-                </div>
-              )
-            ) : p.src ? (
-              <img src={p.src} alt={p.label} draggable="false" />
-            ) : (
-              <div class="ag-piece-ph">
-                <span class="ag-piece-num">{String(i + 1).padStart(2, "0")}</span>
-                <span class="ag-piece-label">{p.label}</span>
-              </div>
-            )}
-          </figure>
-        ))
-      }
-    </div>
-  </div>
-</article>
+<script>
+  import { hideBlobs, showBlobs } from "../scripts/desktop/pink-blobs";
+  import { initArtShowSkins } from "../scripts/desktop/art-show";
+  showBlobs();
+  initArtShowSkins();
+  window.addEventListener("pagehide", hideBlobs);
+</script>

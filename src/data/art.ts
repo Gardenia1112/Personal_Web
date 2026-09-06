@@ -57,6 +57,10 @@ export const artworks: Artwork[] = [
     name: "视频剪辑 / 演示片（3 支）",
     category: "剪辑",
     status: "done",
-    pieces: slots(3, "video", "演示片"),
+    pieces: [
+      { label: "演示片 01", kind: "video", src: "/assets/art/editing/reel-01.mp4" },
+      { label: "演示片 02", kind: "video", src: "/assets/art/editing/reel-02.mp4" },
+      { label: "演示片 03", kind: "video", src: "/assets/art/editing/reel-03.mp4" },
+    ],
   },
 ];

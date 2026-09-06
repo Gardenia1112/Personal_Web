@@ -23,6 +23,33 @@ html.is-folder-open:has([data-folder-view="art"]:not([hidden])) .dt-folder-layer
 
 [data-art-gallery].ag {
   overflow: visible;
+  background: transparent;
+}
+
+[data-art-show].ag {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+}
+
+[data-art-show] > :not(.blob-bg) {
+  position: relative;
+  z-index: 3;
+}
+
+.blob-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+  display: none;
+}
+
+[data-art-gallery] {
+  position: relative;
+  z-index: 2;
 }
 
 [data-art-gallery] .ag-pollen {

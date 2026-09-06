@@ -1,6 +1,7 @@
 // 桌面文件夹子状态：点红/黄文件夹打开 overlay，Escape / 关闭钮收回
 import { initDevIndex } from "./dev-index";
 import { initArtGallery } from "./art-gallery";
+import { hideBlobs, showBlobs } from "./pink-blobs";
 
 export type FolderId = "dev" | "art" | "awards";
 
@@ -46,6 +47,8 @@ export function openFolder(id: FolderId) {
   layer.classList.remove("is-out");
   layer.hidden = false;
   document.documentElement.classList.add("is-folder-open");
+  if (id === "art") showBlobs();
+  else hideBlobs();
   if (returning) {
     if (!layer.classList.contains("is-in") && !reducedMotion()) {
       requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.add("is-in")));
@@ -78,6 +81,7 @@ function hideFolder(layer: HTMLElement) {
 export function closeFolder() {
   const layer = layerEl();
   if (!layer || layer.hidden) return;
+  hideBlobs();
   if (reducedMotion() || !layer.classList.contains("is-in")) {
     hideFolder(layer);
     return;
