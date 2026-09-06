@@ -7,6 +7,17 @@ export interface ProjectMetric {
   note: string; // +71% / −18%
 }
 
+export interface StudioSection {
+  label: string;
+  body: string;
+}
+
+export interface TeamMember {
+  name: string;
+  role: string;
+  desc: string;
+}
+
 export interface Project {
   slug: string;
   name: string;
@@ -18,8 +29,10 @@ export interface Project {
   result: string;
   links: { label: string; url: string }[];
   status: "done" | "todo";
-  /** 目录进详情：expand = 先胀缩略图，落地再整页（封面+纸底）滑入后出字；slide = 不胀，整页一起滑入 */
-  enter?: "expand" | "slide";
+  /** 目录进详情：expand = 先胀缩略图；slide = 整页滑入；boot = 渐黑后电视启动（尸潮） */
+  enter?: "expand" | "slide" | "boot";
+  /** 详情页皮：共用骨架上的字阶 / 媒体节奏 */
+  skin?: "is-shibing" | "is-buhuige" | "is-zhilian" | "is-qidian";
   media?: {
     cover?: string; // 封面
     arch?: string; // 架构图
@@ -27,6 +40,10 @@ export interface Project {
     gallery?: string[]; // 附加图
   };
   metrics?: ProjectMetric[]; // 量化成果可视化（02 §9）
+  skills?: string[];
+  solution?: string;
+  team?: TeamMember[];
+  sections?: StudioSection[];
 }
 
 export const projects: Project[] = [
@@ -44,7 +61,8 @@ export const projects: Project[] = [
     result: "平均帧率 35→60FPS、内存峰值 −18%；核心战斗与架构框架完善可扩展。",
     links: [{ label: "Gitee 源码", url: "https://gitee.com/bfnya/Unity_Game2025.git" }],
     status: "done",
-    enter: "expand",
+    enter: "boot",
+    skin: "is-shibing",
     media: {
       cover: "/assets/projects/01-cover.png",
       arch: "/assets/projects/01-arch.png",
@@ -59,21 +77,58 @@ export const projects: Project[] = [
   {
     slug: "buhuige-studio",
     name: "不绘鸽工作室",
-    role: "国家级大创 · 负责人",
-    period: "2024.12 – 至今",
+    role: "国家级创业实践项目 · 负责人",
+    period: "2024.12 – 2026.04",
     problem:
-      "从 0 搭建创业工作室，落地「数字动漫 IP 全链路设计」，需兼顾产品研发与市场化。",
-    tech:
-      "Unity 核心架构；物理碰撞、场景切换、UI、动画、音效 5 个核心模块；CSV 数据导出模块（C# 文件流 + 序列化，运行时一键导出），用 Cursor 加速开发。",
-    contribution: "负责人，带领 3 人团队，制定开发计划与代码规范；搭建核心架构。",
+      "瞄准高校文创与虚拟仿真两块空白市场：校园 IP 定制需求旺盛却缺乏专业团队，实验教学受器材环境限制、老旧 2D 软件难满足数字化需求。不绘鸽以「文创 IP + 数字技术 + 定制服务」切入，做高校场景的垂直解决方案。",
+    solution:
+      "文创 IP + 数字技术 + 定制服务的双产品线：艺术类（IP/3D 动画/Live2D/游戏美术/衍生品）+ 理工类（气垫导轨/倾角传感/力学/电磁/热学仿真）。",
+    tech: "Unity 核心架构；物理仿真；3D 建模；UI；动画；音效",
+    skills: [
+      "Unity 核心架构",
+      "物理仿真",
+      "3D 建模",
+      "UI",
+      "动画",
+      "音效",
+      "虚拟仿真",
+      "IP 设计",
+      "衍生品开发",
+    ],
+    contribution:
+      "三人团队形成「管理统筹—技术开发—设计运营」的协同：负责人（赵韵婷）主抓统筹、商业拓展、财务与校方合作；技术核心（谢炜琳）攻坚 Unity 虚拟仿真与软著；设计运营（韩宛吟）主导原创 IP、视觉与店铺运营。",
     result:
-      "累计营收 2.7 万元；获 2 项国家软件著作权（2025SR0979528、2025SR2140826）。",
+      "累计营收 2.7 万元，净利润率 69.7%；登记两项国家软件著作权（大学物理实验气垫导轨软件 V1.0、倾角传感器监测系统软件 V1.0），并在全国大学生物理实验竞赛等赛事中获国家级 2 项、省级 6 项。（2025SR0979528、2025SR2140826）",
     links: [],
     status: "done",
     enter: "expand",
+    skin: "is-buhuige",
     media: {
       cover: "/assets/projects/03-cover.png",
     },
+    team: [
+      { name: "赵韵婷", role: "负责人", desc: "统筹管理、商业拓展、财务与校方合作" },
+      { name: "谢炜琳", role: "技术核心", desc: "Unity 虚拟仿真、软著与技术攻坚" },
+      { name: "韩宛吟", role: "设计运营", desc: "原创 IP、视觉设计与店铺运营" },
+    ],
+    sections: [
+      {
+        label: "01 我们是谁",
+        body: "瞄准高校文创与虚拟仿真两块空白市场：校园 IP 定制需求旺盛却缺乏专业团队，实验教学受器材环境限制、老旧 2D 软件难满足数字化需求。不绘鸽以「文创 IP + 数字技术 + 定制服务」切入，做高校场景的垂直解决方案。",
+      },
+      {
+        label: "02 做什么",
+        body: "文创 IP + 数字技术 + 定制服务的双产品线：艺术类（IP/3D 动画/Live2D/游戏美术/衍生品）+ 理工类（气垫导轨/倾角传感/力学/电磁/热学仿真）。",
+      },
+      {
+        label: "03 怎么做",
+        body: "以「物理为骨·艺术为形·商业为翼」为理念，用文创 IP + 数字技术 + 定制服务的双产品线，市场化运作，为高校场景提供垂直解决方案。",
+      },
+      {
+        label: "04 做到了什么",
+        body: "累计营收 2.7 万元，净利润率 69.7%；登记两项国家软件著作权（大学物理实验气垫导轨软件 V1.0、倾角传感器监测系统软件 V1.0），并在全国大学生物理实验竞赛等赛事中获国家级 2 项、省级 6 项。（2025SR0979528、2025SR2140826）",
+      },
+    ],
   },
   {
     slug: "zhilian-tilt-sensor",
@@ -86,6 +141,7 @@ export const projects: Project[] = [
     result: "获软件著作权（登记号 2025SR0979528）。",
     links: [],
     status: "done",
+    skin: "is-zhilian",
     media: {
       cover: "/assets/projects/02-cover.png",
     },
@@ -101,5 +157,6 @@ export const projects: Project[] = [
     result: "获软件著作权（登记号 2025SR2140826）；中国大学生计算机设计大赛参赛。",
     links: [],
     status: "done",
+    skin: "is-qidian",
   },
 ];
