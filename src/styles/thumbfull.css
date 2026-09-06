@@ -63,8 +63,25 @@ html.is-thumbfull-arrive .pd-hero-media {
   margin-left: 0;
 }
 
+html.is-thumbfull-arrive .is-buhuige .thumbfull-outer,
+html.is-thumbfull-arrive .is-buhuige .thumbfull-inner {
+  width: 100%;
+  height: auto;
+}
+
+html.is-thumbfull-arrive .pd-game .pd-hero-media,
+html.is-thumbfull-arrive .pd-game .game-glass {
+  width: 100vw;
+  height: 100vh;
+}
+
 html.is-thumbfull-arrive .pd-hero-copy,
 html.is-thumbfull-arrive .pd-body,
+html.is-thumbfull-arrive .game-hud,
+html.is-thumbfull-arrive .game-ch,
+html.is-thumbfull-arrive .game-grid,
+html.is-thumbfull-arrive .game-file,
+html.is-thumbfull-arrive .game-chrome,
 html.is-thumbfull-arrive .sheet-home,
 html.is-thumbfull-arrive [data-art-show] .ag-bar,
 html.is-thumbfull-arrive [data-art-show] .ag-set-viewport {
@@ -78,6 +95,10 @@ html.is-thumbfull-leaving body {
 @media (prefers-reduced-motion: reduce) {
   html.is-thumbfull-arrive .pd-hero-copy,
   html.is-thumbfull-arrive .pd-body,
+  html.is-thumbfull-arrive .game-hud,
+  html.is-thumbfull-arrive .game-ch,
+  html.is-thumbfull-arrive .game-file,
+  html.is-thumbfull-arrive .game-chrome,
   html.is-thumbfull-arrive .sheet-home,
   html.is-thumbfull-arrive [data-art-show] .ag-bar,
   html.is-thumbfull-arrive [data-art-show] .ag-set-viewport,

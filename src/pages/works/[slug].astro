@@ -1,6 +1,32 @@
 ---
 import SheetLayout from "../../layouts/SheetLayout.astro";
 import { projects } from "../../data/projects";
+import iconMonitor from "../../assets/icons/icon-monitor.svg?url";
+import iconAcquire from "../../assets/icons/icon-acquire.svg?url";
+import iconLog from "../../assets/icons/icon-log.svg?url";
+import iconArchive from "../../assets/icons/icon-archive.svg?url";
+
+const OS_ICONS: Record<string, string> = {
+  "icon-monitor": iconMonitor,
+  "icon-acquire": iconAcquire,
+  "icon-log": iconLog,
+  "icon-archive": iconArchive,
+};
+
+const OS_MENU_SHORT: Record<string, string> = {
+  monitor: "监测台",
+  acquire: "采集",
+  log: "日志",
+  archive: "归档",
+};
+
+const NAME_ABBR: Record<string, string> = {
+  "赵韵婷": "ZYT",
+  "谢炜琳": "XWL",
+  "韩宛吟": "HWY",
+};
+const abbr = (n: string): string => NAME_ABBR[n] ?? n;
+const isLead = (n: string): boolean => n === "赵韵婷";
 
 export function getStaticPaths() {
   return projects.map((p, i) => ({
@@ -15,9 +41,46 @@ export function getStaticPaths() {
 
 const { project, index, next } = Astro.props;
 const num = String(index + 1).padStart(2, "0");
+const skin = project.skin ?? "";
+const isGame = skin === "is-shibing";
+const isBoard = skin === "is-buhuige";
+const isOs = skin === "is-zhilian";
+const isDossier = skin === "is-qidian";
+const shortName = project.name.split("：")[0] ?? project.name;
+const osWindows = project.media?.desktop?.windows ?? [];
+const notebook = project.media?.notebook;
+const nbCover = notebook?.cover;
+const nbPages = notebook?.pages ?? [];
+const osMetaSrc = project.media?.desktop?.meta;
+const osMeta = [
+  osMetaSrc?.manufacture ? { label: "MANUFACTURE", value: osMetaSrc.manufacture } : null,
+  osMetaSrc?.team ? { label: "TEAM", value: osMetaSrc.team } : null,
+  osMetaSrc?.role ? { label: "ROLE", value: osMetaSrc.role } : null,
+  osMetaSrc?.period ? { label: "PERIOD", value: osMetaSrc.period } : null,
+  osMetaSrc?.license ? { label: "LICENSE", value: osMetaSrc.license } : null,
+].filter((row): row is { label: string; value: string } => Boolean(row));
 const tags = [project.role.split("·")[0]?.trim(), project.period.match(/\d{4}/)?.[0]].filter(
   (t): t is string => Boolean(t)
 );
+const regs = project.result.match(/20\d{2}SR\d+/g) ?? [];
+const dossier = [
+  project.period ? { label: "周期", value: project.period } : null,
+  project.role ? { label: "角色", value: project.role } : null,
+  ...regs.map((n) => ({ label: "登记号", value: n })),
+].filter((r): r is { label: string; value: string } => Boolean(r));
+const chips = project.tech
+  .split(/[；;]/)
+  .map((s) => s.trim().replace(/[。．.]+$/, ""))
+  .filter(Boolean)
+  .slice(0, 6);
+const debugFrames = [
+  project.media?.arch ? { src: project.media.arch, cap: "架构" } : null,
+  ...(project.media?.gallery ?? []).map((src, i) => ({
+    src,
+    cap: i === 0 ? "概念" : "过程",
+  })),
+].filter((f): f is { src: string; cap: string } => Boolean(f));
+const channels = ["信号", "实机", "制作", "记录"];
 
 const chapters = [
   { no: "01", label: "问题", title: "要解决什么", text: project.problem },
@@ -25,139 +88,791 @@ const chapters = [
   { no: "03", label: "我的贡献", title: "我做了哪部分", text: project.contribution },
   { no: "04", label: "量化成果", title: "最后拿到什么", text: project.result },
 ].filter((c) => Boolean(c.text));
+const revenue = project.result.match(/[\d.]+ ?万/)?.[0];
+const splitTech = (tech: string) =>
+  tech
+    .split(/[；;、,，]/)
+    .map((s) => s.replace(/（.*?）|\(.*?\)|。|\s*\d+\s*个.*/g, "").trim())
+    .filter((s) => s.length > 0 && s.length <= 10);
+const pills = project.skills?.length ? project.skills : splitTech(project.tech);
+const boardFileLabels = project.sections?.length
+  ? project.sections.map((s) => s.label)
+  : ["01 我们是谁", "02 做什么", "03 怎么做", "04 做到了什么"];
+const fileThumbs = ["#ff8a3d", "#7ec8e3", "#f5d031", "#c4b5fd"];
+const body0 = project.sections?.[0]?.body ?? "";
+let firstSent = body0.split("。")[0] ?? "";
+if (firstSent && !firstSent.endsWith("。")) firstSent += "。";
+if (firstSent.length > 60) firstSent = `${firstSent.slice(0, 60)}…`;
+const intro01 = body0
+  ? [
+      firstSent,
+      "物理为骨·艺术为形·商业为翼",
+      "国家级创业实践项目 · 辽宁大学科技园 / 辽大文创官方合作团队",
+    ]
+  : ["待补"];
 ---
-<SheetLayout title={`${project.name} · lszbf.com`}>
-  <script is:inline define:vars={{ slug: project.slug }}>
+<SheetLayout title={`${project.name} · lszbf.com`} tone={isGame ? "deep" : "sheet"}>
+  <script is:inline define:vars={{ slug: project.slug, customEnter: isGame || isBoard || isOs || isDossier }}>
     try {
-      var raw = sessionStorage.getItem("lszbf:thumbfull");
-      if (raw) {
-        var data = JSON.parse(raw);
-        if (data && data.slug === slug) {
-          document.documentElement.classList.add(data.expanded ? "is-thumbfull-arrive" : "is-thumbfull-slide");
+      if (customEnter) {
+        sessionStorage.removeItem("lszbf:thumbfull");
+        document.documentElement.classList.remove("is-thumbfull-arrive", "is-thumbfull-slide");
+      } else {
+        var raw = sessionStorage.getItem("lszbf:thumbfull");
+        if (raw) {
+          var data = JSON.parse(raw);
+          if (data && data.slug === slug) {
+            document.documentElement.classList.add(data.expanded ? "is-thumbfull-arrive" : "is-thumbfull-slide");
+          }
         }
       }
     } catch (err) {}
   </script>
 
-  <article class="pd paper-page paper-page--works" data-project-slug={project.slug}>
-    <header class="pd-hero">
-      {
-        project.media?.cover && (
-          <div class="pd-hero-media thumbfull-outer" data-thumbfull-outer>
-            <div class="thumbfull-inner" data-thumbfull-inner>
-              <img src={project.media.cover} alt={`${project.name} 封面`} />
+  {
+    isGame ? (
+      <article class="pd pd-game is-shibing" data-project-slug={project.slug} data-game-monitor>
+        <div class="game-stage">
+          <div class="game-tube">
+            <div class="game-glass">
+              <div class="game-track" data-game-track>
+                <section class="game-panel is-on" data-panel="0">
+                  {project.media?.cover && (
+                    <div class="pd-hero-media game-relight" data-relight>
+                      <img src={project.media.cover} alt={`${project.name} 封面`} />
+                    </div>
+                  )}
+                  <div class="game-hud">
+                    <p class="game-ch" data-game-line>CH-01 信号</p>
+                  </div>
+                </section>
+
+                <section class="game-panel" data-panel="1" inert>
+                  <p class="game-ch" data-game-line>CH-02 实机</p>
+                  <figure class="game-reel">
+                    {project.media?.video ? (
+                      <>
+                        <video src={project.media.video} muted loop playsinline preload="metadata" data-game-video></video>
+                        <button type="button" class="game-sound" data-game-sound aria-pressed="true">
+                          闭音
+                        </button>
+                      </>
+                    ) : (
+                      <div class="pd-hero-ph" aria-hidden="true">
+                        <span class="pd-hero-ph-mark">02</span>
+                        <span class="pd-hero-ph-kind">待补：实机 reel</span>
+                      </div>
+                    )}
+                  </figure>
+                </section>
+
+                <section class="game-panel" data-panel="2" inert>
+                  <p class="game-ch" data-game-line>CH-03 制作</p>
+                  <div class="game-debug">
+                    {debugFrames.map((f) => (
+                      <figure class="game-card game-relight" data-relight>
+                        <img src={f.src} alt={f.cap} loading="lazy" />
+                        <figcaption data-game-line>{f.cap}</figcaption>
+                      </figure>
+                    ))}
+                  </div>
+                </section>
+
+                <section class="game-panel" data-panel="3" inert>
+                  <div class="game-file">
+                    <div class="game-file-head">
+                      <p class="game-file-kicker" data-game-line>CH-04 记录</p>
+                      <h2 class="game-file-title" data-game-line>{project.name}</h2>
+                      {project.role && <p class="game-file-role" data-game-line>{project.role}</p>}
+                    </div>
+                    <div class="game-acc" data-game-file>
+                      {chapters.map((c, i) => (
+                        <div class:list={["game-file-row", i === 0 && "is-on"]} data-game-file-row={i}>
+                          <button type="button" class="game-acc-item" data-game-file-tab={i} aria-current={i === 0 ? "true" : undefined}>
+                            <b>{c.no}</b>
+                            <span data-game-line>{c.label}</span>
+                          </button>
+                          <article class="game-file-body" data-game-file-page={i}>
+                            <p>{c.text}</p>
+                            {c.no === "04" && project.metrics && project.metrics.length > 0 && (
+                              <ul class="game-bars">
+                                {project.metrics.map((m) => (
+                                  <li>
+                                    <span>{m.label}</span>
+                                    <b>
+                                      {m.before} → {m.after}
+                                    </b>
+                                    <em>{m.note}</em>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                            {c.no === "04" && project.links.length > 0 && (
+                              <div class="pd-hero-actions">
+                                {project.links.map((l) => (
+                                  <a class="pd-btn" data-magnetic href={l.url} target="_blank" rel="noopener">
+                                    {l.label} ↗
+                                  </a>
+                                ))}
+                              </div>
+                            )}
+                          </article>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <canvas class="game-crt" data-game-crt aria-hidden="true"></canvas>
+            <div class="game-snow" data-game-snow aria-hidden="true"></div>
+            <div class="game-grid" aria-hidden="true"></div>
+            <div class="game-scan" aria-hidden="true"></div>
+            <div class="game-vignette" aria-hidden="true"></div>
+            <div class="game-flash" data-game-flash aria-hidden="true"></div>
+            <div class="game-boot is-bars" data-game-boot aria-hidden="true">
+              <i class="game-boot__bars"></i>
+              <i class="game-boot__tear"></i>
             </div>
           </div>
-        )
-      }
-      <div class="pd-hero-copy" data-thumbfull-copy>
-        <p class="pd-eyebrow">
-          <b>{num}</b>
-          {project.period}
-        </p>
-        {
-          tags.length > 0 && (
-            <ul class="pd-hero-tags">
-              {tags.map((t) => (
-                <li>{t}</li>
-              ))}
-            </ul>
-          )
-        }
-        <h1 class="pd-hero-title">{project.name}</h1>
-        {project.problem && <p class="pd-hero-lede">{project.problem}</p>}
-        {
-          project.links.length > 0 && (
-            <div class="pd-hero-actions">
-              {project.links.map((l) => (
-                <a class="pd-btn" href={l.url} target="_blank" rel="noopener">
-                  {l.label} ↗
-                </a>
+          <div class="game-bezel" aria-hidden="true"></div>
+          <div class="game-chrome">
+            <p class="game-scroll" data-game-hint>滚轮切台</p>
+            <div class="game-dots">
+              {channels.map((name, i) => (
+                <button type="button" data-game-dot={i} aria-label={name}></button>
               ))}
             </div>
-          )
-        }
-      </div>
-    </header>
+            <p data-game-step>01 / 04</p>
+          </div>
+        </div>
+      </article>
+    ) : isBoard ? (
+      <article class="pd is-buhuige is-entering" data-project-slug={project.slug} data-clue-board>
+        <div class="bb-frame">
+          <aside class="bb-legend">
+            <p class="bb-brand">BUHUIGE STUDIO</p>
+            <h1 class="bb-title">{project.name}</h1>
+            <p class="bb-tagline">{project.role} · {project.period}</p>
+            <p class="bb-sec">Board Legend</p>
+            <ol class="bb-map">
+              <li><b>01</b> Key Tag · 简介</li>
+              <li><b>02</b> Clear File · 四章 / 证书</li>
+              <li><b>03</b> ID Card · 角色</li>
+              <li><b>04</b> Badge · 技术</li>
+              <li><b>05</b> Airmail · 成果</li>
+              <li><b>06</b> Note · 待补</li>
+            </ol>
+            <p class="bb-sec">Object Interface</p>
+            <p class="bb-hint">+ Hover 周围微糊<br />+ 有详情弹出便利贴 / 图片</p>
+            <p class="bb-foot">STUDIO / OBJECTS<br />STORIES & IMAGE SYSTEMS</p>
+          </aside>
 
-    <div class="pd-body">
-      {
-        chapters.map((c) => (
-          <section class="pd-chapter">
-            <div>
-              <p class="pd-eyebrow">
-                <b>{c.no}</b> {c.label}
-              </p>
-              <h2 class="pd-chapter-title">{c.title}</h2>
+          <div class="bb-wall" data-clue-wall>
+            <canvas class="bb-webgl" data-bb-webgl aria-hidden="true"></canvas>
+            <div class="bb-board" aria-hidden="true"></div>
+
+            <article class="bb-item bb-key is-detail" data-clue-item style="left:5%;top:9%">
+              <i class="bb-hook" aria-hidden="true"></i>
+              <i class="bb-ring" aria-hidden="true"></i>
+              <i class="bb-keybit" aria-hidden="true"></i>
+              <p class="bb-no">01</p>
+              <h2>ABOUT</h2>
+              <p class="bb-obj-title">{project.name}</p>
+              <p class="bb-obj-sub">{tags[0] ?? project.role}</p>
+              <div class="bb-pop">
+                <aside class="bb-sticky">
+                  <b>01 我们是谁</b>
+                  {intro01.map((line) => (
+                    <p>{line}</p>
+                  ))}
+                </aside>
+              </div>
+            </article>
+
+            <article class="bb-item bb-file" data-clue-item style="left:24%;top:5%">
+              <i class="bb-hook" aria-hidden="true"></i>
+              <div class="bb-file-clip" aria-hidden="true"></div>
+              <div class="bb-file-sheet">
+                <p class="bb-no">02</p>
+                <h2>SELECTED WORKS</h2>
+                <p class="bb-obj-sub">工作室介绍 · 结题证书</p>
+                <ul class="bb-file-list is-left">
+                  {boardFileLabels.map((label, i) => {
+                    const section = project.sections?.[i];
+                    return (
+                      <li data-section-index={i}>
+                        <span>{label}</span>
+                        {i === 0 && project.media?.cover ? (
+                          <div class="bb-file-thumb thumbfull-outer" data-thumbfull-outer>
+                            <div class="thumbfull-inner" data-thumbfull-inner>
+                              <img src={project.media.cover} alt={`${project.name} 结题证书`} />
+                            </div>
+                          </div>
+                        ) : (
+                          <i class="bb-ph" style={`background:${fileThumbs[i]}`} aria-hidden="true"></i>
+                        )}
+                        <aside class="bb-sticky bb-section-note" data-section-index={i}>
+                          <b>{section?.label ?? label}</b>
+                          {i === 0 && project.media?.cover && (
+                            <img class="bb-sticky-cover" src={project.media.cover} alt="" />
+                          )}
+                          <p>{section?.body || "待补"}</p>
+                        </aside>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </article>
+
+            <article class="bb-item bb-id is-detail" data-clue-item data-pop="down" style="left:64%;top:8%">
+              <i class="bb-hook" aria-hidden="true"></i>
+              <div class="bb-id-felt">
+                <p class="bb-no">03</p>
+                <div class="bb-id-row">
+                  {project.media?.cover ? (
+                    <img class="bb-id-photo" src={project.media.cover} alt="" />
+                  ) : (
+                    <i class="bb-ph bb-id-photo" style="background:#f5d031" aria-hidden="true"></i>
+                  )}
+                  <div>
+                    <h2>TEAM</h2>
+                    <p class="bb-obj-title">{project.role}</p>
+                    <p class="bb-obj-sub">{project.period}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="bb-pop">
+                <aside class="bb-sticky">
+                  <b>03 团队</b>
+                  {project.team?.length ? (
+                    project.team.map((m) => (
+                      <p class:list={["bb-note-row", isLead(m.name) && "is-lead"]}>
+                        {abbr(m.name)} · {m.role} → {m.desc}
+                      </p>
+                    ))
+                  ) : (
+                    <p>待补：团队</p>
+                  )}
+                </aside>
+              </div>
+            </article>
+
+            <article class="bb-item bb-badge" data-clue-item style="left:7%;top:54%">
+              <i class="bb-hook" aria-hidden="true"></i>
+              <p class="bb-no">04</p>
+              <h2>SKILLS</h2>
+              <ul>
+                {pills.map((p) => (
+                  <li>{p}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article class="bb-item bb-mail is-detail" data-clue-item data-pop="left" style="left:48%;top:60%">
+              <i class="bb-hook" aria-hidden="true"></i>
+              <p class="bb-no">05</p>
+              <h2>RESULT</h2>
+              {revenue && <p class="bb-obj-title">营收 {revenue}</p>}
+              {regs.map((n) => (
+                <p class="bb-obj-sub">{n}</p>
+              ))}
+              <div class="bb-pop">
+                <aside class="bb-sticky">
+                  <b>05 做到了什么</b>
+                  <p>{project.result}</p>
+                </aside>
+              </div>
+            </article>
+
+            <article class="bb-item bb-note" data-clue-item style="left:78%;top:52%;--rot:3deg">
+              <i class="bb-tape" aria-hidden="true"></i>
+              <p class="bb-no">06</p>
+              <h2>NOTE</h2>
+              <p class="bb-obj-title">待补素材</p>
+              <p class="bb-obj-sub">过程图 · 成品图</p>
+              <i class="bb-bars" aria-hidden="true"></i>
+            </article>
+          </div>
+        </div>
+      </article>
+    ) : isOs ? (
+      <article class="pd is-zhilian zhilian-os" data-project-slug={project.slug} data-sensor-os>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+        <div class="zl-loader" data-zl-loader aria-hidden="true">
+          <div class="zl-loader__panel">
+            <p class="zl-loader__brand" data-zl-load-line>ZHILIAN OS v1.0</p>
+            <div class="zl-loader__grid">
+              {Array.from({ length: 32 }).map(() => (
+                <i class="zl-loader__cell"></i>
+              ))}
             </div>
-            <div>
-              <p class="pd-chapter-text">{c.text}</p>
-              {c.no === "04" && project.metrics && (
-                <section class="project-metrics">
-                  {project.metrics.map((m) => (
-                    <div class="metric">
-                      <div class="metric-head">
-                        <span class="metric-label">{m.label}</span>
-                        <span class="metric-values">
-                          {m.before} → {m.after}
-                        </span>
-                        <span class="metric-note">{m.note}</span>
+            <p class="zl-loader__line" data-zl-load-line>BOOTING MONITOR …</p>
+          </div>
+        </div>
+        <div class="zl-bezel">
+          <div class="zl-screen">
+            <div class="zl-wallpaper" aria-hidden="true">
+              <p class="zl-watermark">ZHILIAN-OS</p>
+            </div>
+            <header class="zl-topbar">
+              <b class="zl-topbar__brand" data-zl-boot>ZHILIAN OS v1.0</b>
+              <nav class="zl-topbar__menu" aria-hidden="true">
+                {osWindows.map((w) => (
+                  <span data-zl-boot>{OS_MENU_SHORT[w.id] ?? w.title}</span>
+                ))}
+              </nav>
+              <p class="zl-topbar__clock" data-zl-boot>
+                {project.period}
+                {regs[0] ? ` · ${regs[0]}` : ""}
+              </p>
+            </header>
+            <div class="zl-body">
+              <aside class="zl-launchpad">
+                <nav class="zl-icons" aria-label="程序">
+                  {osWindows.map((w) => (
+                    <button type="button" class="zl-icon" data-zl-open={w.id} data-app={w.id}>
+                      <i class="zl-icon-face" aria-hidden="true">
+                        {OS_ICONS[w.icon] ? <img src={OS_ICONS[w.icon]} alt="" /> : null}
+                      </i>
+                      <span data-zl-boot>{w.title}</span>
+                    </button>
+                  ))}
+                </nav>
+                <aside class="zl-meta">
+                  <h1 class="zl-meta__title" data-zl-boot>{shortName}</h1>
+                  <p class="zl-meta__sub" data-zl-boot>ZHILIAN OS · v1.0</p>
+                  <dl class="zl-meta__list">
+                    {osMeta.map((row) => (
+                      <div>
+                        <dt data-zl-boot>{row.label}</dt>
+                        <dd class:list={[row.label === "LICENSE" && "is-accent"]} data-zl-boot>{row.value}</dd>
                       </div>
-                      <div class="metric-bar">
-                        <i style={`width:${m.pct}%`}></i>
+                    ))}
+                  </dl>
+                </aside>
+              </aside>
+              <section class="zl-stage" data-zl-stage>
+                <p class="zl-stage-empty" data-zl-boot>░ 点图标打开应用 ░</p>
+                {osWindows.map((w) => {
+                  const sections = w.sections ?? [];
+                  return (
+                    <section class="zl-win" data-zl-win={w.id}>
+                      <header class="zl-win__bar">
+                        <span class="zl-win__dot zl-win__dot--r"></span>
+                        <span class="zl-win__dot zl-win__dot--y"></span>
+                        <span class="zl-win__dot zl-win__dot--g"></span>
+                        <b class="zl-win__name">{w.title}</b>
+                        <span class="zl-win__title">{w.desc}</span>
+                        <button type="button" class="zl-win__close" data-zl-close aria-label="关闭">
+                          ×
+                        </button>
+                      </header>
+                      <div class="zl-win__body">
+                        <h2 class="zl-win__h" data-zl-boot-win>{w.title}</h2>
+                        <p class="zl-win__lede">{w.desc}</p>
+                        {sections.length > 0
+                          ? sections.map((sec) => (
+                              <div class="zh-sec">
+                                {sec.h3 ? <h3 class="zh-h3">{sec.h3}</h3> : null}
+                                {sec.paragraphs?.map((p) => (
+                                  <p class="zl-win__copy">{p}</p>
+                                ))}
+                                {sec.list && sec.list.length > 0 ? (
+                                  <ul class="zh-list">
+                                    {sec.list.map((li) => (
+                                      <li>{li}</li>
+                                    ))}
+                                  </ul>
+                                ) : null}
+                                {sec.table && sec.table.length > 0 ? (
+                                  <table class="zh-table">
+                                    {sec.table.map((row) => (
+                                      <tr>
+                                        <th>{row.key}</th>
+                                        <td>{row.value}</td>
+                                      </tr>
+                                    ))}
+                                  </table>
+                                ) : null}
+                                {sec.media?.map((m) =>
+                                  m.type === "image" ? (
+                                    <figure class="zh-figure">
+                                      <img src={m.src} alt={m.caption ?? ""} data-zh-img hidden />
+                                      {m.caption ? (
+                                        <figcaption class="zh-figure__cap" hidden>{m.caption}</figcaption>
+                                      ) : null}
+                                      <div class="zh-placeholder" data-zh-ph>
+                                        待补素材：{m.caption ?? "图片"}
+                                      </div>
+                                    </figure>
+                                  ) : m.type === "video" ? (
+                                    <figure class="zh-figure">
+                                      <video src={m.src} controls playsinline data-zh-vid hidden></video>
+                                      {m.caption ? (
+                                        <figcaption class="zh-figure__cap" hidden>{m.caption}</figcaption>
+                                      ) : null}
+                                      <div class="zh-placeholder" data-zh-ph>
+                                        待补素材：{m.caption ?? "视频"}
+                                      </div>
+                                    </figure>
+                                  ) : (
+                                    <iframe class="zh-pdf zl-pdf" src={m.src} title={m.caption ?? w.title}></iframe>
+                                  )
+                                )}
+                              </div>
+                            ))
+                          : w.body ? (
+                              <p class="zl-win__copy">{w.body}</p>
+                            ) : null}
                       </div>
+                    </section>
+                  );
+                })}
+              </section>
+            </div>
+            <footer class="zl-statusbar">
+              <span data-zl-boot>{osMetaSrc?.team ?? "ZYT · XWL · HWY"}</span>
+              <span class="zl-statusbar__reg" data-zl-boot>{regs[0] ?? osMetaSrc?.license}</span>
+              <span data-zl-boot>{osMetaSrc?.period ?? project.period}</span>
+            </footer>
+          </div>
+        </div>
+      </article>
+    ) : isDossier ? (
+      <article class="notebook is-qidian" data-project-slug={project.slug} data-notebook data-skin="is-qidian">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=JetBrains+Mono:wght@400;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet" />
+        <div class="nb-cover" data-nb-cover>
+          <div class="nb-cover__board">
+            <p class="nb-cover__sub">{nbCover?.subtitle ?? "立体物理"}</p>
+            <h2 class="nb-cover__title">{nbCover?.title ?? project.name}</h2>
+            <div class="nb-cover__sticker" aria-hidden="true">
+              <i class="nb-sticker-gate"></i>
+              <i class="nb-sticker-rail"></i>
+              <i class="nb-sticker-cart"></i>
+              <i class="nb-sticker-cart is-b"></i>
+              <b>AIR TRACK</b>
+            </div>
+            <p class="nb-cover__meta">{nbCover?.meta ?? "2025 · 2025SR2140826"}</p>
+          </div>
+        </div>
+        <aside class="nb-binding" aria-hidden="true"></aside>
+        {nbCover ? (
+          <header class="nb-mast">
+            <p class="nb-mast__sub">{nbCover.subtitle}</p>
+            <h1 class="nb-mast__title">{nbCover.title}</h1>
+            {nbCover.meta ? <p class="nb-mast__meta">{nbCover.meta}</p> : null}
+          </header>
+        ) : null}
+        <main class="nb-pages">
+          {nbPages.map((p, i) => (
+            <section class="nb-page" id={p.id} data-page-no={p.pageNo} data-file={p.file}>
+              <div class="nb-toys" aria-hidden="true">
+                {i % 3 === 0 ? (
+                  <>
+                    <i class="nb-toy nb-toy--pin" data-nb-toy></i>
+                    <i class="nb-toy nb-toy--clip" data-nb-toy></i>
+                  </>
+                ) : i % 3 === 1 ? (
+                  <>
+                    <i class="nb-toy nb-toy--tape" data-nb-toy></i>
+                    <b class="nb-toy nb-toy--doodle" data-nb-toy>ok.</b>
+                  </>
+                ) : (
+                  <>
+                    <i class="nb-toy nb-toy--stamp" data-nb-toy>LAB</i>
+                    <i class="nb-toy nb-toy--clip nb-toy--clip-b" data-nb-toy></i>
+                  </>
+                )}
+              </div>
+              <header class="nb-page__head">
+                <span class="nb-page__file">{p.file}</span>
+                <span class="nb-page__chapter">{p.chapter}</span>
+                <span class="nb-page__pageno">{p.pageNo}</span>
+              </header>
+              <h2 class="nb-page__title">{p.heading}</h2>
+              {p.lede ? <p class="nb-page__lede">{p.lede}</p> : null}
+              <div class="nb-page__body">
+                {p.blocks.map((block) =>
+                  block.type === "para" && block.text ? (
+                    <p>{block.text}</p>
+                  ) : block.type === "list" && block.items ? (
+                    <ul class="nb-list">
+                      {block.items.map((item) => (
+                        <li>{item}</li>
+                      ))}
+                    </ul>
+                  ) : block.type === "metrics" && block.metrics ? (
+                    <div class="nb-metrics">
+                      {block.metrics.map((m) => (
+                        <div>
+                          <b>{m.value}</b>
+                          <span>{m.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : block.type === "quote" && block.text ? (
+                    <blockquote class="nb-quote">{block.text}</blockquote>
+                  ) : null
+                )}
+                {p.media?.map((m) =>
+                  m.type === "image" ? (
+                    <figure class="nb-figure nb-figure--photo">
+                      <img src={m.src} alt={m.caption ?? ""} data-nb-img hidden />
+                      {m.caption ? <figcaption hidden>{m.caption}</figcaption> : null}
+                      <div class="nb-ph" data-nb-ph>贴照片：{m.caption ?? "图片"}</div>
+                    </figure>
+                  ) : m.type === "video" ? (
+                    <figure class="nb-figure nb-figure--photo">
+                      <video src={m.src} controls playsinline data-nb-vid hidden></video>
+                      {m.caption ? <figcaption hidden>{m.caption}</figcaption> : null}
+                      <div class="nb-ph" data-nb-ph>贴照片：{m.caption ?? "视频"}</div>
+                    </figure>
+                  ) : (
+                    <iframe class="nb-pdf" src={m.src} title={m.caption ?? p.heading}></iframe>
+                  )
+                )}
+              </div>
+              {p.sidebar && p.sidebar.length > 0 ? (
+                <aside class="nb-page__side">
+                  {p.sidebar.map((s) => (
+                    <div class:list={["nb-side", `nb-side--${s.kind}`]}>
+                      <b>{s.label}</b>
+                      {s.text ? <span>{s.text}</span> : null}
                     </div>
                   ))}
-                </section>
-              )}
+                </aside>
+              ) : null}
+              {p.tags && p.tags.length > 0 ? (
+                <footer class="nb-page__foot">
+                  {p.tags.map((t) => (
+                    <span class="nb-tag">#{t}</span>
+                  ))}
+                </footer>
+              ) : null}
+            </section>
+          ))}
+        </main>
+      </article>
+    ) : (
+      <article class:list={["pd", "paper-page", "paper-page--works", skin]} data-project-slug={project.slug}>
+        <header class="pd-hero">
+          {project.media?.cover ? (
+            <div class="pd-hero-media thumbfull-outer" data-thumbfull-outer>
+              <div class="thumbfull-inner" data-thumbfull-inner>
+                <img src={project.media.cover} alt={`${project.name} 封面`} />
+              </div>
             </div>
-          </section>
-        ))
-      }
-
-      {
-        project.media?.arch && (
-          <figure class="pd-figure">
-            <img src={project.media.arch} alt={`${project.name} 架构图`} loading="lazy" />
-            <figcaption>架构 / Architecture</figcaption>
-          </figure>
-        )
-      }
-
-      {
-        project.media?.video && (
-          <figure class="pd-figure">
-            <video src={project.media.video} controls preload="none" playsinline></video>
-            <figcaption>实机演示 / Gameplay</figcaption>
-          </figure>
-        )
-      }
-
-      {
-        project.media?.gallery && project.media.gallery.length > 0 && (
-          <figure class="pd-figure">
-            <div class="pd-strip">
-              {project.media.gallery.map((g) => (
-                <img src={g} alt={`${project.name} 素材`} loading="lazy" />
-              ))}
+          ) : (
+            <div class="pd-hero-media pd-hero-ph" aria-hidden="true">
+              <span class="pd-hero-ph-mark">{num}</span>
+              <span class="pd-hero-ph-kind">Report</span>
             </div>
-            <figcaption>过程稿 / Process</figcaption>
-          </figure>
-        )
-      }
+          )}
+          <div class="pd-hero-copy" data-thumbfull-copy>
+            <p class="pd-eyebrow">
+              <b>{num}</b>
+              {project.period}
+            </p>
+            {tags.length > 0 && (
+              <ul class="pd-hero-tags">
+                {tags.map((t) => (
+                  <li>{t}</li>
+                ))}
+              </ul>
+            )}
+            <h1 class="pd-hero-title">{project.name}</h1>
+            {project.problem && <p class="pd-hero-lede">{project.problem}</p>}
+            {isDossier && dossier.length > 0 && (
+              <dl class="pd-refs">
+                {dossier.map((r) => (
+                  <div>
+                    <dt>{r.label}</dt>
+                    <dd>{r.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            {project.links.length > 0 && (
+              <div class="pd-hero-actions">
+                {project.links.map((l) => (
+                  <a class="pd-btn" data-magnetic href={l.url} target="_blank" rel="noopener">
+                    {l.label} ↗
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        </header>
 
-      <nav class="pd-foot">
-        <a class="pd-btn pd-btn--ghost" href={`/works/${next.slug}`}>
-          {next.name} →
-        </a>
-      </nav>
-    </div>
-  </article>
+        <div class="pd-body">
+          {chapters.map((c) => (
+            <section class="pd-chapter">
+              <div>
+                <p class="pd-eyebrow">
+                  <b>{c.no}</b> {c.label}
+                </p>
+                <h2 class="pd-chapter-title">{c.title}</h2>
+              </div>
+              <div>
+                <p class="pd-chapter-text">{c.text}</p>
+              </div>
+            </section>
+          ))}
+
+          <nav class="pd-foot">
+            <a class="pd-btn pd-btn--ghost" data-magnetic href={`/works/${next.slug}`}>
+              {next.name} →
+            </a>
+          </nav>
+        </div>
+      </article>
+    )
+  }
 </SheetLayout>
 
 <script>
   import { arriveThumbFull } from "../../scripts/thumbfull";
+  import { initGameMonitor } from "../../scripts/desktop/game-monitor";
+  import { initClueBoard } from "../../scripts/desktop/clue-board";
+  import { initSensorOs } from "../../scripts/desktop/sensor-os";
+  import { initNotebook } from "../../scripts/desktop/notebook";
   const root = document.querySelector<HTMLElement>("[data-project-slug]");
   const copy = document.querySelector<HTMLElement>("[data-thumbfull-copy]");
-  arriveThumbFull(root?.dataset.projectSlug ?? "", copy);
+  if (root?.hasAttribute("data-game-monitor")) initGameMonitor(root);
+  else if (root?.hasAttribute("data-clue-board")) {
+    initClueBoard(root);
+  } else if (root?.hasAttribute("data-sensor-os")) {
+    initSensorOs(root);
+    const revealSlot = (el: HTMLElement) => {
+      el.hidden = false;
+      const cap = el.parentElement?.querySelector("figcaption");
+      if (cap instanceof HTMLElement) cap.hidden = false;
+      const ph = el.parentElement?.querySelector<HTMLElement>("[data-zh-ph]");
+      if (ph) ph.hidden = true;
+    };
+    const failSlot = (el: HTMLElement) => {
+      el.hidden = true;
+      const cap = el.parentElement?.querySelector("figcaption");
+      if (cap instanceof HTMLElement) cap.hidden = true;
+      const ph = el.parentElement?.querySelector<HTMLElement>("[data-zh-ph]");
+      if (ph) ph.hidden = false;
+    };
+    root.querySelectorAll<HTMLImageElement>("[data-zh-img]").forEach((img) => {
+      img.addEventListener("load", () => revealSlot(img));
+      img.addEventListener("error", () => failSlot(img));
+      if (img.complete) {
+        if (img.naturalWidth > 0) revealSlot(img);
+        else failSlot(img);
+      }
+    });
+    root.querySelectorAll<HTMLVideoElement>("[data-zh-vid]").forEach((vid) => {
+      vid.addEventListener("loadeddata", () => revealSlot(vid));
+      vid.addEventListener("error", () => failSlot(vid));
+    });
+  } else if (root?.hasAttribute("data-notebook")) {
+    initNotebook(root);
+    const revealSlot = (el: HTMLElement) => {
+      el.hidden = false;
+      const cap = el.parentElement?.querySelector("figcaption");
+      if (cap instanceof HTMLElement) cap.hidden = false;
+      const ph = el.parentElement?.querySelector<HTMLElement>("[data-nb-ph]");
+      if (ph) ph.hidden = true;
+    };
+    const failSlot = (el: HTMLElement) => {
+      el.hidden = true;
+      const cap = el.parentElement?.querySelector("figcaption");
+      if (cap instanceof HTMLElement) cap.hidden = true;
+      const ph = el.parentElement?.querySelector<HTMLElement>("[data-nb-ph]");
+      if (ph) ph.hidden = false;
+    };
+    root.querySelectorAll<HTMLImageElement>("[data-nb-img]").forEach((img) => {
+      img.addEventListener("load", () => revealSlot(img));
+      img.addEventListener("error", () => failSlot(img));
+      if (img.complete) {
+        if (img.naturalWidth > 0) revealSlot(img);
+        else failSlot(img);
+      }
+    });
+    root.querySelectorAll<HTMLVideoElement>("[data-nb-vid]").forEach((vid) => {
+      vid.addEventListener("loadeddata", () => revealSlot(vid));
+      vid.addEventListener("error", () => failSlot(vid));
+    });
+  } else arriveThumbFull(root?.dataset.projectSlug ?? "", copy);
+
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduce) {
+    const magnets = document.querySelectorAll<HTMLElement>("[data-magnetic], .sheet-home");
+    magnets.forEach((el) => {
+      el.addEventListener("pointermove", (e) => {
+        const r = el.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width - 0.5) * 10;
+        const y = ((e.clientY - r.top) / r.height - 0.5) * 10;
+        el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      });
+      el.addEventListener("pointerleave", () => {
+        el.style.transform = "";
+      });
+    });
+  }
 </script>
+
+<style>
+  .bb-note-row.is-lead {
+    border: 2px solid var(--color-sheet-blue-deep);
+    background: rgba(0, 185, 232, 0.08);
+  }
+  .bb-note-row.is-lead::before {
+    content: "★";
+    color: var(--color-sheet-blue-deep);
+    margin-right: 0.35em;
+  }
+  .bb-file-list li {
+    position: relative;
+  }
+  .bb-section-note {
+    display: none;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(260px, 28vw, 340px);
+    max-height: 70vh;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    margin: 0;
+    z-index: 50;
+    pointer-events: auto;
+  }
+  .bb-file-list:not(.is-left) li .bb-section-note {
+    left: 100%;
+    right: auto;
+    padding-left: 16px;
+  }
+  .bb-file-list.is-left li .bb-section-note {
+    left: auto;
+    right: 100%;
+    padding-right: 16px;
+  }
+  @media (max-width: 900px) {
+    .bb-file-list.is-left li .bb-section-note {
+      left: 100%;
+      right: auto;
+      padding-left: 16px;
+      padding-right: 0;
+      width: min(260px, 72vw);
+    }
+  }
+  .bb-file-list li:hover .bb-section-note {
+    display: block;
+  }
+  .bb-section-note .bb-sticky-cover {
+    display: block;
+    width: 88px;
+    margin: 0 0 8px;
+  }
+</style>

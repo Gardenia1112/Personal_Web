@@ -114,8 +114,11 @@ export function initTransitions() {
   const root = document.documentElement;
 
   // 由 inline 脚本在首屏前盖上的黑幕：等一帧再撤，确保 opacity:1 已参与首帧绘制
-  if (root.classList.contains(COVER_CLASS)) {
+  // 尸潮电视启动自己揭幕，这里不要提前掀开
+  if (root.classList.contains(COVER_CLASS) && !root.classList.contains("is-tv-boot")) {
     requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove(COVER_CLASS)));
+  } else if (root.classList.contains("is-tv-boot")) {
+    window.setTimeout(() => root.classList.remove(COVER_CLASS, "is-tv-boot"), 2200);
   }
 
   document.addEventListener("click", (e) => {

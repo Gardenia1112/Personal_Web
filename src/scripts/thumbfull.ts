@@ -1,9 +1,11 @@
 export const THUMB_KEY = "lszbf:thumbfull";
+const TV_BOOT_KEY = "lszbf:tv-boot";
 
 export type ThumbFullPayload = {
   slug: string;
   src: string;
   expanded?: boolean;
+  full?: boolean;
 };
 
 function reducedMotion() {
@@ -96,7 +98,7 @@ function paintSheet() {
 }
 
 /** 胀开终点垫在 html 上，换页时封面不动，蓝底留给落地再渐显 */
-function paintCoverHold(src: string) {
+function paintCoverHold(src: string, full?: boolean) {
   const clean = safeCoverSrc(src);
   if (!clean) return;
   const root = document.documentElement;
@@ -104,15 +106,15 @@ function paintCoverHold(src: string) {
   root.style.backgroundImage = `url("${clean}")`;
   root.style.backgroundRepeat = "no-repeat";
   root.style.backgroundPosition = "top left";
-  root.style.backgroundSize = "100vw min(72vh, 820px)";
+  root.style.backgroundSize = full ? "100vw 100vh" : "100vw min(72vh, 820px)";
   if (document.body) {
     document.body.style.transition = "none";
     document.body.style.background = "transparent";
   }
 }
 
-function goNow(href: string, cover?: string) {
-  if (cover) paintCoverHold(cover);
+function goNow(href: string, cover?: string, full?: boolean) {
+  if (cover) paintCoverHold(cover, full);
   else paintSheet();
   window.location.href = href;
 }
@@ -133,13 +135,38 @@ function goSlide(href: string, slug: string) {
   goNow(href);
 }
 
-/** 尸潮 / 不绘鸽：目录里胀开；智联 / 气垫：直接滑入详情 */
+function wantsPageEnter(row: HTMLAnchorElement) {
+  const enter = row.dataset.wxEnter ?? "";
+  return (
+    enter === "boot" ||
+    enter === "stick" ||
+    enter === "osboot" ||
+    enter === "cover" ||
+    row.classList.contains("wx-row--tube") ||
+    row.classList.contains("wx-row--board") ||
+    row.classList.contains("wx-row--os") ||
+    row.classList.contains("wx-row--lab")
+  );
+}
+
+/** 四皮详情页自己播入场；其余仍走胀开 / 滑入 */
 export function expandThenGo(row: HTMLAnchorElement) {
   const href = row.getAttribute("href");
   if (!href) return;
   rememberFolderFrom(row);
   const slug = slugFromHref(href);
   const src = coverSrc(row);
+
+  if (wantsPageEnter(row)) {
+    try {
+      sessionStorage.removeItem(THUMB_KEY);
+      sessionStorage.removeItem(TV_BOOT_KEY);
+    } catch {
+      /* ignore */
+    }
+    window.location.href = href;
+    return;
+  }
 
   if (!wantsExpand(row) || !src || reducedMotion()) {
     goSlide(href, slug);
@@ -260,7 +287,7 @@ export function arriveThumbFull(slug: string, copy?: HTMLElement | null) {
   const match = Boolean(data && data.slug === slug);
 
   const fanRise = root.dataset.enter === "rise" || root.dataset.enter === "veil";
-  if (fanRise || !match || reducedMotion()) {
+  if (slug === "wandering-corpse-tide" || fanRise || !match || reducedMotion()) {
     root.classList.remove("is-thumbfull", "is-thumbfull-arrive", "is-thumbfull-slide", "is-thumbfull-hold");
     dropHold();
     clearThumbFull();
@@ -270,13 +297,19 @@ export function arriveThumbFull(slug: string, copy?: HTMLElement | null) {
   const page = slideRoot();
 
   if (data?.expanded) {
-    const extras = Array.from(document.querySelectorAll<HTMLElement>(".pd-body, .sheet-home"));
+    const extras = Array.from(
+      document.querySelectorAll<HTMLElement>(".pd-body, .sheet-home, .game-hud, .game-chrome")
+    );
     const nodes = [copy, ...extras].filter((el): el is HTMLElement => Boolean(el));
     nodes.forEach((el) => {
       el.style.opacity = "0";
     });
+    const deep = document.documentElement.dataset.tone === "deep";
+    const board = Boolean(document.querySelector(".is-buhuige"));
+    const sheetColor = deep ? "#0f1115" : board ? "#e8e4db" : "#f0f8ff";
+    const sheetFrom = deep ? "rgba(15, 17, 21, 0)" : board ? "rgba(232, 228, 219, 0)" : "rgba(240, 248, 255, 0)";
     const sheet = document.body.animate(
-      [{ backgroundColor: "rgba(240, 248, 255, 0)" }, { backgroundColor: "#f0f8ff" }],
+      [{ backgroundColor: sheetFrom }, { backgroundColor: sheetColor }],
       { duration: 480, easing: "ease-out", fill: "forwards" }
     );
     fadeCopy(nodes);

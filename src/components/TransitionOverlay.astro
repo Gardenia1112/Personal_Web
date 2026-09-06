@@ -6,7 +6,11 @@
 <div id="transition-overlay" aria-hidden="true"></div>
 <script is:inline>
   try {
-    if (sessionStorage.getItem("lszbf:tx") === "1") {
+    if (sessionStorage.getItem("lszbf:tv-boot") === "1") {
+      document.documentElement.classList.add("tx-covered", "is-tv-boot");
+      sessionStorage.removeItem("lszbf:tv-boot");
+      sessionStorage.removeItem("lszbf:tx");
+    } else if (sessionStorage.getItem("lszbf:tx") === "1") {
       document.documentElement.classList.add("tx-covered");
       sessionStorage.removeItem("lszbf:tx");
     }

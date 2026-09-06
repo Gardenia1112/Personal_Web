@@ -18,7 +18,8 @@ const cases = projects.map((p, i) => {
     lede: p.problem,
     tags,
     cover: p.media?.cover ?? "",
-    enter: p.enter === "expand" ? "expand" : "slide",
+    enter: p.enter ?? "slide",
+    skin: p.skin ?? "",
     num: String(i + 1).padStart(2, "0"),
   };
 });
@@ -32,7 +33,27 @@ const cases = projects.map((p, i) => {
   <section class="wx-list" aria-label="开发项目">
     {
       cases.map((c) => (
-        <a class="wx-row" href={`/works/${c.slug}`} data-wx-row data-wx-enter={c.enter} data-no-transition>
+        <a class:list={["wx-row", c.skin === "is-shibing" && "wx-row--tube", c.skin === "is-buhuige" && "wx-row--board", c.skin === "is-zhilian" && "wx-row--os", c.skin === "is-qidian" && "wx-row--lab"]} href={`/works/${c.slug}`} data-wx-row data-wx-enter={c.enter} data-no-transition>
+          {c.skin === "is-buhuige" && (
+            <>
+              <i class="wx-tape" aria-hidden="true"></i>
+              <i class="wx-pin" aria-hidden="true"></i>
+              <span class="wx-sticker wx-sticker--yellow">STUDIO</span>
+              <span class="wx-sticker wx-sticker--pink">IP</span>
+            </>
+          )}
+          {c.skin === "is-zhilian" && (
+            <>
+              <span class="wx-sticker wx-sticker--amber">ZHILIAN</span>
+              <span class="wx-sticker wx-sticker--chip">OS</span>
+            </>
+          )}
+          {c.skin === "is-qidian" && (
+            <>
+              <span class="wx-sticker wx-sticker--hide">软著</span>
+              <span class="wx-sticker wx-sticker--year">2025</span>
+            </>
+          )}
           <span class="wx-num" aria-hidden="true">{c.num}</span>
           <div class="wx-copy">
             <h3 class="wx-title">{c.title}</h3>
@@ -46,7 +67,24 @@ const cases = projects.map((p, i) => {
             )}
           </div>
           <div class="wx-thumb">
-            {c.cover ? <img src={c.cover} alt="" /> : <div class="wx-ph" aria-hidden="true"></div>}
+            {c.skin === "is-zhilian" ? (
+              <div class="wx-os-screen" aria-hidden="true">
+                <span class="wx-os-bar"><i></i><i></i><i></i></span>
+                <b>ZHILIAN OS</b>
+                <em>v1.0 · MONITOR</em>
+              </div>
+            ) : c.skin === "is-qidian" ? (
+              <div class="wx-lab-cover" aria-hidden="true">
+                <i class="wx-lab-badge"></i>
+                <span>立体物理</span>
+                <b>气垫导轨</b>
+                <em>NOTEBOOK</em>
+              </div>
+            ) : c.cover ? (
+              <img src={c.cover} alt="" />
+            ) : (
+              <div class="wx-ph" aria-hidden="true"></div>
+            )}
           </div>
         </a>
       ))
