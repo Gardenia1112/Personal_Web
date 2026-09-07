@@ -24,7 +24,7 @@ function reducedMotion() {
 function folderEntry(url: string) {
   try {
     const path = new URL(url, location.href).pathname.replace(/\/$/, "") || "/";
-    if (path === "/awards") return "awards";
+    // /awards 已迁工位 overlay，不再映射桌面文件夹
     if (path === "/works") return "dev";
     if (path === "/art") return "art";
   } catch {
@@ -47,7 +47,7 @@ function resolveUrl(url: string) {
 function pendingFolder() {
   try {
     const id = sessionStorage.getItem("lszbf:folder");
-    return id === "dev" || id === "art" || id === "awards";
+    return id === "dev" || id === "art";
   } catch {
     return false;
   }

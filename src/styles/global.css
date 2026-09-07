@@ -1680,6 +1680,11 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   color: #f8fafc;
   font-size: 13px;
   text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+}
+button.mobile-fallback-link {
+  width: 100%;
 }
 .mobile-fallback-link:hover {
   border-color: rgba(0, 217, 255, 0.4);

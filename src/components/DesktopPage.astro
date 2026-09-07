@@ -1,11 +1,10 @@
 ---
-// /desktop 与 /awards 共用：同一套三图标选择台 + 文件夹叠层
+// /desktop：三图标选择台 + 红/黄文件夹叠层（奖项已迁工位，见 6F'）
 import TransitionOverlay from "./TransitionOverlay.astro";
 import CustomCursor from "./CustomCursor.astro";
 import EntryArt from "./Desktop/EntryArt.astro";
 import DevIndex from "./DevIndex.astro";
 import ArtGallery from "./ArtGallery.astro";
-import AwardsStack from "./AwardsStack.astro";
 import "../styles/global.css";
 import "../styles/desktop.css";
 import "../styles/dev-index.css";
@@ -17,7 +16,7 @@ import { artworks } from "../data/art";
 import { profile } from "../data/profile";
 
 interface Props {
-  initialFolder?: "dev" | "art" | "awards";
+  initialFolder?: "dev" | "art";
   title?: string;
 }
 
@@ -52,7 +51,7 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
     <script is:inline>
       try {
         var pending = sessionStorage.getItem("lszbf:folder");
-        if (pending === "dev" || pending === "art" || pending === "awards") {
+        if (pending === "dev" || pending === "art") {
           document.documentElement.classList.add("is-folder-open", "is-folder-return");
           document.documentElement.dataset.returnFolder = pending;
           sessionStorage.removeItem("lszbf:dtx");
@@ -173,14 +172,11 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
       <div class="dt-folder-view" data-folder-view="art" hidden={initialFolder !== "art"}>
         <ArtGallery />
       </div>
-      <div class="dt-folder-view" data-folder-view="awards" hidden={initialFolder !== "awards"}>
-        <AwardsStack />
-      </div>
     </div>
     <script is:inline>
       try {
         var back = document.documentElement.dataset.returnFolder;
-        if (back === "dev" || back === "art" || back === "awards") {
+        if (back === "dev" || back === "art") {
           var layer = document.getElementById("dt-folder-layer");
           if (layer) {
             layer.hidden = false;

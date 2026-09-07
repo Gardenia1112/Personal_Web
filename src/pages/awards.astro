@@ -1,5 +1,47 @@
 ---
-// 工位文件堆 / 导航「获奖」：同一套桌面，首屏直接打开奖项叠层
-import DesktopPage from "../components/DesktopPage.astro";
+// 工位文件堆 → 渐黑进入：Mosby 文件夹栈整页（无顶栏 Nav）
+import TransitionOverlay from "../components/TransitionOverlay.astro";
+import CustomCursor from "../components/CustomCursor.astro";
+import AwardsStack from "../components/AwardsStack.astro";
+import { awards, awardsPage, awardsSorted } from "../data/awards";
+import "../styles/global.css";
+import "../styles/awards-stack.css";
+
+const sorted = awardsSorted(awards);
+const years = sorted.map((a) => a.year);
+const yearSpan = years.length > 0 ? `${Math.min(...years)} – ${Math.max(...years)}` : "";
 ---
-<DesktopPage initialFolder="awards" title="获奖 · lszbf.com" />
+<!doctype html>
+<html lang="zh-CN" data-page="awards">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={awardsPage.lede} />
+    <title>{awardsPage.title} · lszbf.com</title>
+  </head>
+  <body class="as-body-root">
+    <a class="as-home" href="/" aria-label="回工位">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+
+    <main class="as-page">
+      <header class="as-hero">
+        <p class="as-brand">{awardsPage.brand}</p>
+        <p class="as-kicker">{awardsPage.kicker}{yearSpan ? ` · ${yearSpan}` : ""}</p>
+        <h1 class="as-hero-title">{awardsPage.title}</h1>
+        <p class="as-lede">{awardsPage.lede}</p>
+      </header>
+
+      <AwardsStack />
+    </main>
+
+    <TransitionOverlay />
+    <CustomCursor />
+    <script>
+      import { initAwardsStack } from "../scripts/awards-stack";
+      initAwardsStack();
+    </script>
+  </body>
+</html>

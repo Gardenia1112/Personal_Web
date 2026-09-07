@@ -3,7 +3,7 @@ import { initDevIndex } from "./dev-index";
 import { initArtGallery } from "./art-gallery";
 import { hideBlobs, showBlobs } from "./pink-blobs";
 
-export type FolderId = "dev" | "art" | "awards";
+export type FolderId = "dev" | "art";
 
 const SLIDE_MS = 480;
 let currentFolder: FolderId | null = null;
@@ -107,17 +107,20 @@ export function initFolderViews() {
 
   const baked = document.documentElement.dataset.initialFolder;
   const returning = document.documentElement.dataset.returnFolder;
-  if (baked === "dev" || baked === "art" || baked === "awards") {
+  if (baked === "dev" || baked === "art") {
     openFolder(baked);
   } else {
     try {
       const pending =
-        returning === "dev" || returning === "art" || returning === "awards"
+        returning === "dev" || returning === "art"
           ? returning
           : sessionStorage.getItem("lszbf:folder");
-      if (pending === "dev" || pending === "art" || pending === "awards") {
+      if (pending === "dev" || pending === "art") {
         sessionStorage.removeItem("lszbf:folder");
         openFolder(pending);
+      } else if (pending === "awards") {
+        // 旧会话残留：奖项已迁工位
+        sessionStorage.removeItem("lszbf:folder");
       }
     } catch {
       /* ignore */
@@ -144,7 +147,7 @@ export function initFolderViews() {
       const card = t.closest<HTMLElement>("[data-open-folder]");
       if (!card) return;
       const id = card.dataset.openFolder as FolderId | undefined;
-      if (id !== "dev" && id !== "art" && id !== "awards") return;
+      if (id !== "dev" && id !== "art") return;
       e.preventDefault();
       openFolder(id);
     },
@@ -152,7 +155,7 @@ export function initFolderViews() {
   );
 
   document.addEventListener("keydown", (e) => {
-    if (e.key !== "Escape" || !currentFolder || currentFolder === "awards") return;
+    if (e.key !== "Escape" || !currentFolder) return;
     closeFolder();
   });
 }

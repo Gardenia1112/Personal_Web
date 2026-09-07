@@ -1,22 +1,138 @@
 ---
-import { awards } from "../data/awards";
+// /awards · Mosby 叠层：白底清新绿系；展开区内嵌证书图 / PDF
+import { awards, awardsLayers, awardFileUrl, type Award } from "../data/awards";
 
-const visible = awards.filter((a) => !a.hide);
+const layers = awardsLayers(awards);
+/** 全绿系：末项 mist = 原黑色夹 → 淡绿白 */
+const TONES = ["moss", "fern", "sage", "mint", "leaf", "mist"] as const;
+type Tone = (typeof TONES)[number];
+
+function fileKind(file?: string): "image" | "pdf" | "download" | "none" {
+  if (!file) return "none";
+  const lower = file.toLowerCase();
+  if (/\.(png|jpe?g|webp|gif)$/.test(lower)) return "image";
+  if (/\.pdf$/.test(lower)) return "pdf";
+  return "download";
+}
+
+function extLabel(file?: string) {
+  if (!file) return "";
+  const m = file.match(/\.([a-z0-9]+)$/i);
+  return m ? m[1].toUpperCase() : "FILE";
+}
+
+function toneAt(globalIndex: number): Tone {
+  return TONES[globalIndex % TONES.length];
+}
+
+function layerItems(layer: Award[], layerIndex: number) {
+  let offset = 0;
+  for (let i = 0; i < layerIndex; i++) offset += layers[i].length;
+  return layer.map((a, j) => ({
+    award: a,
+    tone: toneAt(offset + j),
+    url: awardFileUrl(a.file),
+    kind: fileKind(a.file),
+  }));
+}
 ---
-<div class="dt-stub" data-awards-stack>
-  <header class="dt-folder-head">
-    <p class="dt-folder-kicker"><b>03</b> Awards</p>
-    <h2 class="dt-folder-title">获奖</h2>
-    <p class="dt-folder-sub">文件夹层叠 · 占位（6F'）</p>
-  </header>
-  <ul class="dt-stub-stack">
+<section class="as-stack-wrap" data-awards-stack>
+  <ul class="as-stack">
     {
-      visible.map((a) => (
-        <li>
-          <b>{a.level}</b>
-          <span>{a.name}</span>
-        </li>
-      ))
+      layers.map((layer, li) => {
+        const items = layerItems(layer, li);
+        const front = items[0];
+        return (
+          <li
+            class:list={["as-folder", `as-folder--${front.tone}`]}
+            data-as-folder
+            data-as-layer={li}
+            style={`--as-z: ${li + 1}`}
+          >
+            <div class="as-ridge">
+              <div class="as-tabs">
+                {
+                  items.map((it, ti) => (
+                    <button
+                      type="button"
+                      class:list={["as-tab", `as-tab--${it.tone}`, ti === 0 && "is-front"]}
+                      data-as-tab
+                      data-as-tone={it.tone}
+                      data-as-index={ti}
+                      aria-pressed={ti === 0 ? "true" : "false"}
+                    >
+                      {it.award.tab}
+                    </button>
+                  ))
+                }
+              </div>
+              <div class="as-shelf">
+                <button type="button" class="as-toggle" data-as-toggle aria-expanded="false" tabindex="-1">
+                  <span class="as-toggle-label" data-as-toggle-label>展开</span>
+                  <span class="as-chevron" aria-hidden="true">&lt;</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="as-panel" data-as-body>
+              <div class="as-panel-clip">
+                {
+                  items.map((it, ti) => (
+                    <div class="as-panel-inner" data-as-card data-as-index={ti} hidden={ti !== 0}>
+                      <div class="as-copy">
+                        <p class="as-meta">
+                          <span>{it.award.year}</span>
+                          <span>{it.award.level}</span>
+                        </p>
+                        <h3 class="as-name">{it.award.name}</h3>
+                        {it.award.project && (
+                          <p class="as-field">
+                            <b>项目</b>
+                            <span>{it.award.project}</span>
+                          </p>
+                        )}
+                        {it.award.role && (
+                          <p class="as-field">
+                            <b>分工</b>
+                            <span>{it.award.role}</span>
+                          </p>
+                        )}
+                        {it.award.blurb && <p class="as-blurb">{it.award.blurb}</p>}
+                      </div>
+
+                      <div class="as-proof">
+                        {it.kind === "image" && it.url ? (
+                          <button type="button" class="as-embed as-embed--img" data-as-preview={it.url} aria-label={`查看 ${it.award.name}`}>
+                            <img src={it.url} alt={it.award.name} loading="lazy" draggable="false" />
+                          </button>
+                        ) : it.kind === "pdf" && it.url ? (
+                          <div class="as-embed as-embed--pdf">
+                            <iframe src={`${it.url}#view=FitH`} title={it.award.name} loading="lazy" />
+                            <a class="as-embed-link" href={it.url} download>
+                              下载 PDF
+                            </a>
+                          </div>
+                        ) : it.kind === "download" && it.url ? (
+                          <a class="as-proof-btn" href={it.url} download>
+                            下载 {extLabel(it.award.file)}
+                          </a>
+                        ) : (
+                          <span class="as-proof-empty">证明文件待补</span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+          </li>
+        );
+      })
     }
   </ul>
+</section>
+
+<div class="lightbox" data-as-lightbox aria-hidden="true">
+  <button type="button" class="lightbox-close" data-as-lightbox-close aria-label="关闭预览">✕</button>
+  <img src="" alt="证书预览" data-as-lightbox-img />
 </div>

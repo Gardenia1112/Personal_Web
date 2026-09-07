@@ -29,7 +29,7 @@
     var fromFolder = Boolean(sessionStorage.getItem("lszbf:thumbfull"));
     var backFolder = sessionStorage.getItem("lszbf:folder");
     var enter = sessionStorage.getItem("lszbf:dtx");
-    if (fromFolder || backFolder === "dev" || backFolder === "art" || backFolder === "awards") {
+    if (fromFolder || backFolder === "dev" || backFolder === "art") {
       sessionStorage.removeItem("lszbf:dtx");
       document.documentElement.removeAttribute("data-enter");
     } else if (enter === "rise" || enter === "veil" || enter === "fall") {
