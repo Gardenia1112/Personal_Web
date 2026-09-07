@@ -108,12 +108,12 @@ function layerItems(layer: Award[], layerIndex: number) {
                         ) : it.kind === "pdf" && it.url ? (
                           <div class="as-embed as-embed--pdf">
                             <iframe src={`${it.url}#view=FitH`} title={it.award.name} loading="lazy" />
-                            <a class="as-embed-link" href={it.url} download>
+                            <a class="as-embed-link magnetic-btn" href={it.url} download>
                               下载 PDF
                             </a>
                           </div>
                         ) : it.kind === "download" && it.url ? (
-                          <a class="as-proof-btn" href={it.url} download>
+                          <a class="as-proof-btn magnetic-btn" href={it.url} download>
                             下载 {extLabel(it.award.file)}
                           </a>
                         ) : (

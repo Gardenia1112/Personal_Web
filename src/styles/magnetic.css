@@ -1,0 +1,20 @@
+/* 磁性按钮：只统一磁吸基座 + hover 光，不改各视图底色 */
+
+.magnetic-btn {
+  /* 只统一胶囊圆角 + 磁吸层；不改 display/底色，避免冲掉各视图布局 */
+  border-radius: 999px;
+  will-change: transform;
+  transition: filter 0.2s ease, box-shadow 0.2s ease;
+}
+
+.magnetic-btn:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 8px 28px rgba(0, 0, 0, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magnetic-btn {
+    will-change: auto;
+    transition: none;
+  }
+}

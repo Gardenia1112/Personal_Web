@@ -210,7 +210,7 @@ const intro01 = body0
                             {c.no === "04" && project.links.length > 0 && (
                               <div class="pd-hero-actions">
                                 {project.links.map((l) => (
-                                  <a class="pd-btn" data-magnetic href={l.url} target="_blank" rel="noopener">
+                                  <a class="pd-btn magnetic-btn" href={l.url} target="_blank" rel="noopener">
                                     {l.label} ↗
                                   </a>
                                 ))}
@@ -701,7 +701,7 @@ const intro01 = body0
             {project.links.length > 0 && (
               <div class="pd-hero-actions">
                 {project.links.map((l) => (
-                  <a class="pd-btn" data-magnetic href={l.url} target="_blank" rel="noopener">
+                  <a class="pd-btn magnetic-btn" href={l.url} target="_blank" rel="noopener">
                     {l.label} ↗
                   </a>
                 ))}
@@ -726,7 +726,7 @@ const intro01 = body0
           ))}
 
           <nav class="pd-foot">
-            <a class="pd-btn pd-btn--ghost" data-magnetic href={`/works/${next.slug}`}>
+            <a class="pd-btn pd-btn--ghost magnetic-btn" href={`/works/${next.slug}`}>
               {next.name} →
             </a>
           </nav>
@@ -804,22 +804,6 @@ const intro01 = body0
       vid.addEventListener("error", () => failSlot(vid));
     });
   } else arriveThumbFull(root?.dataset.projectSlug ?? "", copy);
-
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (!reduce) {
-    const magnets = document.querySelectorAll<HTMLElement>("[data-magnetic], .sheet-home");
-    magnets.forEach((el) => {
-      el.addEventListener("pointermove", (e) => {
-        const r = el.getBoundingClientRect();
-        const x = ((e.clientX - r.left) / r.width - 0.5) * 10;
-        const y = ((e.clientY - r.top) / r.height - 0.5) * 10;
-        el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
-      });
-      el.addEventListener("pointerleave", () => {
-        el.style.transform = "";
-      });
-    });
-  }
 </script>
 
 <style>

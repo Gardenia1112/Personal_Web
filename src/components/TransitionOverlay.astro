@@ -42,5 +42,8 @@
 </script>
 <script>
   import { initTransitions } from "../scripts/transition";
+  import { initMagneticButtons } from "../scripts/magnetic";
   initTransitions();
+  // about / awards / SheetLayout 不经 BaseLayout，经本遮罩单点补注册（__magneticInited 幂等）
+  initMagneticButtons();
 </script>

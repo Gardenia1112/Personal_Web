@@ -249,10 +249,10 @@ html.is-thumbfull:not(.is-thumbfull-ready) .pd-hero-copy {
   padding: 14px clamp(24px, 6vw, 96px) 0;
 }
 
+/* transform 交由 magnetic.ts（GSAP x/y）；此处不再过渡 transform，避免打架 */
 .sheet-home,
-.pd-btn[data-magnetic] {
+.pd-btn {
   transition:
-    transform 0.22s cubic-bezier(0.16, 0.84, 0.3, 1),
     background 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease;
@@ -3032,7 +3032,7 @@ html[data-page="sheet"]:has(.nb-cover:not(.is-away)) body {
   }
 
   .sheet-home,
-  .pd-btn[data-magnetic] {
+  .pd-btn {
     transition: none;
   }
 

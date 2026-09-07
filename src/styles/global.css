@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./cursor.css";
 @import "./paper.css";
+@import "./magnetic.css";
 
 /* 02 §1 场景配色：深夜工位 */
 @theme {
@@ -325,14 +326,13 @@ html[data-page="about"] #cursor {
   color: var(--color-ink);
   border: 1.5px solid rgba(29, 33, 38, 0.16);
   background: rgba(255, 253, 247, 0.9);
-  transition: background 0.24s ease, border-color 0.24s ease, transform 0.24s ease, color 0.24s ease;
+  transition: background 0.24s ease, border-color 0.24s ease, color 0.24s ease;
 }
 .about-home svg {
   width: 22px;
   height: 22px;
 }
 .about-home:hover {
-  transform: translateX(-3px);
   background: #ffd60a;
   border-color: #ffd60a;
   color: #2b2926;
