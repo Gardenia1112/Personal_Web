@@ -16,13 +16,6 @@
   opacity: 1;
 }
 
-/* 浅色主题下纯白光点会消失，换成深色核心 + 紫色光晕，并关掉叠加混合 */
-[data-theme="light"] #cursor {
-  --cursor-core: #14181f;
-  --cursor-glow: rgba(168, 85, 247, 0.5);
-  mix-blend-mode: normal;
-}
-
 .cursor-dot,
 .cursor-trail {
   position: absolute;

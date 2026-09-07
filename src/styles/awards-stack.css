@@ -28,9 +28,14 @@
   height: 18px;
 }
 
-.as-home:hover {
+.as-home:hover,
+.as-home:focus-visible {
   border-color: rgba(61, 139, 110, 0.55);
   background: #f3faf6;
+}
+.as-home:focus-visible {
+  outline: 2px solid var(--as-fern, #3d9a6e);
+  outline-offset: 3px;
 }
 
 .as-page {

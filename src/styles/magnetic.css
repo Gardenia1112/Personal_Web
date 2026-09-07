@@ -7,9 +7,14 @@
   transition: filter 0.2s ease, box-shadow 0.2s ease;
 }
 
-.magnetic-btn:hover {
+.magnetic-btn:hover,
+.magnetic-btn:focus-visible {
   filter: brightness(1.08);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 8px 28px rgba(0, 0, 0, 0.18);
+}
+.magnetic-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-cyan) 70%, white);
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {

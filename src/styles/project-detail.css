@@ -40,10 +40,17 @@ html[data-page="sheet"] body {
 }
 
 .sheet-home:hover,
-.sheet-close:hover {
+.sheet-close:hover,
+.sheet-home:focus-visible,
+.sheet-close:focus-visible {
   background: var(--color-sheet-ink);
   border-color: var(--color-sheet-ink);
   color: #ffffff;
+}
+.sheet-home:focus-visible,
+.sheet-close:focus-visible {
+  outline: 2px solid var(--color-sheet-blue);
+  outline-offset: 3px;
 }
 
 .pd.paper-page {

@@ -10,6 +10,8 @@
   --color-cyan: #00d9ff;
   --color-purple: #a855f7;
   --color-warm: #ffb974;
+  --color-fg: #f8fafc; /* 深色页正文 */
+  --color-fg-inv: #14181f; /* 浅色页正文 / 反色 */
 
   /* /desktop 选择台的浅底鲜色（2026-09-04：先做的莫兰迪低饱和版用户嫌闷，改成高饱和撞色）
      只在 desktop.css 里引用，别把它铺到深夜工位那几页 */
@@ -37,12 +39,26 @@ html,
 body {
   margin: 0;
   padding: 0;
-  /* 首页的 WebGL 画布是透明的，场景底色由这里提供（昼夜切换只换这一层，加过渡防突变） */
+  /* 首页的 WebGL 画布是透明的，场景底色由这里提供（台灯浅/深只换这一层，加过渡防突变） */
   background: var(--color-deep);
   transition: background-color 0.7s ease;
-  color: #f8fafc;
+  color: var(--color-fg);
   font-family: system-ui, -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* 台灯主页彩蛋：浅色系仅作用本页 DOM（不跨页、不写 localStorage） */
+html[data-desk-theme="light"] body {
+  background: #eef2f7;
+  color: var(--color-fg-inv);
+}
+html[data-desk-theme="light"] #hero-type {
+  --hero-ink: var(--color-fg-inv);
+}
+html[data-desk-theme="light"] #cursor {
+  --cursor-core: var(--color-fg-inv);
+  --cursor-glow: rgba(168, 85, 247, 0.5);
+  mix-blend-mode: normal;
 }
 
 /* 3D 物件的悬停标题只由热点圆点的 .hotspot-label 承担，
@@ -113,9 +129,6 @@ body {
      0.7em ≈ Arial Black 这类粗黑体的大写字均宽（已含 -0.045em 字距的抵扣） */
   font-size: calc(96vw / (var(--len) * 0.7));
   white-space: nowrap;
-}
-[data-theme="light"] #hero-type {
-  --hero-ink: #14181f;
 }
 
 /* ===== 可交互物件的热点标记 =====
@@ -199,8 +212,8 @@ body {
   opacity: 0;
   border-radius: 7px;
   font-size: 13px;
-  color: #f8fafc;
-  background: rgba(15, 17, 21, 0.88);
+  color: var(--color-fg);
+  background: color-mix(in srgb, var(--color-deep) 88%, transparent);
   border: 1px solid rgba(0, 217, 255, 0);
   transition: max-width 0.3s ease, opacity 0.22s ease, padding 0.3s ease, border-color 0.22s ease;
 }
@@ -332,10 +345,15 @@ html[data-page="about"] #cursor {
   width: 22px;
   height: 22px;
 }
-.about-home:hover {
+.about-home:hover,
+.about-home:focus-visible {
   background: #ffd60a;
   border-color: #ffd60a;
   color: #2b2926;
+}
+.about-home:focus-visible {
+  outline: 2px solid #ffd60a;
+  outline-offset: 3px;
 }
 #board-panel {
   position: fixed;
@@ -1035,10 +1053,15 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
 .about-ending-cta.is-on {
   display: inline-flex;
 }
-.about-ending-cta:hover {
+.about-ending-cta:hover,
+.about-ending-cta:focus-visible {
   transform: scale(1.05);
   filter: brightness(1.08);
   box-shadow: 0 0 22px rgba(255, 214, 10, 0.45);
+}
+.about-ending-cta:focus-visible {
+  outline: 2px solid #2b2926;
+  outline-offset: 3px;
 }
 @media (max-width: 768px) {
   .about-wall {
@@ -1253,7 +1276,7 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(15, 17, 21, 0.88);
+  background: color-mix(in srgb, var(--color-deep) 88%, transparent);
   backdrop-filter: blur(6px);
   opacity: 0;
   pointer-events: none;
@@ -1283,7 +1306,7 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   border: none;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.08);
-  color: #f8fafc;
+  color: var(--color-fg);
   cursor: pointer;
   font-size: 14px;
 }
@@ -1341,95 +1364,78 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   border-color: rgba(0, 217, 255, 0.6);
 }
 
-/* 彩蛋弹窗 */
+/* 奶茶彩蛋：从咖啡杯右上角弹出的可爱对话框（跟台灯浅/深） */
 .easter-pop {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
   z-index: 70;
-  width: 280px;
-  padding: 18px;
-  border-radius: 14px;
-  background: rgba(20, 23, 30, 0.97);
-  border: 1px solid rgba(168, 85, 247, 0.4);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  left: 0;
+  top: 0;
+  width: min(248px, 72vw);
+  padding: 14px 16px;
+  border-radius: 18px 18px 18px 8px;
+  /* 默认深色（主页夜间） */
+  background: #1c212c;
+  color: #f6eef1;
+  border: 2px solid #c084fc;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  font-family: "Yuanti SC", "YouYuan", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: 0.02em;
   opacity: 0;
-  transform: translateY(14px);
+  transform: translate(0, calc(-100% - 20px)) scale(0.92);
+  transform-origin: 12px 100%;
   pointer-events: none;
-  transition: opacity 0.22s ease, transform 0.22s ease;
+  transition:
+    opacity 0.28s ease,
+    transform 0.28s cubic-bezier(0.34, 1.2, 0.64, 1),
+    background-color 0.7s ease,
+    border-color 0.7s ease,
+    color 0.7s ease,
+    box-shadow 0.7s ease;
 }
 .easter-pop.show {
   opacity: 1;
-  transform: none;
-  pointer-events: auto;
+  transform: translate(0, calc(-100% - 28px)) scale(1);
+  pointer-events: none; /* 无关闭钮，3s 自动收 */
 }
-.easter-close {
+.easter-pop::after {
+  content: "";
   position: absolute;
-  top: 10px;
-  right: 10px;
-  border: none;
-  background: transparent;
-  color: rgba(248, 250, 252, 0.6);
-  cursor: pointer;
-  font-size: 14px;
-}
-.easter-close:hover {
-  color: #fff;
-}
-.easter-icon {
-  font-size: 28px;
-}
-.easter-title {
-  margin: 8px 0 4px;
-  font-size: 16px;
-  font-weight: 700;
+  left: 16px;
+  bottom: -9px;
+  width: 14px;
+  height: 14px;
+  background: #1c212c;
+  border-right: 2px solid #c084fc;
+  border-bottom: 2px solid #c084fc;
+  transform: rotate(45deg);
+  transition: background-color 0.7s ease, border-color 0.7s ease;
 }
 .easter-body {
-  margin: 0 0 12px;
-  font-size: 13px;
-  color: rgba(248, 250, 252, 0.6);
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: inherit;
 }
-.easter-field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  font-size: 13px;
+
+/* 台灯切浅色：奶油对话框 */
+html[data-desk-theme="light"] .easter-pop {
+  background: #fffdf8;
+  color: #4a3034;
+  border-color: #ffb7c5;
+  box-shadow: 0 10px 28px rgba(40, 20, 30, 0.18);
 }
-.easter-field > span {
-  color: rgba(248, 250, 252, 0.5);
-  flex-shrink: 0;
+html[data-desk-theme="light"] .easter-pop::after {
+  background: #fffdf8;
+  border-right-color: #ffb7c5;
+  border-bottom-color: #ffb7c5;
 }
-.easter-field code {
-  flex: 1;
-  color: #e6f2ff;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.easter-link {
-  flex: 1;
-  color: var(--color-cyan);
-  text-decoration: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.easter-copy {
-  flex-shrink: 0;
-  border: none;
-  border-radius: 6px;
-  padding: 4px 10px;
-  background: rgba(0, 217, 255, 0.16);
-  color: #7ff3ff;
-  cursor: pointer;
-  font-size: 12px;
-}
-.easter-copy:hover {
-  background: rgba(0, 217, 255, 0.3);
+
+@media (prefers-reduced-motion: reduce) {
+  .easter-pop {
+    transition: background-color 0.7s ease, border-color 0.7s ease, color 0.7s ease;
+  }
 }
 
 /* ===== 二级页面通用（清出顶部 fixed Nav） ===== */
@@ -1525,13 +1531,13 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   padding: 12px 14px;
   margin-bottom: 10px;
   border-radius: 10px;
-  background: rgba(15, 17, 21, 0.5);
+  background: color-mix(in srgb, var(--color-deep) 50%, transparent);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 .contact-field-label {
   flex-shrink: 0;
   width: 44px;
-  color: rgba(248, 250, 252, 0.5);
+  color: color-mix(in srgb, var(--color-fg) 50%, transparent);
   font-size: 13px;
 }
 .contact-field-value {
@@ -1560,7 +1566,7 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
 .contact-note {
   margin: 16px 0 0;
   font-size: 13px;
-  color: rgba(248, 250, 252, 0.55);
+  color: color-mix(in srgb, var(--color-fg) 55%, transparent);
 }
 .contact-note a {
   color: var(--color-cyan);
@@ -1576,10 +1582,10 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   gap: 12px;
   padding: 13px 14px;
   border-radius: 10px;
-  background: rgba(15, 17, 21, 0.5);
+  background: color-mix(in srgb, var(--color-deep) 50%, transparent);
   border: 1px solid rgba(255, 255, 255, 0.06);
   text-decoration: none;
-  color: #f8fafc;
+  color: var(--color-fg);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 .contact-link:hover {
@@ -1595,7 +1601,7 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   font-weight: 600;
 }
 .contact-link-arrow {
-  color: rgba(248, 250, 252, 0.4);
+  color: color-mix(in srgb, var(--color-fg) 40%, transparent);
 }
 
 /* ===== 项目详情：量化成果可视化（02 §9）===== */
@@ -1649,7 +1655,7 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   min-height: 100vh;
   padding: 40px 24px;
   background: radial-gradient(900px 600px at 50% 20%, rgba(0, 217, 255, 0.08), transparent 60%), var(--color-deep);
-  color: #f8fafc;
+  color: var(--color-fg);
 }
 .mobile-fallback-title {
   font-size: 24px;
@@ -1660,7 +1666,7 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
 .mobile-fallback-sub {
   margin: 8px 0 28px;
   font-size: 13px;
-  color: rgba(248, 250, 252, 0.55);
+  color: color-mix(in srgb, var(--color-fg) 55%, transparent);
 }
 .mobile-fallback-nav {
   display: grid;
@@ -1677,7 +1683,7 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   text-decoration: none;
-  color: #f8fafc;
+  color: var(--color-fg);
   font-size: 13px;
   text-align: center;
   cursor: pointer;
@@ -1686,8 +1692,13 @@ html[data-about-chapter="ending"] #board-panel.has-stage {
 button.mobile-fallback-link {
   width: 100%;
 }
-.mobile-fallback-link:hover {
+.mobile-fallback-link:hover,
+.mobile-fallback-link:focus-visible {
   border-color: rgba(0, 217, 255, 0.4);
+}
+.mobile-fallback-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-cyan) 70%, white);
+  outline-offset: 3px;
 }
 .mobile-fallback-emoji {
   font-size: 28px;
@@ -1731,13 +1742,6 @@ html.is-fallback #loading-hint.is-error {
   display: block;
   bottom: 20px;
   color: var(--color-warm);
-}
-
-/* 台灯主题（明暗）—— 影响全局 DOM 底色（3D 场景光照由 desk.ts 切换）
-   ⚠️ 这里只保证浅色下正文可读；二级页全套浅色配色属手册 §7.2（Phase 6 昼夜全局化） */
-[data-theme="light"] body {
-  background: #eef2f7;
-  color: #14181f;
 }
 
 /* ===== 渐黑转场遮罩（D5 / D6：所有跳转统一渐黑）===== */
@@ -2122,7 +2126,7 @@ body:has(.pd) > footer {
   color: rgba(248, 250, 252, 0.55);
 }
 .pd-back:hover {
-  color: #f8fafc;
+  color: var(--color-fg);
 }
 .pd-eyebrow {
   display: flex;
@@ -2132,11 +2136,11 @@ body:has(.pd) > footer {
   font-size: 12px;
   letter-spacing: 3px;
   text-transform: uppercase;
-  color: rgba(248, 250, 252, 0.55);
+  color: color-mix(in srgb, var(--color-fg) 55%, transparent);
 }
 .pd-eyebrow b {
   font-family: ui-monospace, monospace;
-  color: #f8fafc;
+  color: var(--color-fg);
   letter-spacing: 1px;
 }
 .pd-hero-title {
@@ -2169,19 +2173,24 @@ body:has(.pd) > footer {
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 0;
-  color: #f8fafc;
+  color: var(--color-fg);
   text-decoration: none;
   font-size: 13px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: border-color 0.2s ease, color 0.2s ease;
 }
-.pd-btn:hover {
-  border-bottom-color: #f8fafc;
+.pd-btn:hover,
+.pd-btn:focus-visible {
+  border-bottom-color: var(--color-fg);
+}
+.pd-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-fg) 55%, transparent);
+  outline-offset: 4px;
 }
 .pd-btn--ghost {
   border-bottom-color: rgba(255, 255, 255, 0.16);
-  color: rgba(248, 250, 252, 0.6);
+  color: color-mix(in srgb, var(--color-fg) 60%, transparent);
 }
 
 .pd-body {

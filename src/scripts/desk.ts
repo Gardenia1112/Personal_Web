@@ -5,14 +5,12 @@ import * as THREE from "three";
 import { GLTFLoader } from "three-stdlib";
 import { gsap } from "gsap";
 import { deskObjects, introPopOrder, type DeskObject } from "../data/objects";
-import { profile } from "../data/profile";
 import { navigateWithTransition } from "./transition";
 
 const MODEL_URL = "/models/room_full.glb";
 // 开场剧本标记走 sessionStorage：同一标签页内刷新/来回跳页会跳过，关掉标签页再来重播一次
 // （02 §1.1 原文写 localStorage 只播一次，2026-09-04 用户改为「每个会话播一次」）
 const INTRO_KEY = "lszbf:intro:played";
-const THEME_KEY = "lszbf:theme";
 
 // 等距 2.5D：正交相机沿固定方向俯视，靠 frustum 缩放取景（D1）
 const VIEW_DIR = new THREE.Vector3(1, 0.82, 1).normalize();
@@ -72,41 +70,16 @@ function liftInParentSpace(obj: THREE.Object3D, worldLength: number) {
   return v.set(v.x / (s.x || 1), v.y / (s.y || 1), v.z / (s.z || 1));
 }
 
-// ── 咖啡彩蛋弹窗（02 §2 物件 #7：弹出邮箱/微信）──
+// ── 奶茶彩蛋：从咖啡杯右上角弹出的可爱对话框 ──
 function buildEasterPopup(): HTMLElement {
   const el = document.createElement("div");
   el.className = "easter-pop";
+  el.setAttribute("role", "dialog");
+  el.setAttribute("aria-label", "今日奶茶推荐");
   document.body.appendChild(el);
   return el;
 }
 
-function showEaster(pop: HTMLElement) {
-  const fields: [string, string][] = [
-    ["邮箱", profile.email],
-    ["微信", profile.wechat],
-  ];
-  pop.innerHTML = `
-    <button class="easter-close" aria-label="关闭">✕</button>
-    <div class="easter-icon">☕</div>
-    <h3 class="easter-title">咖啡彩蛋</h3>
-    <p class="easter-body">来都来了，加个好友再走。</p>
-    ${fields
-      .map(
-        ([k, v]) =>
-          `<div class="easter-field"><span>${k}</span><code>${v}</code><button class="easter-copy" data-copy="${v}">复制</button></div>`
-      )
-      .join("")}
-  `;
-  pop.querySelector<HTMLElement>(".easter-close")!.addEventListener("click", () => pop.classList.remove("show"));
-  pop.querySelectorAll<HTMLElement>(".easter-copy").forEach((b) => {
-    b.addEventListener("click", () => {
-      navigator.clipboard?.writeText(b.dataset.copy!);
-      b.textContent = "已复制 ✓";
-      setTimeout(() => (b.textContent = "复制"), 1200);
-    });
-  });
-  pop.classList.add("show");
-}
 
 /** 3D 不可用（移动端 / 模型加载失败）时露出静态 DOM 菜单，避免白屏 */
 function degradeToFallback() {
@@ -115,7 +88,15 @@ function degradeToFallback() {
 
 export function initDesk(container: HTMLElement) {
   // 移动端降级：粗指针 / 窄屏 → 不加载 Three.js 与 13MB 模型，由 .mobile-fallback 静态菜单兜底
-  if (window.matchMedia("(pointer: coarse)").matches || container.clientWidth < 768) {
+  // 调试：/?three=off 强制降级（不依赖设备能力，方便桌面验静态菜单）
+  const forceOff =
+    typeof location !== "undefined" &&
+    new URLSearchParams(location.search).get("three") === "off";
+  if (
+    forceOff ||
+    window.matchMedia("(pointer: coarse)").matches ||
+    container.clientWidth < 768
+  ) {
     degradeToFallback();
     return;
   }
@@ -182,20 +163,60 @@ export function initDesk(container: HTMLElement) {
   let activating = false;
 
   const easterPop = buildEasterPopup();
+  /** 对话框锚在咖啡杯世界坐标；每帧投影到屏幕右上角 */
+  const easterAnchor = new THREE.Vector3();
+  let easterOpen = false;
+  let easterTimer = 0;
+
+  function hideEaster() {
+    window.clearTimeout(easterTimer);
+    easterTimer = 0;
+    if (!easterPop.classList.contains("show")) {
+      easterOpen = false;
+      return;
+    }
+    easterPop.classList.remove("show");
+    // 等关场动效播完再停锚点跟踪
+    window.clearTimeout(easterTimer);
+    easterTimer = window.setTimeout(() => {
+      easterOpen = false;
+      easterTimer = 0;
+    }, 300);
+  }
+
+  function placeEasterPop() {
+    if (!easterOpen) return;
+    const p = projectToScreen(easterAnchor);
+    const maxL = Math.max(12, container.clientWidth - 260);
+    const left = Math.min(Math.max(12, p.x + 14), maxL);
+    // 再往上抬一截，给对话框留空
+    const top = Math.min(Math.max(56, p.y - 36), container.clientHeight - 24);
+    easterPop.style.left = `${Math.round(left)}px`;
+    easterPop.style.top = `${Math.round(top)}px`;
+  }
+
+  function showEaster(coffee: DeskItem | undefined) {
+    if (coffee) easterAnchor.copy(coffee.top);
+    window.clearTimeout(easterTimer);
+    easterPop.innerHTML = `
+      <p class="easter-body" role="status" aria-live="polite">今日奶茶推荐：蜜雪冰城芝士奶盖四季春！My Favorite❤</p>
+    `;
+    easterOpen = true;
+    placeEasterPop();
+    // 先落 hidden 态再强制回流，确保再次打开也有入场动效
+    easterPop.classList.remove("show");
+    void easterPop.offsetWidth;
+    easterPop.classList.add("show");
+    easterTimer = window.setTimeout(hideEaster, 3000);
+  }
+
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") easterPop.classList.remove("show");
+    if (e.key === "Escape") hideEaster();
   });
 
-  // ── 台灯昼夜切换（02 §2 物件 #6 / D7 D8），状态存 localStorage 跨页读取 ──
-  let theme: "dark" | "light" = (() => {
-    try {
-      return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
-    } catch {
-      return "dark";
-    }
-  })();
+  // ── 台灯：仅主页浅/深彩蛋（模型光照 + 本页 DOM），无跨页持久 ──
+  let theme: "dark" | "light" = "dark";
 
-  // 场景底色不在这里管（画布透明，底色是 body 背景，随 data-theme 由 CSS 过渡）
   const NIGHT = {
     ambient: new THREE.Color("#3b4556"),
     ambientIntensity: 1.1,
@@ -214,7 +235,8 @@ export function initDesk(container: HTMLElement) {
   /** animate=true 时用 GSAP 过渡，避免光照突变；false 用于首帧直接落位 */
   function applyTheme(mode: "dark" | "light", animate: boolean) {
     theme = mode;
-    document.documentElement.dataset.theme = mode;
+    // 仅首页用：其它页不读此属性、无 localStorage
+    document.documentElement.dataset.deskTheme = mode;
     const to = mode === "light" ? DAY : NIGHT;
     const lampPeak = lampLight.userData.peak as number;
     const smooth = animate && !reduceMotion;
@@ -226,11 +248,6 @@ export function initDesk(container: HTMLElement) {
     set(lampLight, { intensity: lampPeak * to.lamp });
     set(hemiLight, { intensity: to.hemi });
     set(sunLight, { intensity: to.sun });
-    try {
-      localStorage.setItem(THEME_KEY, mode);
-    } catch {
-      /* 隐私模式下 localStorage 不可用，主题仅本次生效 */
-    }
   }
 
   // ── 02 §4 状态机：IDLE → HOVER → ACTIVE（GSAP 统一驱动）──
@@ -321,7 +338,7 @@ export function initDesk(container: HTMLElement) {
   function runAction(item: DeskItem) {
     const r = item.data.route;
     if (r === "theme") applyTheme(theme === "dark" ? "light" : "dark", true);
-    else if (r === "coffee") showEaster(easterPop);
+    else if (r === "coffee") showEaster(items.find((i) => i.data.id === "coffee"));
     else activate(item);
   }
 
@@ -660,6 +677,12 @@ export function initDesk(container: HTMLElement) {
         const p = projectToScreen(item.hotspotAnchor);
         item.hotspot.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) translate(-50%, -50%)`;
       }
+    }
+
+    if (easterOpen) {
+      const coffee = items.find((i) => i.data.id === "coffee");
+      if (coffee) easterAnchor.copy(coffee.top);
+      placeEasterPop();
     }
 
     if (steam.length) {
