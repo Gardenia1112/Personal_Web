@@ -3,6 +3,7 @@
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
 import AwardsStack from "../components/AwardsStack.astro";
+import LineMenu from "../components/LineMenu.astro";
 import { awards, awardsPage, awardsSorted } from "../data/awards";
 import "../styles/global.css";
 import "../styles/awards-stack.css";
@@ -20,6 +21,7 @@ const yearSpan = years.length > 0 ? `${Math.min(...years)} – ${Math.max(...yea
     <title>{awardsPage.title} · lszbf.com</title>
   </head>
   <body class="as-body-root">
+    <LineMenu current="awards" theme="awards" />
     <a class="as-home magnetic-btn" href="/" aria-label="回工位">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />

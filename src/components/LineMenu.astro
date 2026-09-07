@@ -1,0 +1,41 @@
+---
+// Codrops Line Menu Styles · Alonso
+import "../styles/line-menu.css";
+
+export type LineMenuTheme = "home" | "about" | "desktop" | "awards" | "contact";
+export type LineMenuCurrent = "home" | "about" | "desktop" | "awards" | "contact";
+
+interface Props {
+  current: LineMenuCurrent;
+  theme: LineMenuTheme;
+}
+
+const { current, theme } = Astro.props;
+
+const links: { id: LineMenuCurrent; href: string; label: string }[] = [
+  { id: "home", href: "/", label: "主页" },
+  { id: "about", href: "/about/", label: "关于我" },
+  { id: "desktop", href: "/desktop/", label: "桌面" },
+  { id: "awards", href: "/awards/", label: "获奖" },
+  { id: "contact", href: "/contact/", label: "联系我" },
+];
+---
+<div class="lm-bar" data-lm-theme={theme}>
+  <nav class="menu menu--alonso" aria-label="站点索引">
+    <ul class="menu__list">
+      {
+        links.map((l) => (
+          <li class:list={["menu__item", { "menu__item--current": l.id === current }]}>
+            <a class="menu__link" href={l.href}>{l.label}</a>
+          </li>
+        ))
+      }
+      <li class="menu__line" aria-hidden="true"></li>
+    </ul>
+  </nav>
+</div>
+
+<script>
+  import { initLineMenu } from "../scripts/line-menu";
+  initLineMenu();
+</script>

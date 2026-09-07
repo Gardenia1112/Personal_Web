@@ -215,6 +215,8 @@ export function initDesk(container: HTMLElement) {
   });
 
   // ── 台灯：仅主页浅/深（模型光照 + 本页 DOM）；localStorage 记住，回工位不丢 ──
+  // 持久范围：仅首页（desk）记住台灯状态；
+  // 跨页不生效、不影响其他路由 —— Phase 7 裁定
   const THEME_KEY = "lszbf:desk-theme";
   function readStoredTheme(): "dark" | "light" {
     try {

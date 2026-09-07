@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BlogLayout from "../../layouts/BlogLayout.astro";
+import { author } from "../../data/profile";
 
 const posts = (
   await getCollection("blog", ({ data }) => !data.draft)
@@ -20,7 +21,7 @@ function coverClass(i: number) {
   return `nm-cover-${i % 3}`;
 }
 ---
-<BlogLayout title="博客 · lszbf.com" description="赵彼方 · 游戏制作笔记" backHref="/" backLabel="回工位">
+<BlogLayout title="博客 · lszbf.com" description={`${author} · 游戏制作笔记`} backHref="/" backLabel="回工位">
   <div class="nm-shell">
     <header class="nm-topbar">
       <a class="nm-brand" href="/blog/">
@@ -95,6 +96,6 @@ function coverClass(i: number) {
       </div>
     </section>
 
-    <p class="nm-foot">© 2026 赵韵婷 · lszbf.com</p>
+    <p class="nm-foot">© 2026 {author} · lszbf.com</p>
   </div>
 </BlogLayout>

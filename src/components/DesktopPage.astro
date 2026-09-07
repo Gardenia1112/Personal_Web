@@ -2,6 +2,7 @@
 // /desktop：三图标选择台 + 红/黄文件夹叠层（奖项已迁工位，见 6F'）
 import TransitionOverlay from "./TransitionOverlay.astro";
 import CustomCursor from "./CustomCursor.astro";
+import LineMenu from "./LineMenu.astro";
 import EntryArt from "./Desktop/EntryArt.astro";
 import DevIndex from "./DevIndex.astro";
 import ArtGallery from "./ArtGallery.astro";
@@ -60,6 +61,7 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
     </script>
   </head>
   <body>
+    <LineMenu current="desktop" theme="desktop" />
     <a class="dt-home" href="/" aria-label="回工位">
       <svg viewBox="0 0 24 24" aria-hidden="true">
         <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />

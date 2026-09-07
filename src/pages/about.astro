@@ -1,6 +1,7 @@
 ---
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
+import LineMenu from "../components/LineMenu.astro";
 import "../styles/global.css";
 ---
 <!doctype html>
@@ -12,6 +13,7 @@ import "../styles/global.css";
     <title>关于我 · lszbf.com</title>
   </head>
   <body class="overflow-hidden">
+    <LineMenu current="about" theme="about" />
     <main id="game" class="relative w-full h-screen overflow-hidden">
       <a class="about-home magnetic-btn" href="/" aria-label="回工位">
         <svg viewBox="0 0 24 24" aria-hidden="true">

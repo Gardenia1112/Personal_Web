@@ -1,4 +1,7 @@
 // 01 §3 关于我 —— 结构化数据
+// 站内展示笔名：全站署名统一走这里（真名 name 仅存资料 / 项目记录）
+export const author = "赵彼方";
+
 export const profile = {
   name: "赵韵婷",
   age: 21,

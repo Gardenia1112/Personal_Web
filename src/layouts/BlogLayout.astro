@@ -5,6 +5,7 @@ import CustomCursor from "../components/CustomCursor.astro";
 import "../styles/global.css";
 import "../styles/blog.css";
 import "../styles/magnetic.css";
+import { author } from "../data/profile";
 
 interface Props {
   title?: string;
@@ -15,7 +16,7 @@ interface Props {
 }
 const {
   title = "博客 · lszbf.com",
-  description = "赵彼方 · 游戏制作笔记",
+  description = `${author} · 游戏制作笔记`,
   backHref = "/",
   backLabel = "回工位",
 } = Astro.props;

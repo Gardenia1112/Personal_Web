@@ -3,15 +3,17 @@
 import Scene from "../components/Desk3D/Scene.astro";
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
+import LineMenu from "../components/LineMenu.astro";
 import "../styles/global.css";
+import { author } from "../data/profile";
 ---
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-page="home">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="赵彼方 · 游戏制作人的个人作品集" />
-    <title>lszbf.com · 赵韵婷</title>
+    <meta name="description" content={`${author} · 游戏制作人的个人作品集`} />
+    <title>lszbf.com · {author}</title>
     <script is:inline>
       try {
         if (localStorage.getItem("lszbf:desk-theme") === "light") {
@@ -21,6 +23,7 @@ import "../styles/global.css";
     </script>
   </head>
   <body class="overflow-hidden">
+    <LineMenu current="home" theme="home" />
     <Scene />
     <TransitionOverlay />
     <CustomCursor />

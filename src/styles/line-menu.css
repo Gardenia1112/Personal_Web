@@ -1,0 +1,217 @@
+/* Codrops Line Menu · Alonso + 页色顶栏 */
+
+.menu.menu--alonso {
+  --lm-muted: #b5b5b5;
+  --lm-hover: #929292;
+  --lm-active: #d94f5c;
+  --lm-mask: #ffffff;
+  --lm-chip: rgba(0, 0, 0, 0.05);
+  --lm-chip-hover: rgba(0, 0, 0, 0.09);
+  --lm-chip-active: rgba(0, 0, 0, 0.12);
+  --lm-item-w: 120px;
+  line-height: 1;
+  margin: 0;
+}
+
+.menu--alonso .menu__list {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  gap: 6px;
+}
+
+.menu--alonso .menu__item {
+  display: block;
+  margin: 0;
+}
+
+.menu--alonso .menu__link {
+  box-sizing: border-box;
+  width: var(--lm-item-w);
+  height: 2.75em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4em;
+  border-radius: 999px;
+  font-size: 0.98em;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  color: var(--lm-muted);
+  background: var(--lm-chip);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.3s, background 0.3s;
+}
+
+.menu--alonso .menu__link:hover,
+.menu--alonso .menu__link:focus-visible {
+  outline: none;
+  color: var(--lm-hover);
+  background: var(--lm-chip-hover);
+}
+
+.menu--alonso .menu__item--current .menu__link {
+  color: var(--lm-active);
+  background: var(--lm-chip-active);
+  transition: color 0.5s, background 0.5s;
+}
+
+/* 短下划线：两侧 border 吃掉宽度（原版 Alonso） */
+.menu--alonso .menu__line {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: var(--lm-item-w);
+  height: 2px;
+  pointer-events: none;
+  border: 1px solid var(--lm-mask);
+  border-width: 0 45px;
+  background: var(--lm-active);
+  transition: transform 0.5s;
+  transition-timing-function: cubic-bezier(1, 0.01, 0, 1.22);
+}
+
+/* gap 6px 计入位移：每格 = 120 + 6 */
+.menu--alonso .menu__item:nth-child(1).menu__item--current ~ .menu__line {
+  transform: translate3d(0, 0, 0);
+}
+.menu--alonso .menu__item:nth-child(2).menu__item--current ~ .menu__line {
+  transform: translate3d(calc(100% + 6px), 0, 0);
+}
+.menu--alonso .menu__item:nth-child(3).menu__item--current ~ .menu__line {
+  transform: translate3d(calc(200% + 12px), 0, 0);
+}
+.menu--alonso .menu__item:nth-child(4).menu__item--current ~ .menu__line {
+  transform: translate3d(calc(300% + 18px), 0, 0);
+}
+.menu--alonso .menu__item:nth-child(5).menu__item--current ~ .menu__line {
+  transform: translate3d(calc(400% + 24px), 0, 0);
+}
+
+@media screen and (max-width: 55em) {
+  .menu--alonso .menu__list {
+    gap: 4px;
+    justify-content: center;
+  }
+  .menu--alonso .menu__line {
+    top: 3em;
+  }
+  .menu--alonso .menu__item:nth-child(1).menu__item--current ~ .menu__line {
+    transform: translate3d(0, 0, 0);
+  }
+  .menu--alonso .menu__item:nth-child(2).menu__item--current ~ .menu__line {
+    transform: translate3d(0, 3em, 0);
+  }
+  .menu--alonso .menu__item:nth-child(3).menu__item--current ~ .menu__line {
+    transform: translate3d(0, 6em, 0);
+  }
+  .menu--alonso .menu__item:nth-child(4).menu__item--current ~ .menu__line {
+    transform: translate3d(0, 9em, 0);
+  }
+  .menu--alonso .menu__item:nth-child(5).menu__item--current ~ .menu__line {
+    transform: translate3d(0, 12em, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu--alonso .menu__link,
+  .menu--alonso .menu__item--current .menu__link,
+  .menu--alonso .menu__line {
+    transition: none;
+  }
+}
+
+.lm-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 48;
+  display: flex;
+  justify-content: center;
+  padding: 12px 16px 10px;
+  pointer-events: none;
+}
+.lm-bar .menu--alonso {
+  pointer-events: auto;
+}
+
+/* ── 主页：黑 / 白 ── */
+.lm-bar[data-lm-theme="home"] {
+  --lm-muted: rgba(248, 250, 252, 0.55);
+  --lm-hover: rgba(248, 250, 252, 0.88);
+  --lm-active: #ffffff;
+  --lm-mask: #0f1115;
+  --lm-chip: rgba(255, 255, 255, 0.08);
+  --lm-chip-hover: rgba(255, 255, 255, 0.14);
+  --lm-chip-active: rgba(255, 255, 255, 0.2);
+}
+html[data-desk-theme="light"] .lm-bar[data-lm-theme="home"] {
+  --lm-muted: rgba(20, 24, 31, 0.45);
+  --lm-hover: rgba(20, 24, 31, 0.75);
+  --lm-active: #14181f;
+  --lm-mask: #eef2f7;
+  --lm-chip: rgba(20, 24, 31, 0.06);
+  --lm-chip-hover: rgba(20, 24, 31, 0.1);
+  --lm-chip-active: rgba(20, 24, 31, 0.14);
+}
+
+/* ── 关于我：黄 ── */
+.lm-bar[data-lm-theme="about"] {
+  --lm-muted: rgba(120, 90, 20, 0.55);
+  --lm-hover: rgba(80, 60, 10, 0.85);
+  --lm-active: #c99200;
+  --lm-mask: #fff8e7;
+  --lm-chip: rgba(255, 214, 10, 0.22);
+  --lm-chip-hover: rgba(255, 214, 10, 0.34);
+  --lm-chip-active: rgba(255, 214, 10, 0.48);
+}
+html[data-about-chapter="now"] .lm-bar[data-lm-theme="about"],
+html[data-about-chapter="ending"] .lm-bar[data-lm-theme="about"] {
+  --lm-muted: rgba(255, 214, 10, 0.55);
+  --lm-hover: rgba(255, 230, 120, 0.9);
+  --lm-active: #ffd60a;
+  --lm-mask: #14181f;
+  --lm-chip: rgba(255, 214, 10, 0.12);
+  --lm-chip-hover: rgba(255, 214, 10, 0.2);
+  --lm-chip-active: rgba(255, 214, 10, 0.28);
+}
+
+/* ── 桌面：蓝 ── */
+.lm-bar[data-lm-theme="desktop"] {
+  --lm-muted: rgba(31, 157, 240, 0.55);
+  --lm-hover: rgba(20, 110, 180, 0.9);
+  --lm-active: #1f9df0;
+  --lm-mask: #f5f1e8;
+  --lm-chip: rgba(31, 157, 240, 0.12);
+  --lm-chip-hover: rgba(31, 157, 240, 0.2);
+  --lm-chip-active: rgba(31, 157, 240, 0.28);
+}
+
+/* ── 获奖：绿 ── */
+.lm-bar[data-lm-theme="awards"] {
+  --lm-muted: rgba(61, 154, 110, 0.55);
+  --lm-hover: rgba(47, 122, 91, 0.9);
+  --lm-active: #3d9a6e;
+  --lm-mask: #ffffff;
+  --lm-chip: rgba(61, 154, 110, 0.1);
+  --lm-chip-hover: rgba(61, 154, 110, 0.18);
+  --lm-chip-active: rgba(61, 154, 110, 0.26);
+}
+
+/* ── 联系我：紫 ── */
+.lm-bar[data-lm-theme="contact"] {
+  --lm-muted: rgba(167, 139, 250, 0.65);
+  --lm-hover: rgba(139, 108, 240, 0.95);
+  --lm-active: #8b6cf0;
+  --lm-mask: #f3eef8;
+  --lm-chip: rgba(167, 139, 250, 0.14);
+  --lm-chip-hover: rgba(167, 139, 250, 0.22);
+  --lm-chip-active: rgba(167, 139, 250, 0.32);
+}

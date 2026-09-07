@@ -3,6 +3,7 @@ import Footer from "../components/Footer.astro";
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
 import "../styles/global.css";
+import { author } from "../data/profile";
 
 interface Props {
   title?: string;
@@ -10,7 +11,7 @@ interface Props {
 }
 const {
   title = "lszbf.com",
-  description = "赵彼方 · 游戏制作人的个人作品集",
+  description = `${author} · 游戏制作人的个人作品集`,
 } = Astro.props;
 ---
 <!doctype html>

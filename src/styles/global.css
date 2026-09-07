@@ -328,7 +328,7 @@ html[data-page="about"] #cursor {
 }
 .about-home {
   position: fixed;
-  top: clamp(18px, 3vw, 32px);
+  top: clamp(64px, 8vw, 78px);
   left: clamp(18px, 3vw, 32px);
   z-index: 50;
   width: 44px;
@@ -1899,13 +1899,28 @@ html.is-slide-leaving[data-slide="fall"] .sheet-home {
   transform: translateY(14vh);
   opacity: 0;
 }
+
+/* 顶栏索引：柔和淡出（不盖黑） */
+html.is-slide-leaving[data-slide="veil"] body > *:not(#transition-overlay):not(#cursor) {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: scale(0.985);
+  pointer-events: none;
+}
+
 html[data-enter="veil"] body > main,
 html[data-enter="veil"] body > article {
   animation: enter-veil 0.5s ease both;
 }
+html[data-enter="veil"] body > .lm-bar,
+html[data-enter="veil"] #desk-scene,
+html[data-enter="veil"] body > .nm-shell,
+html[data-enter="veil"] body > #game {
+  animation: enter-veil 0.5s ease both;
+}
 @keyframes enter-veil {
   from {
-    transform: scale(1.03);
+    transform: scale(1.02);
     opacity: 0;
   }
   to {

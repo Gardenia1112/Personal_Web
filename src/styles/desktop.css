@@ -45,7 +45,7 @@ html[data-page="desktop"] #cursor {
 /* ── 唯一的导航元素：无字返回箭头（回 3D 工位）── */
 .dt-home {
   position: fixed;
-  top: clamp(18px, 3vw, 32px);
+  top: clamp(64px, 8vw, 78px);
   left: clamp(18px, 3vw, 32px);
   z-index: 50;
   width: 44px;

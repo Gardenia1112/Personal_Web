@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import BlogLayout from "../../layouts/BlogLayout.astro";
+import { author } from "../../data/profile";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
@@ -57,6 +58,6 @@ function formatDate(d: Date) {
         <Content />
       </div>
     </div>
-    <p class="nm-foot">© 2026 赵韵婷 · lszbf.com</p>
+    <p class="nm-foot">© 2026 {author} · lszbf.com</p>
   </article>
 </BlogLayout>

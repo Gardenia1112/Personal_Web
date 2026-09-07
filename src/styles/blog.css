@@ -34,7 +34,7 @@ html[data-page="blog"] footer {
 
 .nm-home {
   position: fixed;
-  top: clamp(18px, 3vw, 32px);
+  top: clamp(64px, 8vw, 78px);
   left: clamp(18px, 3vw, 32px);
   z-index: 50;
   width: 44px;

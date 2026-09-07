@@ -74,8 +74,32 @@ export function navigateSlide(url: string, dir: "rise" | "fall") {
   }, SLIDE_MS);
 }
 
+/** 顶栏索引：柔和淡出/淡入，不走渐黑 */
+export function navigateSoft(url: string) {
+  url = resolveUrl(url);
+  try {
+    sessionStorage.setItem(SLIDE_FLAG, "veil");
+  } catch {
+    /* ignore */
+  }
+  if (reducedMotion() || hasThumbFull()) {
+    window.location.href = url;
+    return;
+  }
+  const root = document.documentElement;
+  root.dataset.slide = "veil";
+  root.classList.add("is-slide-leaving");
+  window.setTimeout(() => {
+    window.location.href = url;
+  }, 300);
+}
+
 function isSlideBack(a: HTMLAnchorElement) {
   return a.classList.contains("sheet-home") || a.dataset.fall !== undefined;
+}
+
+function isLineMenuNav(a: HTMLAnchorElement) {
+  return Boolean(a.closest(".menu--alonso"));
 }
 
 /** 渐黑后跳转（供 desk.ts 等程序化导航调用） */
@@ -136,6 +160,10 @@ export function initTransitions() {
     }
     if (!shouldIntercept(a, e)) return;
     e.preventDefault();
+    if (isLineMenuNav(a)) {
+      navigateSoft(a.href);
+      return;
+    }
     navigateWithTransition(a.href);
   });
 
