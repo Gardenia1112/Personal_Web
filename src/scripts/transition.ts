@@ -104,7 +104,9 @@ function shouldIntercept(a: HTMLAnchorElement, e: MouseEvent): boolean {
   if (a.hasAttribute("download") || a.dataset.noTransition !== undefined) return false;
   const href = a.getAttribute("href");
   if (!href || href.startsWith("#")) return false;
+  // mailto / tel / javascript 等非 http(s) 协议交给系统处理，不做站内渐黑跳转
   const url = new URL(a.href, location.href);
+  if (url.protocol !== "http:" && url.protocol !== "https:") return false;
   if (url.origin !== location.origin) return false;
   if (url.pathname === location.pathname && url.search === location.search) return false;
   return true;

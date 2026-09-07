@@ -214,8 +214,16 @@ export function initDesk(container: HTMLElement) {
     if (e.key === "Escape") hideEaster();
   });
 
-  // ── 台灯：仅主页浅/深彩蛋（模型光照 + 本页 DOM），无跨页持久 ──
-  let theme: "dark" | "light" = "dark";
+  // ── 台灯：仅主页浅/深（模型光照 + 本页 DOM）；localStorage 记住，回工位不丢 ──
+  const THEME_KEY = "lszbf:desk-theme";
+  function readStoredTheme(): "dark" | "light" {
+    try {
+      return localStorage.getItem(THEME_KEY) === "light" ? "light" : "dark";
+    } catch {
+      return "dark";
+    }
+  }
+  let theme: "dark" | "light" = readStoredTheme();
 
   const NIGHT = {
     ambient: new THREE.Color("#3b4556"),
@@ -235,8 +243,12 @@ export function initDesk(container: HTMLElement) {
   /** animate=true 时用 GSAP 过渡，避免光照突变；false 用于首帧直接落位 */
   function applyTheme(mode: "dark" | "light", animate: boolean) {
     theme = mode;
-    // 仅首页用：其它页不读此属性、无 localStorage
     document.documentElement.dataset.deskTheme = mode;
+    try {
+      localStorage.setItem(THEME_KEY, mode);
+    } catch {
+      /* private mode */
+    }
     const to = mode === "light" ? DAY : NIGHT;
     const lampPeak = lampLight.userData.peak as number;
     const smooth = animate && !reduceMotion;

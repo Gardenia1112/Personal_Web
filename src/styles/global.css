@@ -1439,6 +1439,36 @@ html[data-desk-theme="light"] .easter-pop::after {
 }
 
 /* ===== 二级页面通用（清出顶部 fixed Nav） ===== */
+.contact-home {
+  position: fixed;
+  top: clamp(18px, 3vw, 32px);
+  left: clamp(18px, 3vw, 32px);
+  z-index: 50;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--color-fg);
+  border: 1.5px solid rgba(248, 250, 252, 0.22);
+  background: color-mix(in srgb, var(--color-deep) 72%, transparent);
+  backdrop-filter: blur(8px);
+  transition: background 0.24s ease, border-color 0.24s ease, color 0.24s ease;
+}
+.contact-home svg {
+  width: 22px;
+  height: 22px;
+}
+.contact-home:hover,
+.contact-home:focus-visible {
+  background: color-mix(in srgb, var(--color-cyan) 22%, transparent);
+  border-color: color-mix(in srgb, var(--color-cyan) 65%, white);
+  color: var(--color-cyan);
+}
+.contact-home:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-cyan) 70%, white);
+  outline-offset: 3px;
+}
 .contact-page {
   max-width: 1080px;
   margin: 0 auto;
@@ -1513,6 +1543,7 @@ html[data-desk-theme="light"] .easter-pop::after {
   }
 }
 .contact-sheet {
+  position: relative;
   padding: 22px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.04);
@@ -1563,6 +1594,10 @@ html[data-desk-theme="light"] .easter-pop::after {
 .contact-copy.copied {
   background: rgba(0, 217, 255, 0.32);
 }
+.contact-copy:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-cyan) 70%, white);
+  outline-offset: 3px;
+}
 .contact-note {
   margin: 16px 0 0;
   font-size: 13px;
@@ -1570,6 +1605,22 @@ html[data-desk-theme="light"] .easter-pop::after {
 }
 .contact-note a {
   color: var(--color-cyan);
+}
+.contact-note a:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-cyan) 70%, white);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.contact-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 .contact-links {
   display: flex;
@@ -1588,9 +1639,14 @@ html[data-desk-theme="light"] .easter-pop::after {
   color: var(--color-fg);
   transition: border-color 0.2s ease, background 0.2s ease;
 }
-.contact-link:hover {
+.contact-link:hover,
+.contact-link:focus-visible {
   border-color: rgba(168, 85, 247, 0.5);
   background: rgba(168, 85, 247, 0.08);
+}
+.contact-link:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-purple) 70%, white);
+  outline-offset: 3px;
 }
 .contact-link-icon {
   font-size: 20px;
@@ -1602,6 +1658,36 @@ html[data-desk-theme="light"] .easter-pop::after {
 }
 .contact-link-arrow {
   color: color-mix(in srgb, var(--color-fg) 40%, transparent);
+}
+
+/* 打字机入场（纯前端；reduced-motion 直接 .is-done） */
+.contact-page .typewriter {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+}
+.contact-page .typewriter.is-typing {
+  border-right: 2px solid color-mix(in srgb, var(--color-cyan) 80%, white);
+  animation: contact-caret 0.8s steps(1) infinite;
+}
+.contact-page .contact-field-value.typewriter {
+  min-height: 1.2em;
+}
+.contact-page .contact-title.typewriter:not(.is-done):not(.is-typing),
+.contact-page .contact-sheet-title.typewriter:not(.is-done):not(.is-typing),
+.contact-page .contact-field-value.typewriter:not(.is-done):not(.is-typing) {
+  opacity: 0;
+}
+@keyframes contact-caret {
+  50% {
+    border-right-color: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-page .typewriter.is-typing {
+    border-right: none;
+    animation: none;
+  }
 }
 
 /* ===== 项目详情：量化成果可视化（02 §9）===== */

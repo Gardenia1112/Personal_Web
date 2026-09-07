@@ -10,8 +10,15 @@ import "../styles/global.css";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="赵韵婷 · 游戏客户端开发工程师的个人作品集" />
+    <meta name="description" content="赵彼方 · 游戏制作人的个人作品集" />
     <title>lszbf.com · 赵韵婷</title>
+    <script is:inline>
+      try {
+        if (localStorage.getItem("lszbf:desk-theme") === "light") {
+          document.documentElement.dataset.deskTheme = "light";
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body class="overflow-hidden">
     <Scene />

@@ -1,75 +1,200 @@
 ---
-import BaseLayout from "../layouts/BaseLayout.astro";
+import BlogLayout from "../layouts/BlogLayout.astro";
 import { profile } from "../data/profile";
 
+/** 站内展示笔名（联系页不写真名） */
+const displayName = "赵彼方";
+
 const links = [
-  { label: "GitHub", url: profile.github, icon: "🐙" },
-  { label: "Gitee 源码", url: profile.gitee, icon: "🧩" },
-  { label: "个人网站", url: `https://${profile.website}`, icon: "🌐" },
-  { label: "发邮件", url: `mailto:${profile.email}`, icon: "✉️" },
+  { label: "GitHub", url: profile.github, tip: "看代码与提交记录", icon: "GH", external: true },
+  { label: "Gitee 源码", url: profile.gitee, tip: "部分项目镜像", icon: "GT", external: true },
+  { label: "个人网站", url: `https://${profile.website}`, tip: "回到工位入口", icon: "WEB", external: true },
+  { label: "发邮件", url: `mailto:${profile.email}`, tip: "打开系统邮箱客户端", icon: "MAIL", external: false },
+];
+
+const channels = [
+  { key: "email", label: "邮箱", value: profile.email, aria: "复制邮箱", hint: "首选 · 实习 / 合作 / 技术交流" },
+  { key: "wechat", label: "微信", value: profile.wechat, aria: "复制微信", hint: "快速沟通" },
+  { key: "phone", label: "手机", value: profile.phone, aria: "复制手机号", hint: "必要时电话联系" },
 ];
 ---
-<BaseLayout title="联系我 · lszbf.com">
-  <main class="contact-page">
-    <div class="contact-header">
-      <h1 class="contact-title">本子 · Links</h1>
-      <p class="contact-sub">联系方式 + 外链跳转</p>
-    </div>
+<BlogLayout title="联系我 · lszbf.com" description={`与${displayName}取得联系 · 游戏制作`} backHref="/" backLabel="回工位">
+  <div class="nm-shell nm-contact">
+    <header class="nm-topbar">
+      <a class="nm-brand" href="/contact/">
+        <span class="nm-brand-mark" aria-hidden="true">C</span>
+        <span>lszbf · Contact</span>
+      </a>
+      <p class="nm-topbar-note">本子 · Links · 直接联系入口</p>
+    </header>
 
-    <div class="contact-notebook">
-      <!-- 左页：联系方式 -->
-      <section class="contact-sheet">
-        <h2 class="contact-sheet-title">联系方式</h2>
-        <div class="contact-field">
-          <span class="contact-field-label">邮箱</span>
-          <code class="contact-field-value">{profile.email}</code>
-          <button class="contact-copy" data-copy={profile.email}>复制</button>
+    <!-- 设计思路：先讲清「我是谁 / 为什么联系」，再给出可点的主通道 -->
+    <section class="nm-contact-hero" aria-labelledby="contact-hero-title">
+      <div class="nm-contact-hero-cover nm-cover-1" aria-hidden="true"></div>
+      <div class="nm-contact-hero-body">
+        <div class="nm-contact-profile">
+          <div>
+            <p class="nm-contact-kicker">
+              <span class="nm-badge">Open to chat</span>
+            </p>
+            <h1 id="contact-hero-title" class="nm-contact-title typewriter" data-tw="0">
+              你好，我是{displayName}
+            </h1>
+          </div>
         </div>
-        <div class="contact-field">
-          <span class="contact-field-label">微信</span>
-          <code class="contact-field-value">{profile.wechat}</code>
-          <button class="contact-copy" data-copy={profile.wechat}>复制</button>
+        <p class="nm-contact-lede">
+          联系页的意义，是让访客用自己舒服的方式找到你。下面列出邮箱、微信、手机与外链——优先邮箱；需要更快回复可加微信。
+        </p>
+        <div class="nm-contact-ctas">
+          <a
+            class="nm-contact-cta magnetic-btn"
+            href={`mailto:${profile.email}`}
+            data-no-transition
+            aria-label={`用系统邮箱给 ${profile.email} 写信`}
+          >
+            写一封邮件
+          </a>
+          <a
+            class="nm-contact-cta nm-contact-cta--ghost magnetic-btn"
+            href={profile.resume}
+            download
+            aria-label="下载简历 resume.pdf"
+          >
+            下载简历
+          </a>
         </div>
-        <div class="contact-field">
-          <span class="contact-field-label">手机</span>
-          <code class="contact-field-value">{profile.phone}</code>
-          <button class="contact-copy" data-copy={profile.phone}>复制</button>
-        </div>
-        <p class="contact-note">📄 简历下载：<a href={profile.resume} download>resume.pdf</a></p>
+        <p class="nm-contact-expect">通常 24–48 小时内回复 · 欢迎聊实习机会、项目合作与游戏制作交流</p>
+      </div>
+    </section>
+
+    <div class="nm-contact-grid">
+      <!-- 左：联系方式（本子左页语义保留） -->
+      <section class="nm-contact-card" aria-labelledby="contact-sheet-heading">
+        <h2 id="contact-sheet-heading" class="nm-contact-card-title typewriter" data-tw="1">直接联系</h2>
+        <p class="nm-contact-card-sub">一键复制，或点「写一封邮件」唤起系统邮箱客户端</p>
+        <ul class="nm-contact-channels">
+          {
+            channels.map((c, i) => (
+              <li class="nm-contact-channel">
+                <div class="nm-contact-channel-head">
+                  <span class="nm-contact-channel-label">{c.label}</span>
+                  <span class="nm-contact-channel-hint">{c.hint}</span>
+                </div>
+                <div class="nm-contact-channel-row">
+                  <code class="nm-contact-value typewriter" data-tw={String(i + 2)}>
+                    {c.value}
+                  </code>
+                  <button
+                    type="button"
+                    class="nm-contact-copy"
+                    data-copy={c.value}
+                    data-copy-label={c.label}
+                    aria-label={c.aria}
+                  >
+                    复制
+                  </button>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <p id="contact-copy-status" class="contact-live" aria-live="polite"></p>
       </section>
 
-      <!-- 右页：外链 -->
-      <section class="contact-sheet">
-        <h2 class="contact-sheet-title">外链</h2>
-        <div class="contact-links">
+      <!-- 右：外链（本子右页语义保留） -->
+      <section class="nm-contact-card" aria-labelledby="contact-links-heading">
+        <h2 id="contact-links-heading" class="nm-contact-card-title">外链与社交</h2>
+        <p class="nm-contact-card-sub">多种通道并列，按你的习惯选择</p>
+        <div class="nm-contact-links">
           {
-            links.map((l) => (
-              <a class="contact-link" href={l.url} target="_blank" rel="noopener">
-                <span class="contact-link-icon">{l.icon}</span>
-                <span class="contact-link-label">{l.label}</span>
-                <span class="contact-link-arrow">↗</span>
-              </a>
-            ))
+            links.map((l) =>
+              l.external ? (
+                <a
+                  class="nm-contact-link"
+                  href={l.url}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={`${l.label}（在新标签页打开）`}
+                >
+                  <span class="nm-contact-link-ico" aria-hidden="true">{l.icon}</span>
+                  <span class="nm-contact-link-text">
+                    <strong>{l.label}</strong>
+                    <small>{l.tip}</small>
+                  </span>
+                  <span class="nm-contact-link-arrow" aria-hidden="true">↗</span>
+                </a>
+              ) : (
+                <a
+                  class="nm-contact-link"
+                  href={l.url}
+                  data-no-transition
+                  aria-label={`${l.label}（系统邮箱客户端）`}
+                >
+                  <span class="nm-contact-link-ico" aria-hidden="true">{l.icon}</span>
+                  <span class="nm-contact-link-text">
+                    <strong>{l.label}</strong>
+                    <small>{l.tip}</small>
+                  </span>
+                  <span class="nm-contact-link-arrow" aria-hidden="true">↗</span>
+                </a>
+              ),
+            )
           }
         </div>
       </section>
     </div>
-  </main>
+
+    <p class="nm-foot">© 2026 {displayName} · {profile.website}</p>
+  </div>
 
   <script>
+    // TODO: 接入 Formspree 时替换为 fetch(endpoint)
+    // —— 当前使用 mailto + 剪贴板
+    const live = document.getElementById("contact-copy-status");
     document.querySelectorAll("[data-copy]").forEach((b) => {
       b.addEventListener("click", () => {
         const btn = b as HTMLElement;
         const v = btn.dataset.copy ?? "";
+        const label = btn.dataset.copyLabel ?? "内容";
         navigator.clipboard?.writeText(v);
         const old = btn.textContent;
         btn.textContent = "已复制 ✓";
         btn.classList.add("copied");
+        if (live) live.textContent = `已复制${label}`;
         setTimeout(() => {
           btn.textContent = old;
           btn.classList.remove("copied");
+          if (live) live.textContent = "";
         }, 1200);
       });
     });
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const nodes = [...document.querySelectorAll<HTMLElement>(".nm-contact .typewriter")];
+    if (reduceMotion) {
+      nodes.forEach((el) => el.classList.add("is-done"));
+    } else {
+      nodes.forEach((el) => {
+        const full = el.textContent ?? "";
+        const step = Number(el.dataset.tw ?? "0");
+        el.textContent = "";
+        el.classList.add("is-typing");
+        const startAt = 160 + step * 380;
+        window.setTimeout(() => {
+          let i = 0;
+          const tick = () => {
+            i += 1;
+            el.textContent = full.slice(0, i);
+            if (i < full.length) {
+              window.setTimeout(tick, 28);
+            } else {
+              el.classList.remove("is-typing");
+              el.classList.add("is-done");
+            }
+          };
+          tick();
+        }, startAt);
+      });
+    }
   </script>
-</BaseLayout>
+</BlogLayout>

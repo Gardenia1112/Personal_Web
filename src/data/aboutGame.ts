@@ -59,7 +59,7 @@ export const gameBoards: GameBoardData[] = [
     index: 3,
     title: "现在的我",
     kicker: "NOW",
-    tagline: "游戏客户端开发 · 本科在读",
+    tagline: "游戏制作人 · 本科在读",
     cover: "/assets/about/now-unity.jpg",
     gallery: [
       "/assets/about/now-unity.jpg",
@@ -78,7 +78,7 @@ export const gameBoards: GameBoardData[] = [
       "/assets/about/now-art-lnu.jpg",
     ],
     lines: [
-      "如今我主攻游戏客户端开发，从玩法想到落地，一个人能从策划案捋到可运行的代码",
+      "如今我主攻游戏制作，从玩法想到落地，一个人能从策划案捋到可运行的代码",
       "擅长性能优化（对象池、GC 调优）和清晰架构（状态机、组件化、事件解耦）",
       "数据驱动、序列化、文件 I/O 这一套也都熟悉，团队协作走标准 Git 工作流、做过 Code Review、带过新人",
       "一路绕了点路，但回头看，每一步都没白走——现在做的，正是小时候想做的事",
