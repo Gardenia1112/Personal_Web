@@ -1,0 +1,53 @@
+---
+// 博客壳：Namun 淡紫粉杂志风（无旧顶栏 Nav；返回键回工位 / 列表）
+import TransitionOverlay from "../components/TransitionOverlay.astro";
+import CustomCursor from "../components/CustomCursor.astro";
+import "../styles/global.css";
+import "../styles/blog.css";
+import "../styles/magnetic.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** 返回目标：列表回工位，详情回博客列表 */
+  backHref?: string;
+  backLabel?: string;
+}
+const {
+  title = "博客 · lszbf.com",
+  description = "赵彼方 · 游戏制作笔记",
+  backHref = "/",
+  backLabel = "回工位",
+} = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN" data-page="blog">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="nm-home magnetic-btn" href={backHref} aria-label={backLabel}>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M14.5 5 8 12l6.5 7"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </a>
+    <slot />
+    <TransitionOverlay />
+    <CustomCursor />
+    <script>
+      import { initMagneticButtons } from "../scripts/magnetic";
+      initMagneticButtons();
+    </script>
+  </body>
+</html>
