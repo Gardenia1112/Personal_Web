@@ -35,7 +35,10 @@ const Tag = role === "thumb" ? "button" : "div";
         <div class="as-reel-stage-inner">
           {
             piece.src && piece.kind === "video" ? (
-              <video src={piece.src} playsinline controls preload="metadata"></video>
+              <video playsinline controls preload="none" poster={piece.src.replace(/\.mp4$/, ".jpg")}>
+                <source src={piece.src.replace(/\.mp4$/, ".webm")} type="video/webm" />
+                <source src={piece.src} type="video/mp4" />
+              </video>
             ) : (
               <div class="as-ph">
                 <i class="as-ph-mark" aria-hidden="true"></i>
