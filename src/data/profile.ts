@@ -4,7 +4,7 @@ export const author = "赵彼方";
 
 export const profile = {
   name: "赵彼方",
-  avatar: "/assets/art/Models/赵彼方.png", // 头像（本人图，文件名=笔名）；日后需标准证件照可改
+  avatar: "", // Models 目录已移除；头像路径待补标准证件照
   age: 21,
   education: "大学本科",
   jobTitle: "游戏制作人",

@@ -7,41 +7,28 @@ import "../styles/art-show.css";
 interface Props {
   artwork: Artwork;
 }
-
 const { artwork } = Astro.props;
 const unit = artwork.pieces[0]?.kind === "video" ? "支" : "件";
 const no = String(artworks.findIndex((a) => a.slug === artwork.slug) + 1).padStart(2, "0");
-const hint =
-  artwork.slug === "editing" ? "Click to play" : artwork.slug === "modeling" ? "Click a still" : "Scroll";
+const hint = artwork.slug === "editing" ? "Click to play" : "Scroll";
+const gridClass =
+  artwork.slug === "illustration" ? "as-grid as-grid--masonry" : "as-grid";
 ---
 <section class="as" data-art-show={artwork.slug} data-art-slug={artwork.slug}>
   <header class="as-bar" data-thumbfull-copy>
     <p class="as-kicker"><b>{no}</b> {artwork.category} · {artwork.pieces.length}{unit}</p>
     <p class="as-hint">{hint}</p>
   </header>
-  {
-    artwork.slug === "modeling" ? (
-      <>
-        <ArtPieceCard piece={artwork.pieces[0]} cat={artwork.slug} index={0} role="hero" />
-        <div class="as-grid">
-          {artwork.pieces.slice(1).map((p, i) => (
-            <ArtPieceCard piece={p} cat={artwork.slug} index={i + 1} role="thumb" />
-          ))}
-        </div>
-      </>
-    ) : (
-      <div class="as-grid">
-        {artwork.pieces.map((p, i) => (
-          <ArtPieceCard
-            piece={p}
-            cat={artwork.slug}
-            index={i}
-            role={artwork.slug === "editing" ? "reel" : "static"}
-          />
-        ))}
-      </div>
-    )
-  }
+  <div class={gridClass}>
+    {artwork.pieces.map((p, i) => (
+      <ArtPieceCard
+        piece={p}
+        cat={artwork.slug}
+        index={i}
+        role={artwork.slug === "editing" ? "reel" : "static"}
+      />
+    ))}
+  </div>
 </section>
 
 <script>

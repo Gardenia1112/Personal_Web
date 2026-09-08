@@ -1,13 +1,10 @@
-/* ArtShow 四皮。只染 [data-art-show] / .lb，不动 Step4 / .ag--sheet */
+/* ArtShow 三皮。只染 [data-art-show] / .lb，不动 Step4 / .ag--sheet */
 
 [data-art-show="illustration"] {
   --cat: #e07a5f;
 }
 [data-art-show="lnu-ip"] {
   --cat: #3d7a6e;
-}
-[data-art-show="modeling"] {
-  --cat: #5c6bc0;
 }
 [data-art-show="editing"] {
   --cat: #b5834a;
@@ -117,15 +114,51 @@ button.as-card {
   font-weight: 700;
 }
 
-/* ① 绘画 · 密胶片（400px → 1920 约 4 列） */
-[data-art-show="illustration"] .as-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 16px;
+/* ① 绘画 · CSS 多列瀑布流，保留自然比例 */
+[data-art-show="illustration"] .as-grid,
+[data-art-show="illustration"] .as-grid--masonry {
+  column-count: 4;
+  column-gap: 16px;
+}
+
+[data-art-show="illustration"] .as-card {
+  break-inside: avoid;
+  -webkit-column-break-inside: avoid;
+  page-break-inside: avoid;
+  margin: 0 0 16px;
+  display: inline-block;
+  width: 100%;
+}
+
+[data-art-show="illustration"] .as-media,
+[data-art-show="illustration"] .as-img {
+  height: auto;
+  object-fit: contain;
 }
 
 [data-art-show="illustration"] .as-ph {
   aspect-ratio: 3 / 4;
+}
+
+@media (max-width: 1200px) {
+  [data-art-show="illustration"] .as-grid,
+  [data-art-show="illustration"] .as-grid--masonry {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 800px) {
+  [data-art-show="illustration"] .as-grid,
+  [data-art-show="illustration"] .as-grid--masonry {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  [data-art-show="illustration"] .as-grid,
+  [data-art-show="illustration"] .as-grid--masonry {
+    column-count: 1;
+  }
 }
 
 /* ② 设计 · 静物单列 */
@@ -149,50 +182,7 @@ button.as-card {
   }
 }
 
-/* ③ 建模 · 主卡固定在上，点小图换大图（不离页） */
-[data-art-show="modeling"] .as-hero,
-[data-art-show="modeling"] [data-as-thumb] {
-  position: relative;
-}
-
-[data-art-show="modeling"] .as-hero {
-  display: block;
-}
-
-[data-art-show="modeling"] .as-media--in {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.42s ease;
-}
-
-[data-art-show="modeling"] .as-media--in.is-in {
-  opacity: 1;
-}
-
-[data-art-show="modeling"] .as-media.is-out {
-  opacity: 0;
-  transition: opacity 0.42s ease;
-}
-
-[data-art-show="modeling"] .as-hero .as-media,
-[data-art-show="modeling"] .as-hero .as-ph,
-[data-art-show="modeling"] .as-hero .as-img {
-  aspect-ratio: 16 / 9;
-}
-
-[data-art-show="modeling"] .as-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
-  margin-top: 12px;
-}
-
-[data-art-show="modeling"] .as-grid .as-ph {
-  aspect-ratio: 3 / 4;
-}
-
-/* ④ 剪辑 · 点长条展开播放 */
+/* ③ 剪辑 · 点长条展开播放 */
 [data-art-show="editing"] .as-grid {
   display: flex;
   flex-direction: column;
@@ -245,10 +235,6 @@ button.as-card {
 
 @media (prefers-reduced-motion: reduce) {
   [data-art-show="editing"] .as-reel-stage {
-    transition: none;
-  }
-  [data-art-show="modeling"] .as-media--in,
-  [data-art-show="modeling"] .as-media.is-out {
     transition: none;
   }
 }

@@ -8,7 +8,7 @@ export interface ProjectMetric {
 }
 
 export interface ContentMedia {
-  type: "image" | "video" | "pdf";
+  type: "image" | "video" | "pdf" | "file";
   src: string;
   caption?: string;
 }
@@ -108,6 +108,8 @@ export interface Project {
     video?: string; // 实机视频（mp4）
     pdf?: string;
     gallery?: string[]; // 附加图
+    team?: string; // 团队照（钉板 ID 卡等）
+    cert?: string; // 结项/证书图
     desktop?: {
       wallpaper?: string;
       windows: AppWindow[];
@@ -143,10 +145,13 @@ export const projects: Project[] = [
     enter: "boot",
     skin: "is-shibing",
     media: {
-      cover: "/assets/projects/01-cover.png",
+      cover: "/assets/projects/langshi-ch3/cover.png",
       arch: "/assets/projects/01-arch.png",
       video: "/assets/projects/01-gameplay.mp4",
-      gallery: ["/assets/projects/concept-01.png", "/assets/projects/making-of.png"],
+      gallery: [
+        "/assets/projects/langshi-ch3/concept-01.png",
+        "/assets/projects/langshi-ch3/concept-02.jpg",
+      ],
     },
     metrics: [
       { label: "平均帧率", before: "35 FPS", after: "60 FPS", pct: 71, note: "+71%" },
@@ -183,7 +188,17 @@ export const projects: Project[] = [
     enter: "stick",
     skin: "is-buhuige",
     media: {
-      cover: "/assets/projects/03-cover.png",
+      cover: "/assets/projects/buhuige/cover.png",
+      team: "/assets/projects/buhuige/team.png",
+      cert: "/assets/projects/buhuige/completion-cert.png",
+      gallery: [
+        "/assets/projects/buhuige/work-01.png",
+        "/assets/projects/buhuige/work-02.png",
+        "/assets/projects/buhuige/work-03.png",
+        "/assets/projects/buhuige/work-04.png",
+        "/assets/projects/buhuige/work-05.png",
+        "/assets/projects/buhuige/work-06.png",
+      ],
     },
     team: [
       { name: "赵彼方", role: "负责人", desc: "统筹管理、商业拓展、财务与校方合作" },
@@ -224,7 +239,7 @@ export const projects: Project[] = [
     enter: "osboot",
     skin: "is-zhilian",
     media: {
-      cover: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/1.png", // 封面：监测台总览（第 5 步）
+      cover: "/assets/projects/zhilian/cover.png",
       desktop: {
         meta: {
           manufacture: "2025.01",
@@ -254,9 +269,12 @@ export const projects: Project[] = [
                   "面向建筑安全的无线倾角实时监测系统。三轴 MEMS 传感器采集姿态角，经智能混合滤波后由 ESP8266 上传云端，后端实现三维可视化与多级报警。",
                 ],
                 media: [
-                  { type: "video", src: "/assets/projects/zhilian/作品视频/智联传感.mp4", caption: "演示视频" },
-                  { type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/1.png", caption: "监测台总览" },
-                  { type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/2.png", caption: "监测主界面" },
+                  { type: "image", src: "/assets/projects/zhilian/cover.png", caption: "产品封面" },
+                  { type: "image", src: "/assets/projects/zhilian/ui-main.png", caption: "软件主页面" },
+                  { type: "image", src: "/assets/projects/zhilian/ui-dashboard.png", caption: "仪表盘" },
+                  { type: "image", src: "/assets/projects/zhilian/ui-history.png", caption: "历史数据" },
+                  { type: "image", src: "/assets/projects/zhilian/ui-calibrate.png", caption: "标定" },
+                  { type: "image", src: "/assets/projects/zhilian/ui-settings.png", caption: "系统设置" },
                 ],
               },
               {
@@ -269,7 +287,6 @@ export const projects: Project[] = [
                   { key: "防护", value: "IP65" },
                   { key: "工作温度", value: "-20~+60℃" },
                 ],
-                media: [{ type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/3.png", caption: "精度示意" }],
               },
             ],
           },
@@ -284,26 +301,20 @@ export const projects: Project[] = [
             slides: [],
             sections: [
               {
-                h3: "硬件架构",
+                h3: "硬件结构",
                 paragraphs: [
                   "双 MCU 架构：Arduino（主控，实时采集+报警）+ ESP8266（网络协处理器，WiFi/云端通信），任务解耦。",
                 ],
                 media: [
-                  { type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/4.png", caption: "硬件架构" },
-                  { type: "image", src: "/assets/projects/zhilian-acquire-pcb.png", caption: "PCB" },
+                  { type: "image", src: "/assets/projects/zhilian/hardware.png", caption: "硬件结构" },
                 ],
               },
               {
-                h3: "核心算法",
+                h3: "系统框架",
                 list: ["智能混合滤波", "云边协同协议", "自适应标定", "多模式倾角解算（单轴/双轴/球面）"],
                 media: [
-                  { type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/5.png", caption: "滤波" },
-                  { type: "image", src: "/assets/projects/zhilian-acquire-algorithm.png", caption: "算法" },
+                  { type: "image", src: "/assets/projects/zhilian/framework.png", caption: "系统总体框架" },
                 ],
-              },
-              {
-                h3: "关键代码模块",
-                media: [{ type: "image", src: "/assets/projects/zhilian-acquire-code.png", caption: "关键代码" }],
               },
             ],
           },
@@ -330,9 +341,11 @@ export const projects: Project[] = [
                   { key: "更新", value: "OTA" },
                 ],
                 media: [
-                  { type: "image", src: "/assets/projects/zhilian-log-code.png", caption: "嵌入式代码" },
-                  { type: "image", src: "/assets/projects/zhilian-log-ide.png", caption: "开发环境" },
-                  { type: "image", src: "/assets/projects/zhilian-log-team.png", caption: "团队分工" },
+                  {
+                    type: "file",
+                    src: "/assets/projects/zhilian/code.docx",
+                    caption: "嵌入式代码文档（下载）",
+                  },
                 ],
               },
             ],
@@ -346,7 +359,7 @@ export const projects: Project[] = [
             screenshots: [],
             video: "",
             slides: [],
-            pdf: "/assets/awards/2025SR0979528-tilt-sensor-software.pdf",
+            pdf: "/assets/projects/zhilian/software-copyright.pdf",
             sections: [
               {
                 h3: "知识产权",
@@ -354,26 +367,14 @@ export const projects: Project[] = [
                 media: [
                   {
                     type: "pdf",
-                    src: "/assets/awards/2025SR0979528-tilt-sensor-software.pdf",
+                    src: "/assets/projects/zhilian/software-copyright.pdf",
                     caption: "软著 2025SR0979528",
                   },
-                  { type: "image", src: "/assets/projects/zhilian-archive-cert.png", caption: "软著证书" },
                 ],
               },
               {
                 h3: "竞赛获奖",
                 paragraphs: ["辽宁省大学生智能技术应用大赛 · 物联网类（2025）。"],
-                media: [{ type: "image", src: "/assets/projects/zhilian-archive-award.png", caption: "赛事证书" }],
-              },
-              {
-                h3: "商业与展望",
-                paragraphs: ["答辩材料与后续规划见归档图（规模与预测值待补）。"],
-                media: [
-                  { type: "image", src: "/assets/projects/zhilian-archive-defense-01.png", caption: "答辩 01" },
-                  { type: "image", src: "/assets/projects/zhilian-archive-defense-02.png", caption: "答辩 02" },
-                  { type: "image", src: "/assets/projects/zhilian-archive-defense-03.png", caption: "答辩 03" },
-                  { type: "image", src: "/assets/projects/zhilian-archive-roadmap.png", caption: "路线图" },
-                ],
               },
             ],
           },
@@ -395,10 +396,8 @@ export const projects: Project[] = [
     enter: "cover",
     skin: "is-qidian",
     media: {
-      // TODO: cover 待补 —— 本机 ffmpeg 不可用，尚未从 作品演示视频.mp4 抽帧。
-      //       可用后抽第 1 秒帧 → public/assets/projects/qidian/qidian-poster.jpg，再启用下行：
-      // cover: "/assets/projects/qidian/qidian-poster.jpg",
-      pdf: "/assets/awards/2025SR2140826-air-track-software.pdf",
+      cover: "/assets/projects/qidian/cover.png",
+      pdf: "/assets/projects/qidian/software-copyright.pdf",
       notebook: {
         cover: {
           title: "气垫导轨虚拟仿真实验",
@@ -410,7 +409,7 @@ export const projects: Project[] = [
             id: "p01",
             file: "FILE 01",
             chapter: "CH 01 问题定义",
-            pageNo: "01/09",
+            pageNo: "01/07",
             heading: "为什么要做这个实验",
             lede: "仪器昂贵、误差难控、时空受限 —— 传统气垫导轨实验的三道坎。",
             blocks: [
@@ -428,13 +427,12 @@ export const projects: Project[] = [
               { kind: "sticker", label: "2025" },
             ],
             tags: ["虚拟仿真", "大学物理", "教学实验"],
-            media: [{ type: "image", src: "/assets/projects/qidian-apparatus-01.png", caption: "气垫导轨装置" }],
           },
           {
             id: "p02",
             file: "FILE 01",
             chapter: "CH 01 问题定义",
-            pageNo: "02/09",
+            pageNo: "02/07",
             heading: "这是一个什么作品",
             lede: "中国大学生计算机设计大赛参赛作品。",
             blocks: [
@@ -457,13 +455,13 @@ export const projects: Project[] = [
             ],
             sidebar: [{ kind: "sticker", label: "CASE" }],
             tags: ["参赛作品", "教学实验"],
-            media: [{ type: "image", src: "/assets/projects/qidian-setup-01.png", caption: "实验台全景" }],
+            media: [{ type: "image", src: "/assets/projects/qidian/lab-ui.png", caption: "实验界面" }],
           },
           {
             id: "p03",
             file: "FILE 02",
             chapter: "CH 02 技术方案",
-            pageNo: "03/09",
+            pageNo: "03/07",
             heading: "怎么搭起来",
             lede: "Unity + Blender + C#，从建模到可交互的完整管线。",
             blocks: [
@@ -488,13 +486,15 @@ export const projects: Project[] = [
             ],
             sidebar: [{ kind: "note", label: "详见设计开发文档" }],
             tags: ["仿真软件", "建模", "物理引擎"],
-            media: [{ type: "image", src: "/assets/projects/qidian-sensor-01.png", caption: "传感/采集模块" }],
+            media: [
+              { type: "image", src: "/assets/projects/qidian/model-showcase.png", caption: "建模展示" },
+            ],
           },
           {
             id: "p04",
             file: "FILE 02",
             chapter: "CH 02 技术方案",
-            pageNo: "04/09",
+            pageNo: "04/07",
             heading: "实验软件怎么用",
             lede: "三个场景，参数可调，数据自动成表。",
             blocks: [
@@ -518,16 +518,12 @@ export const projects: Project[] = [
               },
             ],
             tags: ["数据采集", "数据分析", "实验报告"],
-            media: [
-              { type: "image", src: "/assets/projects/qidian-data-01.png", caption: "采集数据/曲线" },
-              { type: "image", src: "/assets/projects/qidian-platform-01.png", caption: "分析平台界面" },
-            ],
           },
           {
             id: "p05",
             file: "FILE 03",
             chapter: "CH 03 我的贡献",
-            pageNo: "05/09",
+            pageNo: "05/07",
             heading: "我做了哪部分",
             lede: "团队三人（ZBF · XWL · HWY），我担任统筹，分工比例 40%。",
             blocks: [
@@ -557,7 +553,7 @@ export const projects: Project[] = [
             id: "p06",
             file: "FILE 03",
             chapter: "CH 03 我的贡献",
-            pageNo: "06/09",
+            pageNo: "06/07",
             heading: "分工边界",
             lede: "明确自己写的部分，不揽他人成果。",
             blocks: [
@@ -572,13 +568,13 @@ export const projects: Project[] = [
             ],
             sidebar: [{ kind: "bookmark", label: "ROLE" }],
             tags: ["分工", "统筹"],
-            media: [{ type: "video", src: "/assets/projects/qidian/作品演示视频.mp4", caption: "实验演示" }], // 备选：答辩视频.mp4
+            media: [{ type: "video", src: "/assets/projects/qidian/demo.mp4", caption: "实验演示" }],
           },
           {
             id: "p07",
             file: "FILE 04",
             chapter: "CH 04 成果",
-            pageNo: "07/09",
+            pageNo: "07/07",
             heading: "最后拿到什么",
             lede: "软件著作权 + 国家级赛事参赛。",
             blocks: [
@@ -601,51 +597,15 @@ export const projects: Project[] = [
             ],
             sidebar: [{ kind: "sticker", label: "CERT" }],
             tags: ["软著", "参赛", "知识产权"],
-            media: [{ type: "image", src: "/assets/projects/qidian-archive-cert.png", caption: "软著证书" }],
-          },
-          {
-            id: "p08",
-            file: "FILE 04",
-            chapter: "CH 04 成果",
-            pageNo: "08/09",
-            heading: "答辩材料",
-            lede: "答辩 PPT 与教学文档已归档。",
-            blocks: [
-              {
-                type: "para",
-                text: "答辩 PPT 与教学文档已整理归档（详见「设计开发文档」）。内容涵盖项目背景、实验原理、资源开发、实验内容与项目总结五部分。",
-              },
-              {
-                type: "list",
-                items: ["答辩 PPT（5 章结构）", "教学文档（教学目的 / 设计 / 素材 / 反思 / 测试）", "演示视频"],
-              },
-            ],
-            tags: ["答辩", "文档"],
-            media: [
-              { type: "image", src: "/assets/projects/qidian-defense-01.png", caption: "答辩 PPT 关键页 01" },
-              { type: "image", src: "/assets/projects/qidian-defense-02.png", caption: "答辩 PPT 关键页 02" },
-              { type: "image", src: "/assets/projects/qidian-defense-03.png", caption: "答辩 PPT 关键页 03" },
-            ],
-          },
-          {
-            id: "p09",
-            file: "FILE 04",
-            chapter: "CH 05 附录",
-            pageNo: "09/09",
-            heading: "归档",
-            lede: "软著证书原件（PDF）。",
-            blocks: [
-              {
-                type: "para",
-                text: "软件著作权 2025SR2140826（大学物理实验气垫导轨软件，V1.0）。下方为证书原件扫描件。",
-              },
-            ],
-            sidebar: [{ kind: "bookmark", label: "PDF" }],
-            tags: ["软著 V1.0", "归档"],
             media: [
               {
                 type: "pdf",
-                src: "/assets/awards/2025SR2140826-air-track-software.pdf",
+                src: "/assets/projects/qidian/teaching-doc.pdf",
+                caption: "教学文档",
+              },
+              {
+                type: "pdf",
+                src: "/assets/projects/qidian/software-copyright.pdf",
                 caption: "软件著作权证书",
               },
             ],
