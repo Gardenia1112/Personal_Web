@@ -3,6 +3,8 @@ import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
 import LineMenu from "../components/LineMenu.astro";
 import "../styles/global.css";
+import { author, profile } from "../data/profile";
+import { gameBoards } from "../data/aboutGame";
 ---
 <!doctype html>
 <html lang="zh-CN" data-page="about">
@@ -30,11 +32,49 @@ import "../styles/global.css";
       <a id="about-ending-cta" class="about-ending-cta magnetic-btn" href="/contact">联系我 →</a>
     </main>
 
+    <!-- 移动端降级：静态简介。桌面端仍走 Phaser 横版小游戏（下方脚本条件加载，Phaser 不参与降级分支） -->
+    <section id="about-fallback" class="about-fallback" aria-label="关于我 · 静态简介">
+      <div class="about-fallback-card">
+        <a class="about-fallback-back" href="/" aria-label="回工位">← 回工位</a>
+        <p class="about-fallback-kicker">GAME INTRO · 关于我</p>
+        <figure class="about-fallback-cover">
+          <img src="/assets/about/now-desk-night.png" alt="深夜工位" />
+        </figure>
+        <h1 class="about-fallback-title">{author}</h1>
+        <p class="about-fallback-tagline">游戏制作人 · 本科在读</p>
+        <p class="about-fallback-lead">{profile.intro.tagline}</p>
+        <ol class="about-fallback-chapters">
+          {
+            gameBoards.map((b) => (
+              <li>
+                <em>{String(b.index).padStart(2, "0")}</em>
+                <span>{b.title}</span>
+              </li>
+            ))
+          }
+        </ol>
+        <p class="about-fallback-note">桌面端可体验完整横版小游戏（A/D 或 ←/→ 移动，滚轮翻阅介绍）。</p>
+        <a class="about-fallback-cta" href="/contact">联系我 →</a>
+      </div>
+    </section>
+
     <script>
-      import { createGameIntro } from "../scripts/game/game";
-      const container = document.getElementById("game");
-      const panel = document.getElementById("board-panel");
-      if (container) createGameIntro(container, panel);
+      // 降级判定（对齐 desk.ts 的 degradeToFallback 触发）：粗指针 / 窄屏 / ?game=off → 加 .is-fallback，
+      // 只露静态简介；只有桌面端才动态 import Phaser，避免移动端拉取并执行游戏包
+      const params = new URLSearchParams(location.search);
+      const fallback =
+        params.get("game") === "off" ||
+        window.matchMedia("(pointer: coarse)").matches ||
+        window.innerWidth < 768;
+      if (fallback) {
+        document.documentElement.classList.add("is-fallback");
+      } else {
+        import("../scripts/game/game").then(({ createGameIntro }) => {
+          const container = document.getElementById("game");
+          const panel = document.getElementById("board-panel");
+          if (container) createGameIntro(container, panel);
+        });
+      }
     </script>
     <TransitionOverlay />
     <CustomCursor />

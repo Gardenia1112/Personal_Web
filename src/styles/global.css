@@ -1624,6 +1624,136 @@ html.is-fallback
 html.is-fallback .mobile-fallback {
   display: flex;
 }
+/* ===== about 移动端降级：Phaser 游戏 → 静态简介 =====
+   触发路径：about.astro 内联脚本判「粗指针 / 窄屏 / ?game=off」时给 <html> 加 .is-fallback。
+   .is-fallback 与首页共用，但 about 页 DOM 里没有 .mobile-fallback，二者互不干扰。 */
+.about-fallback {
+  display: none;
+  min-height: 100vh;
+  padding: 96px 22px 56px;
+  background: #fff8e7;
+  color: #2b2926;
+}
+html.is-fallback .about-fallback {
+  display: block;
+}
+/* 降级时隐藏游戏层（Phaser 未加载，这些元素无意义；顺带放行滚动） */
+html[data-page="about"].is-fallback :is(#game, #about-wipe, #about-hint, #board-panel, #about-ending-cta) {
+  display: none;
+}
+html[data-page="about"].is-fallback body {
+  overflow: auto;
+}
+.about-fallback-card {
+  max-width: 560px;
+  margin: 0 auto;
+}
+.about-fallback-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 26px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(43, 41, 38, 0.72);
+  text-decoration: none;
+  border: 1px solid rgba(184, 134, 11, 0.22);
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: rgba(255, 253, 247, 0.9);
+}
+.about-fallback-back:hover,
+.about-fallback-back:focus-visible {
+  color: #2b2926;
+  border-color: #ffd60a;
+  background: #ffd60a;
+}
+.about-fallback-kicker {
+  margin: 0 0 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: rgba(184, 134, 11, 0.82);
+}
+.about-fallback-cover {
+  margin: 0 0 24px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(184, 134, 11, 0.18);
+  box-shadow: 0 18px 40px rgba(255, 180, 0, 0.16);
+}
+.about-fallback-cover img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.about-fallback-title {
+  margin: 0 0 6px;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.about-fallback-tagline {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: rgba(43, 41, 38, 0.66);
+}
+.about-fallback-lead {
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.75;
+}
+.about-fallback-chapters {
+  list-style: none;
+  margin: 0 0 28px;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.about-fallback-chapters li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 216, 10, 0.1);
+  border: 1px solid rgba(184, 134, 11, 0.16);
+}
+.about-fallback-chapters em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(184, 134, 11, 0.85);
+}
+.about-fallback-chapters span {
+  font-size: 14px;
+  font-weight: 600;
+}
+.about-fallback-note {
+  margin: 0 0 20px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: rgba(43, 41, 38, 0.5);
+}
+.about-fallback-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: 999px;
+  background: #ffd60a;
+  color: #2b2926;
+  font-weight: 800;
+  font-size: 15px;
+  text-decoration: none;
+  box-shadow: 0 12px 26px rgba(255, 180, 0, 0.28);
+}
+.about-fallback-cta:hover,
+.about-fallback-cta:focus-visible {
+  background: #f0c700;
+}
+
 /* 模型加载失败时保留这一行说明（区别于「正在加载」文案） */
 html.is-fallback #loading-hint.is-error {
   display: block;
