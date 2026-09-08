@@ -5,13 +5,13 @@
 <div id="transition-overlay" aria-hidden="true"></div>
 <script is:inline>
   try {
-    if (sessionStorage.getItem("lszbf:tv-boot") === "1") {
+    if (sessionStorage.getItem("yb-design:tv-boot") === "1") {
       document.documentElement.classList.add("tx-covered", "is-tv-boot");
-      sessionStorage.removeItem("lszbf:tv-boot");
-      sessionStorage.removeItem("lszbf:tx");
-    } else if (sessionStorage.getItem("lszbf:tx") === "1") {
+      sessionStorage.removeItem("yb-design:tv-boot");
+      sessionStorage.removeItem("yb-design:tx");
+    } else if (sessionStorage.getItem("yb-design:tx") === "1") {
       document.documentElement.classList.add("tx-covered");
-      sessionStorage.removeItem("lszbf:tx");
+      sessionStorage.removeItem("yb-design:tx");
     }
   } catch (err) {
     /* sessionStorage 不可用 */
@@ -19,15 +19,15 @@
   // /desktop 选择台的两条换页路径不走渐黑，各自留一个入场标记（keyframes 在 global.css）
   // 文件夹目录的 ThumbFull 与扇叶 rise 互斥：有 thumbfull 就不再套 data-enter
   try {
-    var fromFolder = Boolean(sessionStorage.getItem("lszbf:thumbfull"));
-    var backFolder = sessionStorage.getItem("lszbf:folder");
-    var enter = sessionStorage.getItem("lszbf:dtx");
+    var fromFolder = Boolean(sessionStorage.getItem("yb-design:thumbfull"));
+    var backFolder = sessionStorage.getItem("yb-design:folder");
+    var enter = sessionStorage.getItem("yb-design:dtx");
     if (fromFolder || backFolder === "dev" || backFolder === "art") {
-      sessionStorage.removeItem("lszbf:dtx");
+      sessionStorage.removeItem("yb-design:dtx");
       document.documentElement.removeAttribute("data-enter");
     } else if (enter === "rise" || enter === "veil" || enter === "fall") {
       document.documentElement.dataset.enter = enter;
-      sessionStorage.removeItem("lszbf:dtx");
+      sessionStorage.removeItem("yb-design:dtx");
     }
   } catch (err) {
     /* sessionStorage 不可用，目标页就没有入场动画 */

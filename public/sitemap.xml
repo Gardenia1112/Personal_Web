@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- [TARGET_DOMAIN] 为域名占位符：域名确定后全局替换（各页 canonical / og:url / robots.txt 同步） -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://[TARGET_DOMAIN]/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/about/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/awards/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/contact/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/desktop/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/works/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/art/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/works/wandering-corpse-tide/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/works/buhuige-studio/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/works/zhilian-tilt-sensor/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/works/air-track-virtual-lab/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/art/illustration/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/art/lnu-ip/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/art/modeling/</loc></url>
+  <url><loc>https://[TARGET_DOMAIN]/art/editing/</loc></url>
+</urlset>

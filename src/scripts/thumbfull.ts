@@ -1,5 +1,5 @@
-export const THUMB_KEY = "lszbf:thumbfull";
-const TV_BOOT_KEY = "lszbf:tv-boot";
+export const THUMB_KEY = "yb-design:thumbfull";
+const TV_BOOT_KEY = "yb-design:tv-boot";
 
 export type ThumbFullPayload = {
   slug: string;
@@ -14,7 +14,7 @@ function reducedMotion() {
 
 function clearDeskEnter() {
   try {
-    sessionStorage.removeItem("lszbf:dtx");
+    sessionStorage.removeItem("yb-design:dtx");
   } catch {
     /* ignore */
   }
@@ -123,8 +123,8 @@ function rememberFolderFrom(row: HTMLElement) {
   const view = row.closest<HTMLElement>("[data-folder-view]");
   const id = view?.dataset.folderView;
   try {
-    if (id === "dev" || id === "art") sessionStorage.setItem("lszbf:folder", id);
-    else sessionStorage.removeItem("lszbf:folder");
+    if (id === "dev" || id === "art") sessionStorage.setItem("yb-design:folder", id);
+    else sessionStorage.removeItem("yb-design:folder");
   } catch {
     /* ignore */
   }

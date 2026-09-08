@@ -4,9 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
-  // 全站 canonical / og 的基准域名（Astro.site）。⚠️ 占位：最终部署域名确定后改这一行即可。
-  // 注：② 移除的是「个人网站」这条失效外链；这里 lszbf.com 是站点自身的 canonical 域名，两者不冲突。
-  site: "https://lszbf.com",
+  // 域名待定：canonical / og:url / sitemap / robots 统一用 [TARGET_DOMAIN] 占位，不硬编码假域名。
+  // 域名确定后，在此补 site: "https://你的域名"，再把各页的 [TARGET_DOMAIN] 占位符全局替换为真域名。
   vite: {
     plugins: [tailwindcss()],
     // Phaser 的 package main 指向源码树 src/phaser.js。Vite 8 预构建会卡住，

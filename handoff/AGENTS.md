@@ -1,6 +1,6 @@
 # AGENTS.md · Cursor 开机说明书（交接包 handoff/）
 
-> 你接手的是**个人作品集网站 `lszbf.com`** 的精修与收尾工作。开工前花 3 分钟读完本文件，能少踩 80% 的坑。
+> 你接手的是**个人作品集网站 `yb-design`** 的精修与收尾工作。开工前花 3 分钟读完本文件，能少踩 80% 的坑。
 > 本目录 `handoff/` 是**只读交接包**：规范、快照、6 张任务卡都在这里；真正要改的代码在**仓库根目录** `src/`、`public/`。
 
 ---
@@ -38,7 +38,7 @@ handoff/
 
 ## 3. 项目定位与世界观
 
-- **主人**：赵韵婷，21 岁，游戏客户端开发方向。网站是她的「深夜工位」——一个 2.5D 等距 3D 桌面，桌上每件物品都能点。
+- **主人**：赵彼方，21 岁，游戏客户端开发方向。网站是她的「深夜工位」——一个 2.5D 等距 3D 桌面，桌上每件物品都能点。
 - **风格**：开发向为主、轻艺术向为辅；深夜工位、台灯暖光、赛博点缀色。
 - **配色 token**：`#1a1d24`（桌面）· `#0f1115`（深底）· `#00d9ff`（青）· `#a855f7`（紫）· `#ffb974`（暖橙）。集中在 `src/styles/global.css` 的 `@theme`。
 - **交互灵魂**：桌面物件三态 `IDLE → HOVER → ACTIVE`，GSAP 统一驱动；进站先放「开场剧本」，二次访问跳过。
@@ -63,10 +63,10 @@ Astro 5 + 原生 Three.js + 原生 JS + GSAP + Tailwind v4 + Phaser ^4.2.1（⚠
 7. **不要自动 commit / push**：精修阶段只改文件、跑 `git status` 汇报，提交由人确认。
 8. **动手 Phase 6E/6F 前必须先读决策记录最新版**（执行手册 §0.2，D21 起）：作品/奖项入口已收敛，别按旧路由 `/works` `/awards` 做独立列表页。
 9. **不得创建与桌面文件夹功能重复的独立列表页**：内容视图 = 桌面文件夹子状态，禁止「只有直链能进、桌面进不去」的孤岛页面。
-10. **禁止改动顶部导航组件与 nav 链接**（`src/components/` 里的导航）：顶部导航由用户（lszbf）在最终全局界面自行处理，Cursor 不加 `?open=` 跳转、不改链接。
+10. **禁止改动顶部导航组件与 nav 链接**（`src/components/` 里的导航）：顶部导航由用户（yb-design）在最终全局界面自行处理，Cursor 不加 `?open=` 跳转、不改链接。
 11. **所有新增视图必须有明确入口物件触发**（桌面文件夹或工位物件），不能只靠独立路由承载。
 12. **6F 的 AwardsStack 必须从工位「文件堆·获奖证书」触发**（`data-interactable="awards"`），不是桌面文件夹；Cursor 第一步是定位工位场景里该物件的点击绑定点，再挂 overlay。禁止把它挂回 `desktop.astro` / `folder-views.ts` 的 `'awards'` 分支。
-13. **禁止新增第四个桌面图标、禁止改动 Nav**：桌面只保留红文件夹 / 黄文件夹 / Logo 三个图标；顶部导航归用户（lszbf）。
+13. **禁止新增第四个桌面图标、禁止改动 Nav**：桌面只保留红文件夹 / 黄文件夹 / Logo 三个图标；顶部导航归用户（yb-design）。
 
 ---
 
@@ -90,8 +90,8 @@ Astro 5 + 原生 Three.js + 原生 JS + GSAP + Tailwind v4 + Phaser ^4.2.1（⚠
 ## 8. 交互规范速查
 
 - **状态机**：`IDLE / HOVER / ACTIVE`，见 `src/scripts/desk.ts`，GSAP timeline 统一驱动。
-- **开场剧本**：①-⑧ 步，`sessionStorage["lszbf:intro:played"]` 控制每个会话播一次（2026-09-04 用户决策，原为 localStorage 只播一次）；`/?intro` 强制重播。
-- **主题切换**：台灯物件 ↔ `localStorage["lszbf:theme"]`。
+- **开场剧本**：①-⑧ 步，`sessionStorage["yb-design:intro:played"]` 控制每个会话播一次（2026-09-04 用户决策，原为 localStorage 只播一次）；`/?intro` 强制重播。
+- **主题切换**：台灯物件 ↔ `localStorage["yb-design:theme"]`。
 - **移动端降级**：`matchMedia("(pointer: coarse)")` 或 `clientWidth < 768` → 静态 DOM 菜单，不加载 3D。
 
 ---

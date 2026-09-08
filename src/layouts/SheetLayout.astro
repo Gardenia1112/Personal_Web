@@ -23,22 +23,23 @@ const { title, description = "作品详情", tone = "sheet" } = Astro.props;
     <link rel="icon" href="/favicon.ico" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="canonical" href={`https://[TARGET_DOMAIN]${Astro.url.pathname}`} />
+    <meta property="og:url" content={`https://[TARGET_DOMAIN]${Astro.url.pathname}`} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content="/assets/about/now-desk-night.png" />
+    <meta property="og:image" content="/assets/art/辽大IP/logo.png" />
     <script is:inline>
       try {
-        var raw = sessionStorage.getItem("lszbf:thumbfull");
+        var raw = sessionStorage.getItem("yb-design:thumbfull");
         if (raw) {
           var data = JSON.parse(raw);
           if (data && data.slug === "wandering-corpse-tide") {
-            sessionStorage.removeItem("lszbf:thumbfull");
+            sessionStorage.removeItem("yb-design:thumbfull");
             data = null;
           }
           if (data && data.slug) {
-            sessionStorage.removeItem("lszbf:dtx");
+            sessionStorage.removeItem("yb-design:dtx");
             var root = document.documentElement;
             root.removeAttribute("data-enter");
             root.classList.add(data.expanded ? "is-thumbfull-arrive" : "is-thumbfull-slide");
@@ -70,7 +71,7 @@ const { title, description = "作品详情", tone = "sheet" } = Astro.props;
     </a>
     <script is:inline>
       try {
-        var from = sessionStorage.getItem("lszbf:folder");
+        var from = sessionStorage.getItem("yb-design:folder");
         if (from === "dev" || from === "art") {
           var home = document.querySelector(".sheet-home");
           if (home) home.setAttribute("aria-label", "回目录");

@@ -7,7 +7,7 @@
 
 ## 目标
 
-把真实素材灌进各页（作品、证书、个人、博客），再部署上线到 Cloudflare Pages + 自定义域名 `lszbf.com` + HTTPS。
+把真实素材灌进各页（作品、证书、个人、博客），再部署上线到 Cloudflare Pages + 自定义域名 `yb-design` + HTTPS。
 
 ---
 
@@ -47,7 +47,7 @@
 
 7. GitHub 建仓 + 推送。
 8. Cloudflare Pages：Astro preset、Build `npm run build`、Output `dist`、Node 20。
-9. 域名：`lszbf.com` + `www`，DNS/NS 指向 Cloudflare，自动 HTTPS，www→apex 重定向。
+9. 域名：`yb-design` + `www`，DNS/NS 指向 Cloudflare，自动 HTTPS，www→apex 重定向。
 
 ---
 

@@ -251,7 +251,7 @@ export function awardsLayers(list: Award[] = awards, maxPerLayer = 3): Award[][]
 
 /** /awards 页头文案（Mosby 首页式标题区） */
 export const awardsPage = {
-  brand: "LSZBF · FILES",
+  brand: "YB-DESIGN · FILES",
   kicker: "Awards & Certificates",
   title: "获奖与证书",
   lede: "奖项按时间叠成文件柜；同层最多三份。悬停标签把文件抽到前面，悬停整层即展开，移开自动收回。",

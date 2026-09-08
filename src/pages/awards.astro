@@ -19,12 +19,13 @@ const yearSpan = years.length > 0 ? `${Math.min(...years)} – ${Math.max(...yea
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="description" content={awardsPage.lede} />
-    <title>{awardsPage.title} · lszbf.com</title>
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <title>{awardsPage.title} · yb-design</title>
+    <link rel="canonical" href={`https://[TARGET_DOMAIN]${Astro.url.pathname}`} />
+    <meta property="og:url" content={`https://[TARGET_DOMAIN]${Astro.url.pathname}`} />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={`${awardsPage.title} · lszbf.com`} />
+    <meta property="og:title" content={`${awardsPage.title} · yb-design`} />
     <meta property="og:description" content={awardsPage.lede} />
-    <meta property="og:image" content="/assets/about/now-desk-night.png" />
+    <meta property="og:image" content="/assets/art/辽大IP/logo.png" />
   </head>
   <body class="as-body-root">
     <LineMenu current="awards" theme="awards" />

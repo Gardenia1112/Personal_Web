@@ -21,7 +21,7 @@ interface Props {
   title?: string;
 }
 
-const { initialFolder, title = "入口 · lszbf.com" } = Astro.props;
+const { initialFolder, title = "入口 · yb-design" } = Astro.props;
 
 const ART_TONE: Record<string, string> = {
   绘画: "is-red",
@@ -50,18 +50,19 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Dancing+Script:ital,wght@1,700&family=Great+Vibes&family=Ma+Shan+Zheng&display=swap" rel="stylesheet" />
     <title>{title}</title>
-    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <link rel="canonical" href={`https://[TARGET_DOMAIN]${Astro.url.pathname}`} />
+    <meta property="og:url" content={`https://[TARGET_DOMAIN]${Astro.url.pathname}`} />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={`${profile.name} · 项目 / 美术 / 博客三个入口`} />
-    <meta property="og:image" content="/assets/about/now-desk-night.png" />
+    <meta property="og:image" content="/assets/art/辽大IP/logo.png" />
     <script is:inline>
       try {
-        var pending = sessionStorage.getItem("lszbf:folder");
+        var pending = sessionStorage.getItem("yb-design:folder");
         if (pending === "dev" || pending === "art") {
           document.documentElement.classList.add("is-folder-open", "is-folder-return");
           document.documentElement.dataset.returnFolder = pending;
-          sessionStorage.removeItem("lszbf:dtx");
+          sessionStorage.removeItem("yb-design:dtx");
         }
       } catch (err) {}
     </script>

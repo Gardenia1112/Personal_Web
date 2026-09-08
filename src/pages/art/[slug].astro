@@ -13,10 +13,10 @@ export function getStaticPaths() {
 
 const { artwork } = Astro.props;
 ---
-<SheetLayout title={`${artwork.category} · lszbf.com`}>
+<SheetLayout title={`${artwork.category} · yb-design`}>
   <script is:inline define:vars={{ slug: artwork.slug }}>
     try {
-      var raw = sessionStorage.getItem("lszbf:thumbfull");
+      var raw = sessionStorage.getItem("yb-design:thumbfull");
       if (raw) {
         var data = JSON.parse(raw);
         if (data && data.slug === slug) {

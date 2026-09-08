@@ -114,13 +114,13 @@ export function initFolderViews() {
       const pending =
         returning === "dev" || returning === "art"
           ? returning
-          : sessionStorage.getItem("lszbf:folder");
+          : sessionStorage.getItem("yb-design:folder");
       if (pending === "dev" || pending === "art") {
-        sessionStorage.removeItem("lszbf:folder");
+        sessionStorage.removeItem("yb-design:folder");
         openFolder(pending);
       } else if (pending === "awards") {
         // 旧会话残留：奖项已迁工位
-        sessionStorage.removeItem("lszbf:folder");
+        sessionStorage.removeItem("yb-design:folder");
       }
     } catch {
       /* ignore */

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# [TARGET_DOMAIN] 为域名占位符：域名确定后替换
+Sitemap: https://[TARGET_DOMAIN]/sitemap.xml

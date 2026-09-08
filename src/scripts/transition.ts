@@ -2,12 +2,12 @@
 // 站内三套页面（首页 3D / about Phaser / desktop OS）各有独立 <html>，未启用 Astro ClientRouter，
 // 因此这里用「离场盖黑 → 真实跳转 → 新页首屏前盖黑 → 淡出」实现跨页不闪烁：
 // 离场时写 sessionStorage 标记，新页面由 TransitionOverlay.astro 的 inline 脚本在首屏绘制前读标记直接盖黑。
-const FLAG = "lszbf:tx";
-const SLIDE_FLAG = "lszbf:dtx";
+const FLAG = "yb-design:tx";
+const SLIDE_FLAG = "yb-design:dtx";
 const COVER_CLASS = "tx-covered";
 const FADE_MS = 380; // 必须与 global.css 里 #transition-overlay 的 transition 时长一致
 const SLIDE_MS = 420;
-const THUMB_KEY = "lszbf:thumbfull";
+const THUMB_KEY = "yb-design:thumbfull";
 
 function hasThumbFull() {
   try {
@@ -37,7 +37,7 @@ function resolveUrl(url: string) {
   const folder = folderEntry(url);
   if (!folder) return url;
   try {
-    sessionStorage.setItem("lszbf:folder", folder);
+    sessionStorage.setItem("yb-design:folder", folder);
   } catch {
     /* ignore */
   }
@@ -46,7 +46,7 @@ function resolveUrl(url: string) {
 
 function pendingFolder() {
   try {
-    const id = sessionStorage.getItem("lszbf:folder");
+    const id = sessionStorage.getItem("yb-design:folder");
     return id === "dev" || id === "art";
   } catch {
     return false;

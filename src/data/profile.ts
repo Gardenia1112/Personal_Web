@@ -4,12 +4,13 @@ export const author = "赵彼方";
 
 export const profile = {
   name: "赵彼方",
+  avatar: "/assets/art/Models/赵彼方.png", // 头像（本人图，文件名=笔名）；日后需标准证件照可改
   age: 21,
   education: "大学本科",
   jobTitle: "游戏制作人",
   phone: "19967792313",
   email: "m19967792313@163.com",
-  wechat: "lszbf111",
+  wechat: "lszbf111", // 真实微信号，按用户裁定保留（含旧品牌 lszbf，勿参与全局替换）
   website: "",
   github: "https://github.com/Gardenia1112",
   gitee: "https://gitee.com/bfnya/Unity_Game2025.git",

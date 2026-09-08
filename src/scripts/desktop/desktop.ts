@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { desktopEntries } from "../../data/desktop";
 import { getCurrentFolder } from "./folder-views";
 
-const ENTER_FLAG = "lszbf:dtx";
+const ENTER_FLAG = "yb-design:dtx";
 
 // 「敬请期待」彩蛋文案：复用首页奶茶彩蛋的弹窗机制，文案集中在此不散落
 const EASTER_COPY: Record<string, { title: string; sub: string }> = {
@@ -312,8 +312,8 @@ export function initDesktop(stage: HTMLElement) {
 
   function leaveTo(href: string) {
     try {
-      sessionStorage.removeItem("lszbf:thumbfull");
-      sessionStorage.removeItem("lszbf:folder");
+      sessionStorage.removeItem("yb-design:thumbfull");
+      sessionStorage.removeItem("yb-design:folder");
       sessionStorage.setItem(ENTER_FLAG, "rise");
     } catch {
       /* 隐私模式：目标页没有入场动画 */

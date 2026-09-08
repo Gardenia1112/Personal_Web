@@ -1782,7 +1782,7 @@ html.is-fallback #loading-hint.is-error {
 }
 
 /* 从 /desktop 选择台过来的入场动画（两个路由各一套，不走渐黑）：
-   离场动画在 desktop.ts 里跑完并写下 sessionStorage["lszbf:dtx"]，
+   离场动画在 desktop.ts 里跑完并写下 sessionStorage["yb-design:dtx"]，
    TransitionOverlay.astro 的 inline 脚本在首屏绘制前把它读成 <html data-enter> */
 /* 项目详情页的内容根是 <article class="pd">，别的页是 <main>，两种都接上 */
 html[data-enter="rise"] body > main,

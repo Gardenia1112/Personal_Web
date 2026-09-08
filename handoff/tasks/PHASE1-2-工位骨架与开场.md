@@ -32,7 +32,7 @@
 
 1. **核对物件→路由映射**：确认 `objects.ts` 里 monitor→`/`、gamepad→`/about`、desktop→`/desktop`、folder→`/awards`、notebook→`/contact`、lamp→主题切换，与实际跳转一致。
 2. **状态机手感**：检查 GSAP timeline 驱动下 IDLE→HOVER→ACTIVE 的缓动时长/幅度，hover 渐入、click 激活、移出回落是否顺滑。
-3. **开场剧本时序**：核对 ①-⑧ 步顺序与 `localStorage["lszbf:intro:played"]` 判定，确认二次访问确实跳过。
+3. **开场剧本时序**：核对 ①-⑧ 步顺序与 `localStorage["yb-design:intro:played"]` 判定，确认二次访问确实跳过。
 4. **台灯暖光**：确认 lamp 物件带暖光氛围（Phase 1 精修点），切换主题生效。
 5. **移动端降级**：验证 `matchMedia("(pointer: coarse)")` / `clientWidth < 768` 时降级为静态 DOM 菜单，不加载 3D、不白屏。
 6. **占位几何体**：确认 6 物件按各自 `geometry`（box/monitor/gamepad/lamp/folder/notebook 等）区分形状，而非清一色立方体。
@@ -46,14 +46,14 @@
 - [ ] 开场剧本首次播放、二次访问跳过。
 - [ ] hover 状态机三态切换顺滑，无卡顿/抖动。
 - [ ] 移动端降级为静态菜单，无 3D 加载、无白屏。
-- [ ] 台灯暖光 + 主题切换（`lszbf:theme`）生效。
+- [ ] 台灯暖光 + 主题切换（`yb-design:theme`）生效。
 
 ---
 
 ## 风险与提醒
 
 - **移动端降级**是最容易漏测的一环：真机 + DevTools 两种都要过。
-- 开场剧本若改动时序，必须同步 `localStorage` key 名（`lszbf:intro:played`），否则老访客会重复播放或永久跳过。
+- 开场剧本若改动时序，必须同步 `localStorage` key 名（`yb-design:intro:played`），否则老访客会重复播放或永久跳过。
 - 3D 场景别引入新重库，保持原生 Three.js。
 - 物件几何体改动会影响「占位 → 实模」的后续替换，记录当前 `geometry` 取值（见 `objects.ts`）。
 

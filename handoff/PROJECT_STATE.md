@@ -14,9 +14,9 @@
 - 第三轮（2026-09-04，已提交）：图标从扁平色块改成 **CSS 3D 分层实体**——透视 + `preserve-3d`，文件夹按用户给的参考图做成三层（深色后板带标签页 / 中间扇形散开的竖幅白边作品纸 / 亮色敞口前袋加袋口亮边），脚下各有一片模糊投影；鼠标在图标上会带着物件小幅转动。摊开时文件夹里的缩略图淡出、关闭再淡回。不引 Three.js（重库只进首页），细节与两条压平 3D 的坑记在 docs/03 §6。
 - 第四轮（2026-09-04，已提交）：Logo 改成粉白渐变圆角方片 + 铺满的白色 Z；**简历入口从 `/desktop` 整枚撤掉**，改到 `/about` 左上角做「下载简历」（`profile.resume`），`/contact` 同步读同一字段。选择台现为三个图标。
 - 已落地 §4，但**换了方案**（2026-09-04 用户决策，已提交）：`/desktop` 不再是拟物桌面 OS。现状是：页面上只有三个图标（红/黄文件夹、粉白 Z Logo）+ 左上角一个无字返回箭头；悬停时名字浮在鼠标边上跟着晃；**红/黄文件夹悬停扇出**作品卡片（触屏改为点按），Logo 直接换页进 `/blog`。窗口系统 / 双击开窗 / 图标位置持久化 / 桌面贴纸 / 右上角路由菜单五项连同 `.os-*` 样式一起删除。
-- 开场剧本播放策略已改（2026-09-04，已提交）：标记从 `localStorage` 换成 `sessionStorage["lszbf:intro:played"]`，即「每个会话播一次」——同标签页刷新/跳页回来跳过，关掉标签页再进重播；`/?intro` 强制重播。
+- 开场剧本播放策略已改（2026-09-04，已提交）：标记从 `localStorage` 换成 `sessionStorage["yb-design:intro:played"]`，即「每个会话播一次」——同标签页刷新/跳页回来跳过，关掉标签页再进重播；`/?intro` 强制重播。
 - Phase 3 重做（提交 `6109a98`，2026-09-05）：`/about` 从「横版小人走过 4 展板」改成**碰旗弹卡**——黄色小球用 A/D 或 ←/→ 走到小旗前，碰到就弹出一张图文卡片；四章（`start / turning / now / ending`）各带封面 + 拍立得图墙，`ending` 章触发庆祝烟花 + 滚轮左右翻阅全章 + 「联系我」CTA。整页统一成奶油黄清新配色，图片落在 `public/assets/about/`。任务卡 `PHASE3` 里「横版小人 + 4 展板」的旧描述已被本实现取代（以 docs/03 §5.5/§6 为准）。
-- Phase 6 作品/奖项入口收敛（决策 **D21 / D21-2**，2026-09-05）：`/works`、`/awards` 独立列表页废弃——开发作品/美术画廊迁入 `/desktop` 文件夹，奖项证书改为工位「文件堆·获奖证书」触发的 AwardsStack overlay；顶部导航本阶段不动（用户 lszbf 自改）。详见 执行手册 §0.2。
+- Phase 6 作品/奖项入口收敛（决策 **D21 / D21-2**，2026-09-05）：`/works`、`/awards` 独立列表页废弃——开发作品/美术画廊迁入 `/desktop` 文件夹，奖项证书改为工位「文件堆·获奖证书」触发的 AwardsStack overlay；顶部导航本阶段不动（用户 yb-design 自改）。详见 执行手册 §0.2。
 - 未做：手册 §7 的昼夜全局化（光标已提前做完）、§8/§9（Phase 7 内容与部署）。
 
 ---
@@ -92,7 +92,7 @@
 - ✅ 已补全：数模省一证书已就位（`2024-math-modeling-liaoning-1st.jpg`），`awards.ts` 全部 `file` 已齐。
 - ✅ 已补全：头像 `public/assets/brand/head.png`、favicon `public/favicon.ico` 已就位。
 - ✅ 已提供：美术素材（绘画/设计/建模/剪辑）源文件已在 `assets/{images,models,videos}/`，发布缩略图待 Phase 7。
-- 🔴 **D21（2026-09-05）已决策 · 作品/获奖入口收敛**：`/works`、`/awards` 独立列表页废弃——作品/美术画廊并入 `/desktop` 文件夹，奖项改为工位「文件堆·获奖证书」AwardsStack overlay（D21-2）——「画廊没入口」问题随之作废。顶部导航「作品/获奖」跳转本阶段不动（用户 lszbf 自改）。
+- 🔴 **D21（2026-09-05）已决策 · 作品/获奖入口收敛**：`/works`、`/awards` 独立列表页废弃——作品/美术画廊并入 `/desktop` 文件夹，奖项改为工位「文件堆·获奖证书」AwardsStack overlay（D21-2）——「画廊没入口」问题随之作废。顶部导航「作品/获奖」跳转本阶段不动（用户 yb-design 自改）。
 - 🔴 **D21/D21-2 受影响文件（待回收/扩展，见 执行手册 §0.2）**：`src/pages/works/index.astro`（删除）、`src/components/HorizontalGallery.astro`（画廊组件，删除或复用）、`src/scripts/gallery.ts`（删除，逻辑迁入桌面）、`src/pages/awards.astro`（删除，AwardsStack 改工位文件堆 overlay）、`src/pages/desktop.astro`（扩展：红/黄文件夹打开 → 渲染 DevIndex/ArtGallery）、`src/styles/global.css`（画廊样式随迁清理）、工位场景 `src/scripts/desk.ts`（文件堆物件加 `data-interactable="awards"` + AwardsStack overlay）、桌面脚本新增（文件夹子状态管理）。⚠️ **Cursor 动手 6E/6F 前必须先读本决策（D21/D21-2）最新版。**
 - ⚠️ **博客内容**：`/blog` 路由已建，内容待填（Phase 7）。
 - ⚠️ **`room_full.glb` 未入库**（`.gitignore` 规则 `public/models/*.glb`）：本地正常，但 Cloudflare Pages 上取不到模型，首页会降级成静态导航。上线前必须决定「放开 gitignore 让 13MB 入库」或「托到 R2/CDN 改 `MODEL_URL`」。详见 docs/03 §9。

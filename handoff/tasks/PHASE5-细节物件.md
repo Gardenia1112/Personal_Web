@@ -25,7 +25,7 @@
 
 - ✅ **证书墙**（folder → `/awards`）：`src/pages/awards.astro` + `src/data/awards.ts` 已完成（奖学金已删，分组 全部/竞赛获奖/证书/待补）。
 - ✅ **本子 Links**（notebook → `/contact`）：`src/pages/contact.astro` 已存在。
-- ✅ **台灯主题**（lamp → 主题切换）：`localStorage["lszbf:theme"]` 已实现。
+- ✅ **台灯主题**（lamp → 主题切换）：`localStorage["yb-design:theme"]` 已实现。
 - ⚠️ **键盘技能矩阵**（keyboard → skills）：`objects.ts` 已映射，实现状态需在 `desk.ts` 核对。
 
 本卡是**精修**。
@@ -38,7 +38,7 @@
 2. **校级/院级隐藏开关**：`Award.hide?` 控制「校级院级」默认隐藏，确认生效。
 3. **键盘技能矩阵**：确认 keyboard 物件触发 skills 矩阵，数据来自 `profile.ts` 的 `skills`。
 4. **本子 Links**：核对 `/contact` 联系方式 + 外链（github/gitee/邮箱/微信）与 `profile.ts` 一致。
-5. **台灯主题切换**：确认 `lszbf:theme` 深/浅两套样式都生效。
+5. **台灯主题切换**：确认 `yb-design:theme` 深/浅两套样式都生效。
 6. **数模省一占位**：全国大学生数学建模竞赛辽宁省一等奖 = 占位，标 `⚠️ 待确认`。
 
 ---

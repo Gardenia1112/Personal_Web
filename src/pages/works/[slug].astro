@@ -111,14 +111,14 @@ const intro01 = body0
     ]
   : ["待补"];
 ---
-<SheetLayout title={`${project.name} · lszbf.com`} tone={isGame ? "deep" : "sheet"}>
+<SheetLayout title={`${project.name} · yb-design`} tone={isGame ? "deep" : "sheet"}>
   <script is:inline define:vars={{ slug: project.slug, customEnter: isGame || isBoard || isOs || isDossier }}>
     try {
       if (customEnter) {
-        sessionStorage.removeItem("lszbf:thumbfull");
+        sessionStorage.removeItem("yb-design:thumbfull");
         document.documentElement.classList.remove("is-thumbfull-arrive", "is-thumbfull-slide");
       } else {
-        var raw = sessionStorage.getItem("lszbf:thumbfull");
+        var raw = sessionStorage.getItem("yb-design:thumbfull");
         if (raw) {
           var data = JSON.parse(raw);
           if (data && data.slug === slug) {
