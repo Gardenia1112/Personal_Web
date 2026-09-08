@@ -41,7 +41,7 @@ interface DeskItem {
   baseScale: THREE.Vector3;
   liftVec: THREE.Vector3; // 世界「上」换算到父空间后的浮起向量
   center: THREE.Vector3; // 世界包围盒中心（镜头聚焦 / DOM 投影用）
-  top: THREE.Vector3; // 世界包围盒顶部中心（热气 / 打字机定位）
+  top: THREE.Vector3; // 世界包围盒顶部中心（台灯灯光 / 热点锚点 / 咖啡彩蛋定位）
   size: THREE.Vector3;
   hover: { t: number };
   hotspot: HTMLElement | null; // 屏幕上的热点圆点（Scene.astro 渲染，位置每帧投影过来）
@@ -412,29 +412,6 @@ export function initDesk(container: HTMLElement) {
   // 粗黑体是系统字体，理论上不需要等下载；仍挂一次以防浏览器晚一帧才拿到度量
   document.fonts?.ready.then(fitHeroType);
 
-  // ── 咖啡热气（02 §1.1 ⑥ idle 循环）──
-  const steam: THREE.Mesh[] = [];
-  const steamOrigin = new THREE.Vector3();
-  let steamRise = 0.2;
-  let steamDrift = 0.02;
-
-  function buildSteam(coffee: DeskItem) {
-    const r = Math.max(coffee.size.x, coffee.size.z) * 0.16;
-    steamRise = Math.max(coffee.size.y, r * 4) * 1.6;
-    steamDrift = r * 0.8;
-    steamOrigin.copy(coffee.top);
-    for (let i = 0; i < 3; i++) {
-      const s = new THREE.Mesh(
-        new THREE.SphereGeometry(r, 8, 8),
-        new THREE.MeshBasicMaterial({ color: "#ffffff", transparent: true, opacity: 0.35, depthWrite: false })
-      );
-      s.userData.phase = i / 3;
-      s.position.copy(steamOrigin);
-      scene.add(s);
-      steam.push(s);
-    }
-  }
-
   // ── 开场剧本（02 §1.1 ①-⑧）──
   function markIntroPlayed() {
     try {
@@ -511,7 +488,7 @@ export function initDesk(container: HTMLElement) {
     // ⑤ 提示「拖拽 / 滚动 探索工位」
     if (introHint) await tweenDone(gsap.to(introHint, { autoAlpha: 1, duration: 0.6, ease: "power2.out" }));
 
-    // ⑥ 咖啡热气在 rAF 里持续循环；⑦ hover 状态机；⑧ 点击 ACTIVE 由事件驱动
+    // ⑥ 咖啡热气已随装饰精简删除；⑦ hover 状态机；⑧ 点击 ACTIVE 由事件驱动
     markIntroPlayed();
     ready = true;
     revealChrome();
@@ -624,9 +601,6 @@ export function initDesk(container: HTMLElement) {
       lampLight.intensity = lampLight.userData.peak;
       applyTheme(theme, false);
 
-      const coffee = items.find((i) => i.data.id === "coffee");
-      if (coffee) buildSteam(coffee);
-
       const computer = items.find((i) => i.data.id === "computer");
       if (loadingHint) loadingHint.style.display = "none";
 
@@ -661,7 +635,7 @@ export function initDesk(container: HTMLElement) {
     }
   );
 
-  // ── 主循环：鼠标视角摇晃（lerp）+ 咖啡热气 ──
+  // ── 主循环：鼠标视角摇晃（lerp）──
   function frame() {
     requestAnimationFrame(frame);
 
@@ -697,18 +671,6 @@ export function initDesk(container: HTMLElement) {
       const coffee = items.find((i) => i.data.id === "coffee");
       if (coffee) easterAnchor.copy(coffee.top);
       placeEasterPop();
-    }
-
-    if (steam.length) {
-      const t = performance.now() / 1000;
-      for (const s of steam) {
-        const phase = s.userData.phase as number;
-        const ph = (t * 0.4 + phase) % 1;
-        s.position.y = steamOrigin.y + ph * steamRise;
-        s.position.x = steamOrigin.x + Math.sin(t * 1.5 + phase * 6.28) * steamDrift;
-        s.scale.setScalar(1 + ph * 0.8);
-        (s.material as THREE.MeshBasicMaterial).opacity = 0.35 * (1 - ph);
-      }
     }
 
     renderer.render(scene, camera);
