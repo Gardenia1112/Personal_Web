@@ -14,42 +14,38 @@ dist/
 npm-debug.log*
 *.local
 
-# Claude Code 本地数据
+# Claude Code local
 .claude/
 
-# 源素材（原始材料，非网站源码）
-# Phase 7 内容填充时，把站点真正需要的资源复制到 public/ 或 src/assets/ 再纳入版本管理
+# Source materials (not site assets)
 01基础信息/
 02项目作品/
 04-award/
-# 原始素材（源文件，非网站产物；已从根目录收拢到 assets/）
-# 只提交发布到 public/assets/ 的精简缩略图；源文件不入库（体积大，含 .blend/.obj/.mb/.psd 等）
 assets/raw-materials/
 assets/images/
 assets/models/
 assets/videos/
-# 大型原始参考素材不入库（本地 + CI 用，不进历史）
 public/assets/raw-assets/
 handoff/references/recordings/*.mp4
-# 若需团队共享，改用 LFS 或在 CI 里单独拉取
-# ===== 大文件 / 原始素材（不入库，本地保留） =====
 
-# 3D 模型（用占位盒，glb 日后替换，不进 Git）
+# ===== Large / raw assets (keep local, do not track) =====
+
+# 3D models
 public/models/*.glb
 public/models/*.gltf
 
-# 录制的参考视频 + 原始素材
+# Videos (default ignore; whitelist deploy webm/mp4 below)
 *.mp4
 *.webm
 raw-assets/
 public/assets/raw-assets/
 
-# 源文件（psd/tif/psb 等），只提交导出后的 png/jpg
+# Source files — only export png/jpg
 *.psd
 *.tif
 *.psb
 
-# 3D / 工程源文件（blend/fbx/obj/mtl/max/dae/skp），只提交成品渲染 png/jpg
+# 3D / DCC sources
 *.blend
 *.fbx
 *.obj
@@ -58,11 +54,20 @@ public/assets/raw-assets/
 *.dae
 *.skp
 
-# 备查归档（已移出 public/ 的原始 dump 与参考图）
+# Archive dumps
 _unused_photos/
 
-# Word 临时锁文件兜底
+# Office lockfiles
 ~$*
 
-# 若 models 整个文件夹都是大文件，可整体忽略（按需启用）
+# Office docs (certs use PDF; keep docx/pptx local)
+*.docx
+*.pptx
+
+# Optional: ignore whole models folder
 # public/models/
+
+# ===== Deploy video whitelist (B.2a: track webm; mp4 sources stay ignored) =====
+!public/assets/art/editing/*.webm
+!public/assets/projects/01-gameplay.webm
+!public/assets/projects/qidian/demo.mp4
