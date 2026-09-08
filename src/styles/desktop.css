@@ -564,17 +564,6 @@ html[data-page="desktop"] #cursor {
   border-top-color: #e8e8e8;
 }
 
-/* 换页离场时铺一层色（博客那条路径用，跟 Logo 同色） */
-.dt-veil {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  background: #3b82f6;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
 /* 「敬请期待」彩蛋弹窗（博客入口）：复用首页奶茶彩蛋的深紫气泡视觉，居中模态 */
 .easter-modal {
   position: fixed;

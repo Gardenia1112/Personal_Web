@@ -18,7 +18,6 @@ function reducedMotion() {
 
 export function initDesktop(stage: HTMLElement) {
   const shelf = stage.querySelector<HTMLElement>("#dt-shelf");
-  const veil = document.getElementById("dt-veil");
   const cardTip = document.getElementById("dt-card-tip");
   if (!shelf) return;
 
@@ -311,11 +310,11 @@ export function initDesktop(stage: HTMLElement) {
     }, 180);
   }
 
-  function leaveTo(href: string, kind: "rise" | "veil") {
+  function leaveTo(href: string) {
     try {
       sessionStorage.removeItem("lszbf:thumbfull");
       sessionStorage.removeItem("lszbf:folder");
-      sessionStorage.setItem(ENTER_FLAG, kind);
+      sessionStorage.setItem(ENTER_FLAG, "rise");
     } catch {
       /* 隐私模式：目标页没有入场动画 */
     }
@@ -330,13 +329,8 @@ export function initDesktop(stage: HTMLElement) {
       window.location.href = href;
     };
     const tl = gsap.timeline({ onComplete: go });
-    if (kind === "rise") {
-      tl.to(stage, { y: "-14vh", opacity: 0, duration: 0.42, ease: "power2.in" }, 0);
-    } else {
-      tl.to(stage, { scale: 0.96, opacity: 0.25, duration: 0.3, ease: "power2.in" }, 0);
-      if (veil) tl.to(veil, { autoAlpha: 1, duration: 0.34, ease: "power2.out" }, 0.04);
-    }
-    window.setTimeout(go, kind === "rise" ? 440 : 400);
+    tl.to(stage, { y: "-14vh", opacity: 0, duration: 0.42, ease: "power2.in" }, 0);
+    window.setTimeout(go, 440);
   }
 
   function bindHoverZone(el: HTMLElement, id: string) {
@@ -365,10 +359,6 @@ export function initDesktop(stage: HTMLElement) {
     }
 
     card.addEventListener("click", () => {
-      if (entry?.action === "route" && entry.href) {
-        leaveTo(entry.href, "veil");
-        return;
-      }
       if (entry?.action === "easter") {
         showComingSoon(entry.id);
       }
@@ -460,7 +450,7 @@ export function initDesktop(stage: HTMLElement) {
       e.preventDefault();
       e.stopPropagation();
       if (getCurrentFolder()) return;
-      leaveTo(a.getAttribute("href")!, "rise");
+      leaveTo(a.getAttribute("href")!);
     });
   });
 
