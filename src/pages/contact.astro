@@ -6,7 +6,6 @@ import { profile, author } from "../data/profile";
 const links = [
   { label: "GitHub", url: profile.github, tip: "看代码与提交记录", icon: "GH", external: true },
   { label: "Gitee 源码", url: profile.gitee, tip: "部分项目镜像", icon: "GT", external: true },
-  { label: "个人网站", url: `https://${profile.website}`, tip: "回到工位入口", icon: "WEB", external: true },
   { label: "发邮件", url: `mailto:${profile.email}`, tip: "打开系统邮箱客户端", icon: "MAIL", external: false },
 ];
 
@@ -143,12 +142,12 @@ const channels = [
       </section>
     </div>
 
-    <p class="nm-foot">© 2026 {author} · {profile.website}</p>
+    <p class="nm-foot">© 2026 {author}</p>
   </div>
 
   <script>
-    // TODO: 接入 Formspree 时替换为 fetch(endpoint)
-    // —— 当前使用 mailto + 剪贴板
+    // Formspree 未启用（用户裁定：使用 mailto + 剪贴板）
+    // 如需启用，在此接入 fetch(endpoint)，endpoint 由 Formspree 后台获取
     const live = document.getElementById("contact-copy-status");
     document.querySelectorAll("[data-copy]").forEach((b) => {
       b.addEventListener("click", () => {

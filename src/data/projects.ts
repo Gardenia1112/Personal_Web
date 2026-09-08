@@ -175,7 +175,7 @@ export const projects: Project[] = [
       "衍生品开发",
     ],
     contribution:
-      "三人团队形成「管理统筹—技术开发—设计运营」的协同：负责人（赵韵婷）主抓统筹、商业拓展、财务与校方合作；技术核心（谢炜琳）攻坚 Unity 虚拟仿真与软著；设计运营（韩宛吟）主导原创 IP、视觉与店铺运营。",
+      "三人团队形成「管理统筹—技术开发—设计运营」的协同：负责人（赵彼方）主抓统筹、商业拓展、财务与校方合作；技术核心（谢炜琳）攻坚 Unity 虚拟仿真与软著；设计运营（韩宛吟）主导原创 IP、视觉与店铺运营。",
     result:
       "累计营收 2.7 万元，净利润率 69.7%；登记两项国家软件著作权（大学物理实验气垫导轨软件 V1.0、倾角传感器监测系统软件 V1.0），并在全国大学生物理实验竞赛等赛事中获国家级 2 项、省级 6 项。（2025SR0979528、2025SR2140826）",
     links: [],
@@ -186,7 +186,7 @@ export const projects: Project[] = [
       cover: "/assets/projects/03-cover.png",
     },
     team: [
-      { name: "赵韵婷", role: "负责人", desc: "统筹管理、商业拓展、财务与校方合作" },
+      { name: "赵彼方", role: "负责人", desc: "统筹管理、商业拓展、财务与校方合作" },
       { name: "谢炜琳", role: "技术核心", desc: "Unity 虚拟仿真、软著与技术攻坚" },
       { name: "韩宛吟", role: "设计运营", desc: "原创 IP、视觉设计与店铺运营" },
     ],
@@ -227,7 +227,7 @@ export const projects: Project[] = [
       desktop: {
         meta: {
           manufacture: "2025.01",
-          team: "ZYT · XWL · HWY",
+          team: "ZBF · XWL · HWY",
           role: "负责人 · 嵌入式开发",
           period: "2025 – 2026",
           license: "软著 2025SR0979528",
@@ -311,14 +311,14 @@ export const projects: Project[] = [
             icon: "icon-log",
             title: "运行日志",
             desc: "我的任务 · 嵌入式核心开发",
-            body: "ZYT · 负责人（团队：ZYT / XWL / HWY，辽宁大学物理学院）。负责嵌入式端核心开发：传感器驱动、滤波与倾角解算、报警逻辑（四级阈值）、电源管理，以及软著申请与答辩。技术栈：C++（Arduino / ESP8266）、WiFi/UDP/TCP 通信、OTA。",
+            body: "ZBF · 负责人（团队：ZBF / XWL / HWY，辽宁大学物理学院）。负责嵌入式端核心开发：传感器驱动、滤波与倾角解算、报警逻辑（四级阈值）、电源管理，以及软著申请与答辩。技术栈：C++（Arduino / ESP8266）、WiFi/UDP/TCP 通信、OTA。",
             screenshots: [],
             video: "",
             slides: [],
             sections: [
               {
                 h3: "我的职责",
-                paragraphs: ["ZYT · 负责人（团队：ZYT / XWL / HWY，辽宁大学物理学院）。"],
+                paragraphs: ["ZBF · 负责人（团队：ZBF / XWL / HWY，辽宁大学物理学院）。"],
                 list: ["传感器驱动", "滤波与倾角解算", "报警逻辑（四级阈值）", "电源管理", "软著申请与答辩"],
               },
               {
@@ -525,11 +525,11 @@ export const projects: Project[] = [
             chapter: "CH 03 我的贡献",
             pageNo: "05/09",
             heading: "我做了哪部分",
-            lede: "团队三人（ZYT · XWL · HWY），我担任统筹，分工比例 40%。",
+            lede: "团队三人（ZBF · XWL · HWY），我担任统筹，分工比例 40%。",
             blocks: [
               {
                 type: "para",
-                text: "团队共三人（ZYT · XWL · HWY）。我在项目中负责统筹，并承担『实验主体编程 + 动画效果』方向的核心开发。",
+                text: "团队共三人（ZBF · XWL · HWY）。我在项目中负责统筹，并承担『实验主体编程 + 动画效果』方向的核心开发。",
               },
               {
                 type: "list",
@@ -543,7 +543,7 @@ export const projects: Project[] = [
               },
               {
                 type: "quote",
-                text: "整体分工比例 ZYT : XWL : HWY ≈ 40% : 30% : 30%。",
+                text: "整体分工比例 ZBF : XWL : HWY ≈ 40% : 30% : 30%。",
               },
             ],
             sidebar: [{ kind: "sticker", label: "UI 由组员二完成" }],
@@ -559,7 +559,7 @@ export const projects: Project[] = [
             blocks: [
               {
                 type: "quote",
-                text: "UI 界面与 2D 交互由组员二完成；仪器建模、场景整体设计与视频剪辑由组员一完成；实验主体编程、动画与汇报由组员三（ZYT）完成。",
+                text: "UI 界面与 2D 交互由组员二完成；仪器建模、场景整体设计与视频剪辑由组员一完成；实验主体编程、动画与汇报由组员三（ZBF）完成。",
               },
               {
                 type: "para",

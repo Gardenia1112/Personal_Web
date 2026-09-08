@@ -15,6 +15,11 @@ import { author } from "../data/profile";
     <link rel="icon" href="/favicon.ico" />
     <meta name="description" content={`${author} · 游戏制作人的个人作品集`} />
     <title>lszbf.com · {author}</title>
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`lszbf.com · ${author}`} />
+    <meta property="og:description" content={`${author} · 游戏制作人的个人作品集`} />
+    <meta property="og:image" content="/assets/about/now-desk-night.png" />
     <script is:inline>
       try {
         if (localStorage.getItem("lszbf:desk-theme") === "light") {

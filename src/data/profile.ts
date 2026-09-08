@@ -1,19 +1,18 @@
 // 01 §3 关于我 —— 结构化数据
-// 站内展示笔名：全站署名统一走这里（真名 name 仅存资料 / 项目记录）
+// 站内署名统一走这里：name 与 author 均取笔名 赵彼方（真名不再进入源码）
 export const author = "赵彼方";
 
 export const profile = {
-  name: "赵韵婷",
+  name: "赵彼方",
   age: 21,
   education: "大学本科",
   jobTitle: "游戏制作人",
   phone: "19967792313",
   email: "m19967792313@163.com",
   wechat: "lszbf111",
-  website: "lszbf.com",
+  website: "",
   github: "https://github.com/Gardenia1112",
   gitee: "https://gitee.com/bfnya/Unity_Game2025.git",
-  avatar: "/assets/brand/head.png",
   resume: "/resume.pdf", // 简历文件；下载入口在 /about 与 /contact，不另开页面
 
   // 首页背景排版大字：铺满视口、位于 3D 工位之后形成前后空间感

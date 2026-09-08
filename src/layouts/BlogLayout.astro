@@ -30,6 +30,11 @@ const {
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/assets/about/now-desk-night.png" />
   </head>
   <body>
     <a class="nm-home magnetic-btn" href={backHref} aria-label={backLabel}>

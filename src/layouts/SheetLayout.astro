@@ -9,10 +9,11 @@ import "../styles/thumbfull.css";
 
 interface Props {
   title: string;
+  description?: string;
   tone?: "sheet" | "deep";
 }
 
-const { title, tone = "sheet" } = Astro.props;
+const { title, description = "作品详情", tone = "sheet" } = Astro.props;
 ---
 <!doctype html>
 <html lang="zh-CN" data-page="sheet" data-tone={tone}>
@@ -21,6 +22,12 @@ const { title, tone = "sheet" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/assets/about/now-desk-night.png" />
     <script is:inline>
       try {
         var raw = sessionStorage.getItem("lszbf:thumbfull");

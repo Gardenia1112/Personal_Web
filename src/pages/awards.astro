@@ -17,8 +17,14 @@ const yearSpan = years.length > 0 ? `${Math.min(...years)} – ${Math.max(...yea
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
     <meta name="description" content={awardsPage.lede} />
     <title>{awardsPage.title} · lszbf.com</title>
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${awardsPage.title} · lszbf.com`} />
+    <meta property="og:description" content={awardsPage.lede} />
+    <meta property="og:image" content="/assets/about/now-desk-night.png" />
   </head>
   <body class="as-body-root">
     <LineMenu current="awards" theme="awards" />

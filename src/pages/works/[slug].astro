@@ -21,12 +21,12 @@ const OS_MENU_SHORT: Record<string, string> = {
 };
 
 const NAME_ABBR: Record<string, string> = {
-  "赵韵婷": "ZYT",
+  "赵彼方": "ZBF",
   "谢炜琳": "XWL",
   "韩宛吟": "HWY",
 };
 const abbr = (n: string): string => NAME_ABBR[n] ?? n;
-const isLead = (n: string): boolean => n === "赵韵婷";
+const isLead = (n: string): boolean => n === "赵彼方";
 
 export function getStaticPaths() {
   return projects.map((p, i) => ({
@@ -538,7 +538,7 @@ const intro01 = body0
               </section>
             </div>
             <footer class="zl-statusbar">
-              <span data-zl-boot>{osMetaSrc?.team ?? "ZYT · XWL · HWY"}</span>
+              <span data-zl-boot>{osMetaSrc?.team ?? "ZBF · XWL · HWY"}</span>
               <span class="zl-statusbar__reg" data-zl-boot>{regs[0] ?? osMetaSrc?.license}</span>
               <span data-zl-boot>{osMetaSrc?.period ?? project.period}</span>
             </footer>

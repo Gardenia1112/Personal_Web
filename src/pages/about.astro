@@ -11,8 +11,14 @@ import { gameBoards } from "../data/aboutGame";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
     <meta name="description" content="游戏化个人介绍" />
     <title>关于我 · lszbf.com</title>
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="关于我 · lszbf.com" />
+    <meta property="og:description" content="游戏化个人介绍" />
+    <meta property="og:image" content="/assets/about/now-desk-night.png" />
   </head>
   <body class="overflow-hidden">
     <LineMenu current="about" theme="about" />

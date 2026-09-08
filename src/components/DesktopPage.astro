@@ -45,10 +45,16 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={`${profile.name} · 项目 / 美术 / 博客三个入口`} />
+    <link rel="icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Dancing+Script:ital,wght@1,700&family=Great+Vibes&family=Ma+Shan+Zheng&display=swap" rel="stylesheet" />
     <title>{title}</title>
+    <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={`${profile.name} · 项目 / 美术 / 博客三个入口`} />
+    <meta property="og:image" content="/assets/about/now-desk-night.png" />
     <script is:inline>
       try {
         var pending = sessionStorage.getItem("lszbf:folder");
