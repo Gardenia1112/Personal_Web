@@ -1,8 +1,7 @@
 ---
-import fs from "node:fs";
-import path from "node:path";
 import SheetLayout from "../../layouts/SheetLayout.astro";
 import { projects } from "../../data/projects";
+import { getLangshiKeyFiles, langshiCodeFiles } from "../../data/langshi-code";
 import iconMonitor from "../../assets/icons/icon-monitor.svg?url";
 import iconAcquire from "../../assets/icons/icon-acquire.svg?url";
 import iconLog from "../../assets/icons/icon-log.svg?url";
@@ -34,27 +33,19 @@ function escapeHtml(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-function pinStyle(i: number): string {
-  const mixed = (i + 1) * 2654435761;
-  const left = 6 + ((mixed >>> 8) % 74);
-  const top = 8 + ((mixed >>> 16) % 68);
-  const rot = ((mixed % 17) - 8);
-  const w = 12 + (i % 5);
-  return `left:${left}%;top:${top}%;width:${w}%;--rot:${rot}deg`;
-}
+/** 用户红框标定（墙面 %）：仅 6 张作品；原图 fill 拉伸，不裁切 */
+const PIN_SLOTS = [
+  { left: 1, top: 2, w: 32, h: 36, rot: -0.8 }, // 左上 · 01 后方
+  { left: 50, top: 1, w: 47, h: 24, rot: 0.6 }, // 右上横 · 03 后方
+  { left: 55, top: 28, w: 40, h: 32, rot: 0.9 }, // 中右 · 合照/05 后方
+  { left: 1, top: 70, w: 26, h: 27, rot: 0.4 }, // 左下
+  { left: 29, top: 52, w: 22, h: 44, rot: -0.7 }, // 底中竖 · 04 后方
+  { left: 52, top: 70, w: 44, h: 26, rot: 1.0 }, // 右下横
+] as const;
 
-function walkCsFiles(dir: string, base = dir): { abs: string; rel: string }[] {
-  if (!fs.existsSync(dir)) return [];
-  const out: { abs: string; rel: string }[] = [];
-  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (ent.name.endsWith(".meta")) continue;
-    const abs = path.join(dir, ent.name);
-    if (ent.isDirectory()) out.push(...walkCsFiles(abs, base));
-    else if (ent.isFile() && ent.name.endsWith(".cs")) {
-      out.push({ abs, rel: path.relative(base, abs).replace(/\\/g, "/") });
-    }
-  }
-  return out;
+function pinStyle(i: number): string {
+  const slot = PIN_SLOTS[i % PIN_SLOTS.length]!;
+  return `left:${slot.left}%;top:${slot.top}%;width:${slot.w}%;height:${slot.h}%;--rot:${slot.rot}deg;z-index:${i + 1}`;
 }
 
 async function highlightCs(code: string): Promise<string> {
@@ -129,7 +120,6 @@ const pills = project.skills?.length ? project.skills : splitTech(project.tech);
 const boardFileLabels = project.sections?.length
   ? project.sections.map((s) => s.label)
   : ["01 我们是谁", "02 做什么", "03 怎么做", "04 做到了什么"];
-const fileThumbs = ["#ff8a3d", "#7ec8e3", "#f5d031", "#c4b5fd"];
 const body0 = project.sections?.[0]?.body ?? "";
 let firstSent = body0.split("。")[0] ?? "";
 if (firstSent && !firstSent.endsWith("。")) firstSent += "。";
@@ -146,45 +136,47 @@ const boardGallery = project.media?.gallery ?? [];
 const boardCert = project.media?.cert ?? "/assets/projects/buhuige/completion-cert.png";
 const boardTeamPhoto = project.media?.team ?? project.media?.cover;
 
-type CodeFile = { name: string; rel: string; html: string };
-type CodeGroup = { folder: string; files: CodeFile[] };
-let codeGroups: CodeGroup[] = [];
-const concept01 =
-  project.media?.gallery?.[0] ?? "/assets/projects/langshi-ch3/concept-01.png";
-const concept02 =
-  project.media?.gallery?.[1] ?? "/assets/projects/langshi-ch3/concept-02.jpg";
+type MakeFeedItem =
+  | { kind: "file"; name: string; rel: string; html: string }
+  | { kind: "concept"; src: string; label: string };
+
+let makeFeed: MakeFeedItem[] = [];
+const conceptArts = project.media?.gallery?.length
+  ? project.media.gallery
+  : [
+      "/assets/projects/langshi-ch3/concept-01.png",
+      "/assets/projects/langshi-ch3/concept-02.jpg",
+    ];
 
 if (isGame) {
-  const codeRoot = path.join(process.cwd(), "public/assets/projects/langshi-ch3/code");
-  const csFiles = walkCsFiles(codeRoot);
-  const grouped = new Map<string, { abs: string; rel: string }[]>();
-  for (const f of csFiles) {
-    const parts = f.rel.split("/");
-    const folder = parts.length === 1 ? "Root" : (parts[0] as string);
-    const list = grouped.get(folder) ?? [];
-    list.push(f);
-    grouped.set(folder, list);
-  }
-  const folderNames = [...grouped.keys()].sort((a, b) => {
-    if (a === "Root") return 1;
-    if (b === "Root") return -1;
-    return a.localeCompare(b);
-  });
-  codeGroups = await Promise.all(
-    folderNames.map(async (folder) => {
-      const files = (grouped.get(folder) ?? []).sort((a, b) => a.rel.localeCompare(b.rel));
-      return {
-        folder,
-        files: await Promise.all(
-          files.map(async (f) => {
-            const source = fs.readFileSync(f.abs, "utf8");
-            const html = await highlightCs(source);
-            return { name: path.basename(f.abs), rel: f.rel, html };
-          })
-        ),
-      };
-    })
+  // 全量 ?raw 进 bundle；重点 5 个置顶，其余按目录跟出；概念图每 3 块穿插
+  const keyRels = new Set(getLangshiKeyFiles().map((f) => f.rel));
+  const ordered = [
+    ...getLangshiKeyFiles(),
+    ...langshiCodeFiles.filter((f) => !keyRels.has(f.rel)),
+  ];
+  const highlighted = await Promise.all(
+    ordered.map(async (f) => ({
+      kind: "file" as const,
+      name: f.name,
+      rel: f.rel,
+      html: await highlightCs(f.code),
+    }))
   );
+  let conceptIdx = 0;
+  makeFeed = [];
+  highlighted.forEach((block, i) => {
+    makeFeed.push(block);
+    if ((i + 1) % 3 === 0 && conceptArts.length > 0) {
+      const src = conceptArts[conceptIdx % conceptArts.length]!;
+      makeFeed.push({
+        kind: "concept",
+        src,
+        label: `概念 ${String((conceptIdx % conceptArts.length) + 1).padStart(2, "0")}`,
+      });
+      conceptIdx += 1;
+    }
+  });
 }
 ---
 <SheetLayout title={`${project.name} · yb-design`} tone={isGame ? "deep" : "sheet"}>
@@ -246,33 +238,56 @@ if (isGame) {
                 </section>
 
                 <section class="game-panel" data-panel="2" inert>
-                  <p class="game-ch" data-game-line>CH-03 制作</p>
-                  <div class="game-code">
-                    {codeGroups.map((group, gi) => (
-                      <>
-                        <section class="game-code-group">
-                          <h3 class="game-code-folder" data-game-line>{group.folder}</h3>
-                          {group.files.map((f) => (
+                  <div class="game-make" data-game-make>
+                    <p class="game-ch" data-game-line>CH-03 制作</p>
+                    <div class="game-make-tabs" role="tablist" aria-label="制作视图">
+                      <button
+                        type="button"
+                        class="is-on"
+                        role="tab"
+                        aria-selected="true"
+                        data-game-make-tab="code"
+                      >
+                        〈 代码
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected="false"
+                        data-game-make-tab="art"
+                      >
+                        概念图 〉
+                      </button>
+                    </div>
+                    <div class="game-make-pane is-on" data-game-make-pane="code" role="tabpanel">
+                      <div class="game-make-scroll" data-game-make-scroll>
+                        {makeFeed.map((item) =>
+                          item.kind === "file" ? (
                             <figure class="game-code-file">
-                              <figcaption data-game-line>{f.name}</figcaption>
-                              <div class="game-code-pre" set:html={f.html} />
+                              <figcaption data-game-line>{item.rel}</figcaption>
+                              <div class="game-code-pre" set:html={item.html} />
+                            </figure>
+                          ) : (
+                            <figure class="game-code-concept game-relight" data-relight>
+                              <img src={item.src} alt={item.label} loading="lazy" />
+                              <figcaption data-game-line>{item.label}</figcaption>
+                            </figure>
+                          )
+                        )}
+                      </div>
+                    </div>
+                    <div class="game-make-pane" data-game-make-pane="art" role="tabpanel" hidden>
+                      <div class="game-make-scroll" data-game-make-scroll>
+                        <div class="game-make-arts">
+                          {conceptArts.map((src, i) => (
+                            <figure class="game-code-concept game-relight" data-relight>
+                              <img src={src} alt={`概念图 ${String(i + 1).padStart(2, "0")}`} loading="lazy" />
+                              <figcaption data-game-line>概念 {String(i + 1).padStart(2, "0")}</figcaption>
                             </figure>
                           ))}
-                        </section>
-                        {gi === 0 && (
-                          <figure class="game-code-concept game-relight" data-relight>
-                            <img src={concept01} alt="概念图 01" loading="lazy" />
-                            <figcaption data-game-line>概念 01</figcaption>
-                          </figure>
-                        )}
-                        {gi === 2 && (
-                          <figure class="game-code-concept game-relight" data-relight>
-                            <img src={concept02} alt="概念图 02" loading="lazy" />
-                            <figcaption data-game-line>概念 02</figcaption>
-                          </figure>
-                        )}
-                      </>
-                    ))}
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </section>
 
@@ -355,7 +370,7 @@ if (isGame) {
             <p class="bb-sec">Board Legend</p>
             <ol class="bb-map">
               <li><b>01</b> Key Tag · 简介</li>
-              <li><b>02</b> Clear File · 四章 / 证书</li>
+              <li><b>02</b> Clear File · 四章</li>
               <li><b>03</b> ID Card · 角色</li>
               <li><b>04</b> Badge · 技术</li>
               <li><b>05</b> Airmail · 成果</li>
@@ -403,27 +418,15 @@ if (isGame) {
               <div class="bb-file-sheet">
                 <p class="bb-no">02</p>
                 <h2>SELECTED WORKS</h2>
-                <p class="bb-obj-sub">工作室介绍 · 结题证书</p>
+                <p class="bb-obj-sub">工作室介绍 · 四章</p>
                 <ul class="bb-file-list is-left">
                   {boardFileLabels.map((label, i) => {
                     const section = project.sections?.[i];
                     return (
                       <li data-section-index={i}>
                         <span>{label}</span>
-                        {i === 0 && project.media?.cover ? (
-                          <div class="bb-file-thumb thumbfull-outer" data-thumbfull-outer>
-                            <div class="thumbfull-inner" data-thumbfull-inner>
-                              <img src={project.media.cover} alt={`${project.name} 结题证书`} />
-                            </div>
-                          </div>
-                        ) : (
-                          <i class="bb-ph" style={`background:${fileThumbs[i]}`} aria-hidden="true"></i>
-                        )}
                         <aside class="bb-sticky bb-section-note" data-section-index={i}>
                           <b>{section?.label ?? label}</b>
-                          {i === 0 && project.media?.cover && (
-                            <img class="bb-sticky-cover" src={project.media.cover} alt="" />
-                          )}
                           <p>{section?.body || "待补"}</p>
                         </aside>
                       </li>
@@ -437,19 +440,18 @@ if (isGame) {
               <i class="bb-hook" aria-hidden="true"></i>
               <div class="bb-id-felt">
                 <p class="bb-no">03</p>
-                <div class="bb-id-row">
-                  {boardTeamPhoto ? (
-                    <img class="bb-id-photo" src={boardTeamPhoto} alt="" />
-                  ) : (
-                    <i class="bb-ph bb-id-photo" style="background:#f5d031" aria-hidden="true"></i>
-                  )}
-                  <div>
-                    <h2>TEAM</h2>
-                    <p class="bb-obj-title">{project.role}</p>
-                    <p class="bb-obj-sub">{project.period}</p>
-                  </div>
+                <div class="bb-id-copy">
+                  <h2>TEAM</h2>
+                  <p class="bb-obj-title">{project.role}</p>
+                  <p class="bb-obj-sub">{project.period}</p>
                 </div>
               </div>
+              {boardTeamPhoto && (
+                <figure class="bb-team-cutout" aria-hidden="true">
+                  <i class="bb-pin-nail" aria-hidden="true"></i>
+                  <img src={boardTeamPhoto} alt="" loading="lazy" />
+                </figure>
+              )}
               <div class="bb-pop">
                 <aside class="bb-sticky">
                   <b>03 团队</b>
@@ -493,20 +495,70 @@ if (isGame) {
               </div>
             </article>
 
-            <article class="bb-item bb-cert is-detail" data-clue-item style="left:78%;top:52%;--rot:3deg">
+            <article class="bb-item bb-cert" data-clue-item style="left:78%;top:52%;--rot:3deg">
               <i class="bb-pin-nail" aria-hidden="true"></i>
               <p class="bb-no">06</p>
               <h2>CERT</h2>
               <p class="bb-obj-title">结项证书</p>
               <img class="bb-cert-img" src={boardCert} alt="结项证书" loading="lazy" />
-              <div class="bb-pop">
-                <aside class="bb-sticky">
-                  <b>06 证书</b>
-                  <img class="bb-sticky-cover" src={boardCert} alt="" />
-                  <p>国家级创业实践项目结项证书</p>
-                </aside>
-              </div>
             </article>
+
+            <svg class="bb-strings" aria-hidden="true">
+              <line x1="11%" y1="10%" x2="41%" y2="6%" />
+              <line x1="41%" y1="6%" x2="76%" y2="9%" />
+              <line x1="11%" y1="10%" x2="14%" y2="55%" />
+              <line x1="41%" y1="6%" x2="14%" y2="55%" />
+              <line x1="41%" y1="6%" x2="56%" y2="61%" />
+              <line x1="76%" y1="9%" x2="56%" y2="61%" />
+              <line x1="76%" y1="9%" x2="88%" y2="53%" />
+              <line x1="14%" y1="55%" x2="56%" y2="61%" />
+              <line x1="56%" y1="61%" x2="88%" y2="53%" />
+              <line x1="14%" y1="55%" x2="88%" y2="53%" />
+              <line x1="11%" y1="10%" x2="56%" y2="61%" />
+            </svg>
+
+            <div class="bb-decor" aria-hidden="true">
+              <i class="bb-deco-tack is-red" style="left:11%;top:10%"></i>
+              <i class="bb-deco-tack is-red" style="left:41%;top:6%"></i>
+              <i class="bb-deco-tack is-red" style="left:76%;top:9%"></i>
+              <i class="bb-deco-tack is-red" style="left:14%;top:55%"></i>
+              <i class="bb-deco-tack is-red" style="left:56%;top:61%"></i>
+              <i class="bb-deco-tack is-red" style="left:88%;top:53%"></i>
+              <i class="bb-deco-tack is-gold" style="left:2%;top:48%"></i>
+              <i class="bb-deco-tack" style="left:60%;top:48%"></i>
+              <i class="bb-deco-tack is-gold" style="left:38%;top:88%"></i>
+              <i class="bb-deco-tack is-red" style="left:94%;top:38%"></i>
+              <aside class="bb-deco-note is-sm" style="left:1%;top:2%;--rot:-8deg">
+                <b>WIP</b>
+                <span>keep building</span>
+              </aside>
+              <aside class="bb-deco-note is-mint is-sm" style="left:58%;top:2%;--rot:5deg">
+                <b>check</b>
+                <span>review later</span>
+              </aside>
+              <aside class="bb-deco-note is-peach is-sm" style="left:28%;top:86%;--rot:4deg">
+                <b>★ idea</b>
+                <span>try this</span>
+              </aside>
+              <aside class="bb-deco-note is-pink is-sm" style="left:88%;top:2%;--rot:-5deg">
+                <b>team</b>
+                <span>ZBF · XWL · HWY</span>
+              </aside>
+              <aside class="bb-deco-note is-sm" style="left:36%;top:46%;--rot:7deg">
+                <span>deadline →</span>
+              </aside>
+              <i class="bb-deco-sticker is-star is-sm" style="left:18%;top:6%;--rot:12deg"></i>
+              <i class="bb-deco-sticker is-star is-sm" style="left:6%;top:48%;--rot:-18deg"></i>
+              <i class="bb-deco-sticker is-dot is-sm" style="left:22%;top:50%;--rot:-8deg"></i>
+              <i class="bb-deco-sticker is-dot is-lilac is-sm" style="left:72%;top:88%;--rot:10deg"></i>
+              <i class="bb-deco-sticker is-tape" style="left:56%;top:4%;--rot:-18deg"></i>
+              <i class="bb-deco-sticker is-tape is-mint" style="left:4%;top:8%;--rot:14deg"></i>
+              <i class="bb-deco-sticker is-circle is-sm" style="left:1%;top:36%;--rot:8deg"></i>
+              <i class="bb-deco-sticker is-heart is-sm" style="left:46%;top:88%;--rot:-10deg"></i>
+              <i class="bb-deco-sticker is-tag is-sm" style="left:22%;top:88%;--rot:8deg">OK</i>
+              <i class="bb-deco-sticker is-tape" style="left:74%;top:50%;--rot:12deg"></i>
+              <i class="bb-deco-sticker is-dot is-sm" style="left:94%;top:48%;--rot:6deg"></i>
+            </div>
           </div>
         </div>
       </article>
@@ -745,10 +797,9 @@ if (isGame) {
                       <div class="nb-ph" data-nb-ph>贴照片：{m.caption ?? "图片"}</div>
                     </figure>
                   ) : m.type === "video" ? (
-                    <figure class="nb-figure nb-figure--photo">
-                      <video src={m.src} controls playsinline data-nb-vid hidden></video>
-                      {m.caption ? <figcaption hidden>{m.caption}</figcaption> : null}
-                      <div class="nb-ph" data-nb-ph>贴照片：{m.caption ?? "视频"}</div>
+                    <figure class="nb-figure nb-figure--video">
+                      <video src={m.src} controls playsinline preload="metadata" data-nb-vid></video>
+                      {m.caption ? <figcaption>{m.caption}</figcaption> : null}
                     </figure>
                   ) : m.type === "file" ? (
                     <p class="nb-file">
