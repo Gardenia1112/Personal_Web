@@ -224,6 +224,7 @@ export const projects: Project[] = [
     enter: "osboot",
     skin: "is-zhilian",
     media: {
+      cover: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/1.png", // 封面：监测台总览（第 5 步）
       desktop: {
         meta: {
           manufacture: "2025.01",
@@ -253,9 +254,9 @@ export const projects: Project[] = [
                   "面向建筑安全的无线倾角实时监测系统。三轴 MEMS 传感器采集姿态角，经智能混合滤波后由 ESP8266 上传云端，后端实现三维可视化与多级报警。",
                 ],
                 media: [
-                  { type: "video", src: "/assets/projects/zhilian-demo.mp4", caption: "演示视频" },
-                  { type: "image", src: "/assets/projects/zhilian-monitor-overview.png", caption: "监测台总览" },
-                  { type: "image", src: "/assets/projects/zhilian-monitor-dashboard.png", caption: "监测主界面" },
+                  { type: "video", src: "/assets/projects/zhilian/作品视频/智联传感.mp4", caption: "演示视频" },
+                  { type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/1.png", caption: "监测台总览" },
+                  { type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/2.png", caption: "监测主界面" },
                 ],
               },
               {
@@ -268,7 +269,7 @@ export const projects: Project[] = [
                   { key: "防护", value: "IP65" },
                   { key: "工作温度", value: "-20~+60℃" },
                 ],
-                media: [{ type: "image", src: "/assets/projects/zhilian-monitor-precision.png", caption: "精度示意" }],
+                media: [{ type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/3.png", caption: "精度示意" }],
               },
             ],
           },
@@ -288,7 +289,7 @@ export const projects: Project[] = [
                   "双 MCU 架构：Arduino（主控，实时采集+报警）+ ESP8266（网络协处理器，WiFi/云端通信），任务解耦。",
                 ],
                 media: [
-                  { type: "image", src: "/assets/projects/zhilian-acquire-hardware.png", caption: "硬件架构" },
+                  { type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/4.png", caption: "硬件架构" },
                   { type: "image", src: "/assets/projects/zhilian-acquire-pcb.png", caption: "PCB" },
                 ],
               },
@@ -296,7 +297,7 @@ export const projects: Project[] = [
                 h3: "核心算法",
                 list: ["智能混合滤波", "云边协同协议", "自适应标定", "多模式倾角解算（单轴/双轴/球面）"],
                 media: [
-                  { type: "image", src: "/assets/projects/zhilian-acquire-filter.png", caption: "滤波" },
+                  { type: "image", src: "/assets/projects/zhilian/作品资料/02-素材与源码/软件UI素材/5.png", caption: "滤波" },
                   { type: "image", src: "/assets/projects/zhilian-acquire-algorithm.png", caption: "算法" },
                 ],
               },
@@ -568,7 +569,7 @@ export const projects: Project[] = [
             ],
             sidebar: [{ kind: "bookmark", label: "ROLE" }],
             tags: ["分工", "统筹"],
-            media: [{ type: "video", src: "/assets/projects/qidian-demo.mp4", caption: "实验演示" }],
+            media: [{ type: "video", src: "/assets/projects/qidian/作品演示视频.mp4", caption: "实验演示" }], // 备选：答辩视频.mp4
           },
           {
             id: "p07",
