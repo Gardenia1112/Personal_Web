@@ -84,7 +84,7 @@ const FOLDER_THUMBS: Record<string, { src?: string; tone?: string; alt?: string 
                 data-label={e.label}
                 data-kicker={e.kicker}
                 data-tip={e.tip}
-                aria-label={e.action === "pop" ? `${e.label}，点击进入目录` : (e.tip ?? e.label)}
+                aria-label={e.action === "pop" ? `${e.label}，点击进入目录` : e.action === "easter" ? `${e.label}，敬请期待` : (e.tip ?? e.label)}
               >
                 <EntryArt
                   art={e.art}

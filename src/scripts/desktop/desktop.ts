@@ -1,11 +1,16 @@
 // /desktop 选择台（原生 JS + GSAP）
 // 文件夹：悬停仍扇出预览；点击打开桌面子状态（开发索引 / 美术占位）
-// 博客仍直接换页。Escape / 关闭钮收回子状态
+// 博客入口现改为「敬请期待」彩蛋弹窗。Escape / 关闭钮收回子状态
 import gsap from "gsap";
 import { desktopEntries } from "../../data/desktop";
 import { getCurrentFolder } from "./folder-views";
 
 const ENTER_FLAG = "lszbf:dtx";
+
+// 「敬请期待」彩蛋文案：复用首页奶茶彩蛋的弹窗机制，文案集中在此不散落
+const EASTER_COPY: Record<string, { title: string; sub: string }> = {
+  blog: { title: "敬请期待", sub: "博客板块正在筹备中..." },
+};
 
 function reducedMotion() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -27,6 +32,54 @@ export function initDesktop(stage: HTMLElement) {
   let fanGen = 0;
   let openTimer = 0;
   let closeTimer = 0;
+
+  // ── 「敬请期待」彩蛋弹窗：复用首页奶茶彩蛋的 show/hide 机制（遮罩 / Esc / 关闭钮），零新依赖 ──
+  const easterModal = document.createElement("div");
+  easterModal.className = "easter-modal";
+  easterModal.setAttribute("role", "dialog");
+  easterModal.setAttribute("aria-modal", "true");
+  easterModal.setAttribute("aria-label", "敬请期待");
+  easterModal.hidden = true;
+  easterModal.innerHTML = `
+    <button class="easter-modal-mask" type="button" data-close aria-label="关闭"></button>
+    <div class="easter-modal-card">
+      <button class="easter-modal-close" type="button" data-close aria-label="关闭">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      </button>
+      <h2 class="easter-modal-title"></h2>
+      <p class="easter-modal-sub"></p>
+    </div>
+  `;
+  document.body.appendChild(easterModal);
+
+  const easterTitle = easterModal.querySelector<HTMLElement>(".easter-modal-title")!;
+  const easterSub = easterModal.querySelector<HTMLElement>(".easter-modal-sub")!;
+  let easterHideTimer = 0;
+
+  function hideComingSoon() {
+    window.clearTimeout(easterHideTimer);
+    easterModal.classList.remove("show");
+    easterHideTimer = window.setTimeout(() => {
+      easterModal.hidden = true;
+    }, 240);
+  }
+
+  function showComingSoon(key: string) {
+    const copy = EASTER_COPY[key] ?? EASTER_COPY.blog;
+    window.clearTimeout(easterHideTimer);
+    easterTitle.textContent = copy.title;
+    easterSub.textContent = copy.sub;
+    easterModal.hidden = false;
+    void easterModal.offsetWidth;
+    easterModal.classList.add("show");
+  }
+
+  easterModal.querySelectorAll("[data-close]").forEach((b) =>
+    b.addEventListener("click", hideComingSoon)
+  );
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !easterModal.hidden) hideComingSoon();
+  });
 
   /** 袋面左下 = 卡片飞出原点 */
   function originOf(card: HTMLElement) {
@@ -314,6 +367,10 @@ export function initDesktop(stage: HTMLElement) {
     card.addEventListener("click", () => {
       if (entry?.action === "route" && entry.href) {
         leaveTo(entry.href, "veil");
+        return;
+      }
+      if (entry?.action === "easter") {
+        showComingSoon(entry.id);
       }
     });
 

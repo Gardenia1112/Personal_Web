@@ -6,8 +6,8 @@
 //   ③ 简历入口整个撤掉，改到 /about 页做下载链接，所以这里从四个变三个，也不再需要 file 字段。
 export type DesktopEntryId = "works" | "art" | "blog";
 
-/** pop = 点一下就地弹内容（作品摊开）；route = 点一下直接换页 */
-export type DesktopAction = "pop" | "route";
+/** pop = 点一下就地弹内容（作品摊开）；route = 点一下直接换页；easter = 点一下弹「敬请期待」彩蛋 */
+export type DesktopAction = "pop" | "route" | "easter";
 
 export interface DesktopEntry {
   id: DesktopEntryId;
@@ -22,5 +22,5 @@ export interface DesktopEntry {
 export const desktopEntries: DesktopEntry[] = [
   { id: "works", art: "folder-red", label: "项目与作品", kicker: "01 · 开发", tip: "点击进入目录", action: "pop" },
   { id: "art", art: "folder-amber", label: "画与设计", kicker: "02 · 美术", tip: "点击进入目录", action: "pop" },
-  { id: "blog", art: "logo", label: "博客", kicker: "03 · 写作", tip: "博客入口", action: "route", href: "/blog" },
+  { id: "blog", art: "logo", label: "博客", kicker: "03 · 写作", tip: "敬请期待", action: "easter" },
 ];

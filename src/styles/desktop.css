@@ -575,6 +575,86 @@ html[data-page="desktop"] #cursor {
   pointer-events: none;
 }
 
+/* 「敬请期待」彩蛋弹窗（博客入口）：复用首页奶茶彩蛋的深紫气泡视觉，居中模态 */
+.easter-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+.easter-modal[hidden] {
+  display: none;
+}
+.easter-modal.show {
+  opacity: 1;
+}
+.easter-modal-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 12, 18, 0.42);
+}
+.easter-modal-card {
+  position: relative;
+  width: min(320px, calc(100vw - 48px));
+  padding: 28px 24px 24px;
+  border-radius: 20px;
+  background: #1c212c;
+  color: #f6eef1;
+  border: 2px solid #c084fc;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  text-align: center;
+  transform: translateY(12px) scale(0.96);
+  transition: transform 0.24s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+.easter-modal.show .easter-modal-card {
+  transform: none;
+}
+.easter-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(246, 238, 241, 0.6);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.easter-modal-close:hover,
+.easter-modal-close:focus-visible {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+.easter-modal-close svg {
+  width: 16px;
+  height: 16px;
+}
+.easter-modal-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.easter-modal-sub {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(246, 238, 241, 0.72);
+}
+@media (prefers-reduced-motion: reduce) {
+  .easter-modal,
+  .easter-modal-card {
+    transition: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .dt-cards > li,
   .dt-ground {
