@@ -40,8 +40,29 @@ public/models/*.gltf
 
 # 录制的参考视频 + 原始素材
 *.mp4
+*.webm
 raw-assets/
 public/assets/raw-assets/
+
+# 源文件（psd/tif/psb 等），只提交导出后的 png/jpg
+*.psd
+*.tif
+*.psb
+
+# 3D / 工程源文件（blend/fbx/obj/mtl/max/dae/skp），只提交成品渲染 png/jpg
+*.blend
+*.fbx
+*.obj
+*.mtl
+*.max
+*.dae
+*.skp
+
+# 备查归档（已移出 public/ 的原始 dump 与参考图）
+_unused_photos/
+
+# Word 临时锁文件兜底
+~$*
 
 # 若 models 整个文件夹都是大文件，可整体忽略（按需启用）
 # public/models/

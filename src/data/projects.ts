@@ -395,6 +395,9 @@ export const projects: Project[] = [
     enter: "cover",
     skin: "is-qidian",
     media: {
+      // TODO: cover 待补 —— 本机 ffmpeg 不可用，尚未从 作品演示视频.mp4 抽帧。
+      //       可用后抽第 1 秒帧 → public/assets/projects/qidian/qidian-poster.jpg，再启用下行：
+      // cover: "/assets/projects/qidian/qidian-poster.jpg",
       pdf: "/assets/awards/2025SR2140826-air-track-software.pdf",
       notebook: {
         cover: {
