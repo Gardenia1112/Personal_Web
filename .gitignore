@@ -11,6 +11,7 @@ dist/
 
 # misc
 .DS_Store
+*.log
 npm-debug.log*
 *.local
 

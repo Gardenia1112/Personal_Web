@@ -11,7 +11,7 @@ export type LangshiCodeFile = {
 
 export type LangshiCodeGroups = Record<string, LangshiCodeFile[]>;
 
-const modules = import.meta.glob("../content/langshi-ch3/code/**/*.cs", {
+const modules = import.meta.glob("./langshi-ch3/code/**/*.cs", {
   query: "?raw",
   import: "default",
   eager: true,
