@@ -1,4 +1,4 @@
-// 01 §5 美术作品 —— 结构化数据（绘画/设计/剪辑）
+﻿// 01 §5 美术作品 —— 结构化数据（绘画/设计/剪辑）
 // 构建期扫描 public/assets/art/ 下真实文件；label = 文件名去后缀。
 
 import fs from "node:fs";
@@ -61,7 +61,7 @@ function artwork(
     slug,
     name,
     category,
-    cover: pieces[0]?.src,
+    cover: `/assets/art/${slug}/cover.jpg`,
     status: "done",
     pieces,
   };
