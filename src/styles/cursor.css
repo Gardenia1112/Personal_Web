@@ -126,3 +126,14 @@ html[data-tone="deep"] #cursor.is-press .cursor-dot {
 html[data-tone="deep"] .cursor-trail {
   opacity: 0 !important;
 }
+
+/* 手机/触屏兜底：脚本已在 (pointer: fine) 才启用，这里再做 CSS 保险，粗指针下强制隐藏自定义光标 */
+@media (pointer: coarse) {
+  #cursor {
+    display: none !important;
+  }
+  html.has-custom-cursor,
+  html.has-custom-cursor *:not(input):not(textarea) {
+    cursor: auto;
+  }
+}

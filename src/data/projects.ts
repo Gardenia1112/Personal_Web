@@ -344,7 +344,7 @@ export const projects: Project[] = [
                   {
                     type: "file",
                     src: "/assets/projects/zhilian/code.docx",
-                    caption: "嵌入式代码文档（下载）",
+                    caption: "嵌入式代码文档",
                   },
                 ],
               },
@@ -554,20 +554,29 @@ export const projects: Project[] = [
             file: "FILE 03",
             chapter: "CH 03 我的贡献",
             pageNo: "06/07",
-            heading: "分工边界",
-            lede: "明确自己写的部分，不揽他人成果。",
+            heading: "作品展示",
+            lede: "「立体物理」气垫导轨虚拟教学实验的完整演示：操作流程、核心功能与数据呈现。",
             blocks: [
               {
-                type: "quote",
-                text: "UI 界面与 2D 交互由组员二完成；仪器建模、场景整体设计与视频剪辑由组员一完成；实验主体编程、动画与汇报由组员三（ZBF）完成。",
+                type: "para",
+                text: "作品基于 Unity 高度还原气垫导轨实验场景，覆盖弹性碰撞、完全非弹性碰撞、加速度测量三个实验模块，让学生以交互方式验证动量守恒、测量加速度与速度。",
               },
               {
-                type: "para",
-                text: "因此本页记录的「我的贡献」仅指我直接负责的模块，协作部分如实归属对应成员。",
+                type: "list",
+                items: [
+                  "参数可调：质量、初速度、恢复系数、光电门间距",
+                  "过程可视化：滑块碰撞、粘连与运动动画实时呈现",
+                  "数据自动成表，支持实验报告一键生成",
+                  "平台：Windows / Linux",
+                ],
+              },
+              {
+                type: "quote",
+                text: "软件著作权 2025SR2140826 · 中国大学生计算机设计大赛（2025）参赛作品。",
               },
             ],
-            sidebar: [{ kind: "bookmark", label: "ROLE" }],
-            tags: ["分工", "统筹"],
+            sidebar: [{ kind: "bookmark", label: "SHOWCASE" }],
+            tags: ["作品展示", "实验演示", "虚拟仿真"],
             media: [{ type: "video", src: "/assets/projects/qidian/demo.mp4", caption: "实验演示" }],
           },
           {

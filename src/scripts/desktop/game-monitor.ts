@@ -73,6 +73,10 @@ export function initGameMonitor(root: HTMLElement) {
   if (!track || panels.length < 2) return;
 
   const hint = root.querySelector<HTMLElement>("[data-game-hint]");
+  // 触屏没有滚轮，切台靠点按下方圆点，提示文案相应替换
+  if (hint && window.matchMedia("(pointer: coarse)").matches) {
+    hint.textContent = "点按圆点切台";
+  }
   const step = root.querySelector<HTMLElement>("[data-game-step]");
   const dots = [...root.querySelectorAll<HTMLButtonElement>("[data-game-dot]")];
   const video = root.querySelector<HTMLVideoElement>("[data-game-video]");

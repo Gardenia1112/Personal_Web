@@ -52,15 +52,28 @@ import { gameBoards } from "../data/aboutGame";
         <p class="about-fallback-lead">{profile.intro.tagline}</p>
         <ol class="about-fallback-chapters">
           {
-            gameBoards.map((b) => (
-              <li>
-                <em>{String(b.index).padStart(2, "0")}</em>
-                <span>{b.title}</span>
-              </li>
-            ))
+            gameBoards.map((b) => {
+              const body = b.lines.length > 0 ? b.lines : b.subtitle ? [b.subtitle] : [];
+              return (
+                <li>
+                  <details class="about-fallback-chapter">
+                    <summary>
+                      <em>{String(b.index).padStart(2, "0")}</em>
+                      <span>{b.title}</span>
+                      <i class="about-fallback-chapter-chevron" aria-hidden="true">▾</i>
+                    </summary>
+                    <div class="about-fallback-chapter-body">
+                      {body.map((line) => (
+                        <p>{line}</p>
+                      ))}
+                    </div>
+                  </details>
+                </li>
+              );
+            })
           }
         </ol>
-        <p class="about-fallback-note">桌面端可体验完整横版小游戏（A/D 或 ←/→ 移动，滚轮翻阅介绍）。</p>
+        <p class="about-fallback-note">桌面端可体验完整横版小游戏（A/D 或 ←/→ 移动，滚动翻阅介绍）。</p>
         <a class="about-fallback-cta" href="/contact">联系我 →</a>
       </div>
     </section>
@@ -72,7 +85,7 @@ import { gameBoards } from "../data/aboutGame";
       const fallback =
         params.get("game") === "off" ||
         window.matchMedia("(pointer: coarse)").matches ||
-        window.innerWidth < 768;
+        window.innerWidth < 640;
       if (fallback) {
         document.documentElement.classList.add("is-fallback");
       } else {

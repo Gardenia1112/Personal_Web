@@ -127,6 +127,9 @@ export function initArtGallery(root: HTMLElement) {
   const track = root.querySelector<HTMLElement>(".ag-track");
   if (!viewport || !track) return;
 
+  // 移动端（<640px）：画廊改单列竖排，禁用横拖与胀开，整卡走原生 <a> 跳转（任务 ①）
+  if (window.matchMedia("(max-width: 639px)").matches) return;
+
   const cards = Array.from(track.querySelectorAll<HTMLAnchorElement>("[data-ag-item]"));
   const cardLayers = cards
     .map((el) => el.querySelector<HTMLElement>(".ag-photo > *"))

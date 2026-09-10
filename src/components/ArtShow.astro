@@ -19,16 +19,32 @@ const gridClass =
     <p class="as-kicker"><b>{no}</b> {artwork.category} · {artwork.pieces.length}{unit}</p>
     <p class="as-hint">{hint}</p>
   </header>
-  <div class={gridClass}>
-    {artwork.pieces.map((p, i) => (
-      <ArtPieceCard
-        piece={p}
-        cat={artwork.slug}
-        index={i}
-        role={artwork.slug === "editing" ? "reel" : "static"}
-      />
-    ))}
-  </div>
+  {artwork.groups && artwork.groups.length > 0 ? (
+    artwork.groups.map((g) => (
+      <section class="as-group">
+        <header class="as-group-head">
+          <h2>{g.title}</h2>
+          <span>{g.pieces.length} 件</span>
+        </header>
+        <div class="as-grid">
+          {g.pieces.map((p, i) => (
+            <ArtPieceCard piece={p} cat={artwork.slug} index={i} role="static" />
+          ))}
+        </div>
+      </section>
+    ))
+  ) : (
+    <div class={gridClass}>
+      {artwork.pieces.map((p, i) => (
+        <ArtPieceCard
+          piece={p}
+          cat={artwork.slug}
+          index={i}
+          role={artwork.slug === "editing" ? "reel" : "static"}
+        />
+      ))}
+    </div>
+  )}
 </section>
 
 <script>

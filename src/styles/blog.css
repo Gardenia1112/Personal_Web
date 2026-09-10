@@ -711,7 +711,7 @@ html[data-page="blog"] footer {
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 900px) {
   .nm-hero {
     grid-template-columns: 1fr;
   }
@@ -732,7 +732,7 @@ html[data-page="blog"] footer {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .nm-shell,
   .nm-post {
     padding-top: 76px;

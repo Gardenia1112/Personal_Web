@@ -106,8 +106,16 @@ function layerItems(layer: Award[], layerIndex: number) {
                             <img src={it.url} alt={it.award.name} loading="lazy" draggable="false" />
                           </button>
                         ) : it.kind === "pdf" && it.url ? (
-                          <div class="as-embed as-embed--pdf">
-                            <iframe src={`${it.url}#view=FitH`} title={it.award.name} loading="lazy" />
+                          <div class="as-embed as-embed--pdf" data-as-pdf>
+                            <button
+                              type="button"
+                              class="as-pdf-open magnetic-btn"
+                              data-as-pdf-open={it.url}
+                              aria-label={`查看 ${it.award.name}（PDF）`}
+                            >
+                              <span class="as-pdf-open-label">查看 PDF</span>
+                              <span class="as-pdf-open-hint">点击加载证书</span>
+                            </button>
                             <a class="as-embed-link magnetic-btn" href={it.url} download>
                               下载 PDF
                             </a>

@@ -136,8 +136,28 @@ const boardGallery = project.media?.gallery ?? [];
 const boardCert = project.media?.cert ?? "/assets/projects/buhuige/completion-cert.png";
 const boardTeamPhoto = project.media?.team ?? project.media?.cover;
 
+// 任务 ⑤：移动端点击卡片弹出浮层的数据（复用现有字段，不重复存 projects.ts）
+const boardModules: { id: string; no: string; title: string; detail: string[]; image?: string }[] = [
+  { id: "about", no: "01", title: "我们是谁", detail: [project.problem] },
+  {
+    id: "works",
+    no: "02",
+    title: "工作室介绍 · 四章",
+    detail: (project.sections ?? []).map((s) => `${s.label}：${s.body}`),
+  },
+  {
+    id: "team",
+    no: "03",
+    title: "团队",
+    detail: (project.team ?? []).map((m) => `${abbr(m.name)} · ${m.role} → ${m.desc}`),
+  },
+  { id: "skills", no: "04", title: "技术栈", detail: [pills.join(" · ")] },
+  { id: "result", no: "05", title: "成果", detail: [project.result] },
+  { id: "cert", no: "06", title: "结项证书", detail: [], image: boardCert },
+];
+
 type MakeFeedItem =
-  | { kind: "file"; name: string; rel: string; html: string }
+  | { kind: "file"; name: string; rel: string; html: string; long?: boolean }
   | { kind: "concept"; src: string; label: string };
 
 let makeFeed: MakeFeedItem[] = [];
@@ -160,6 +180,7 @@ if (isGame) {
       kind: "file" as const,
       name: f.name,
       rel: f.rel,
+      long: f.code.split("\n").length > 80,
       html: await highlightCs(f.code),
     }))
   );
@@ -260,12 +281,20 @@ if (isGame) {
                       </button>
                     </div>
                     <div class="game-make-pane is-on" data-game-make-pane="code" role="tabpanel">
-                      <div class="game-make-scroll" data-game-make-scroll>
+                      <button type="button" class="game-code-toggle" data-game-code-toggle aria-expanded="false">
+                        查看源码
+                      </button>
+                      <div class="game-make-scroll game-make-scroll--code" data-game-make-scroll data-game-code-list>
                         {makeFeed.map((item) =>
                           item.kind === "file" ? (
-                            <figure class="game-code-file">
+                            <figure class:list={["game-code-file", item.long && "is-long"]}>
                               <figcaption data-game-line>{item.rel}</figcaption>
                               <div class="game-code-pre" set:html={item.html} />
+                              {item.long && (
+                                <button type="button" class="game-code-more" data-game-code-more aria-expanded="false">
+                                  展开全部
+                                </button>
+                              )}
                             </figure>
                           ) : (
                             <figure class="game-code-concept game-relight" data-relight>
@@ -394,7 +423,7 @@ if (isGame) {
               </div>
             )}
 
-            <article class="bb-item bb-key is-detail" data-clue-item style="left:5%;top:9%">
+            <article class="bb-item bb-key is-detail" data-clue-item data-bb-open="about" style="left:5%;top:9%">
               <i class="bb-hook" aria-hidden="true"></i>
               <i class="bb-ring" aria-hidden="true"></i>
               <i class="bb-keybit" aria-hidden="true"></i>
@@ -412,7 +441,7 @@ if (isGame) {
               </div>
             </article>
 
-            <article class="bb-item bb-file" data-clue-item style="left:24%;top:5%">
+            <article class="bb-item bb-file" data-clue-item data-bb-open="works" style="left:24%;top:5%">
               <i class="bb-hook" aria-hidden="true"></i>
               <div class="bb-file-clip" aria-hidden="true"></div>
               <div class="bb-file-sheet">
@@ -436,7 +465,7 @@ if (isGame) {
               </div>
             </article>
 
-            <article class="bb-item bb-id is-detail" data-clue-item data-pop="down" style="left:64%;top:8%">
+            <article class="bb-item bb-id is-detail" data-clue-item data-bb-open="team" data-pop="down" style="left:64%;top:8%">
               <i class="bb-hook" aria-hidden="true"></i>
               <div class="bb-id-felt">
                 <p class="bb-no">03</p>
@@ -468,7 +497,7 @@ if (isGame) {
               </div>
             </article>
 
-            <article class="bb-item bb-badge" data-clue-item style="left:7%;top:54%">
+            <article class="bb-item bb-badge" data-clue-item data-bb-open="skills" style="left:7%;top:54%">
               <i class="bb-hook" aria-hidden="true"></i>
               <p class="bb-no">04</p>
               <h2>SKILLS</h2>
@@ -479,23 +508,23 @@ if (isGame) {
               </ul>
             </article>
 
-            <article class="bb-item bb-mail is-detail" data-clue-item data-pop="left" style="left:48%;top:60%">
+            <article class="bb-item bb-mail is-detail" data-clue-item data-bb-open="result" data-pop="left" style="left:48%;top:60%">
               <i class="bb-hook" aria-hidden="true"></i>
-              <p class="bb-no">05</p>
-              <h2>RESULT</h2>
-              {revenue && <p class="bb-obj-title">营收 {revenue}</p>}
-              {regs.map((n) => (
-                <p class="bb-obj-sub">{n}</p>
-              ))}
               <div class="bb-pop">
                 <aside class="bb-sticky">
                   <b>05 做到了什么</b>
                   <p>{project.result}</p>
                 </aside>
               </div>
+              <p class="bb-no">05</p>
+              <h2>RESULT</h2>
+              {revenue && <p class="bb-obj-title">营收 {revenue}</p>}
+              {regs.map((n) => (
+                <p class="bb-obj-sub">{n}</p>
+              ))}
             </article>
 
-            <article class="bb-item bb-cert" data-clue-item style="left:78%;top:52%;--rot:3deg">
+            <article class="bb-item bb-cert" data-clue-item data-bb-open="cert" style="left:78%;top:52%;--rot:3deg">
               <i class="bb-pin-nail" aria-hidden="true"></i>
               <p class="bb-no">06</p>
               <h2>CERT</h2>
@@ -561,6 +590,21 @@ if (isGame) {
             </div>
           </div>
         </div>
+        {boardModules.map((m) => (
+          <section class="bb-modal" data-bb-modal={m.id} role="dialog" aria-modal="true" aria-hidden="true">
+            <div class="bb-modal__card" data-bb-modal-card>
+              <button type="button" class="bb-modal__close" data-bb-close aria-label="关闭">×</button>
+              <p class="bb-modal__no">{m.no}</p>
+              <h2 class="bb-modal__title">{m.title}</h2>
+              {m.image ? <img class="bb-modal__img" src={m.image} alt={m.title} loading="lazy" /> : null}
+              <div class="bb-modal__body">
+                {m.detail.map((line) => (
+                  <p>{line}</p>
+                ))}
+              </div>
+            </div>
+          </section>
+        ))}
       </article>
     ) : isOs ? (
       <article class="pd is-zhilian zhilian-os" data-project-slug={project.slug} data-sensor-os>
@@ -632,8 +676,9 @@ if (isGame) {
                         <span class="zl-win__dot zl-win__dot--g"></span>
                         <b class="zl-win__name">{w.title}</b>
                         <span class="zl-win__title">{w.desc}</span>
-                        <button type="button" class="zl-win__close" data-zl-close aria-label="关闭">
-                          ×
+                        <button type="button" class="zl-win__close" data-zl-close aria-label="返回">
+                          <span class="zl-win__close-x" aria-hidden="true">×</span>
+                          <span class="zl-win__close-back">← 返回</span>
                         </button>
                       </header>
                       <div class="zl-win__body">
@@ -685,11 +730,11 @@ if (isGame) {
                                       </div>
                                     </figure>
                                   ) : m.type === "file" ? (
-                                    <a class="zl-download" href={m.src} download>
-                                      {m.caption ?? "下载附件"}
+                                    <a class="zl-download" href={m.src} target="_blank" rel="noopener">
+                                      {m.caption ?? "查看附件"}
                                     </a>
                                   ) : (
-                                    <iframe class="zh-pdf zl-pdf" src={m.src} title={m.caption ?? w.title}></iframe>
+                                    <iframe class="zh-pdf zl-pdf" src={m.src} title={m.caption ?? w.title} loading="lazy"></iframe>
                                   )
                                 )}
                               </div>
@@ -803,10 +848,10 @@ if (isGame) {
                     </figure>
                   ) : m.type === "file" ? (
                     <p class="nb-file">
-                      <a href={m.src} download>{m.caption ?? "下载附件"}</a>
+                      <a href={m.src} target="_blank" rel="noopener">{m.caption ?? "查看附件"}</a>
                     </p>
                   ) : (
-                    <iframe class="nb-pdf" src={m.src} title={m.caption ?? p.heading}></iframe>
+                    <iframe class="nb-pdf" src={m.src} title={m.caption ?? p.heading} loading="lazy"></iframe>
                   )
                 )}
               </div>
@@ -911,12 +956,22 @@ if (isGame) {
 <script>
   import { arriveThumbFull } from "../../scripts/thumbfull";
   import { initGameMonitor } from "../../scripts/desktop/game-monitor";
+  import { initGameMobile } from "../../scripts/game-mobile";
   import { initClueBoard } from "../../scripts/desktop/clue-board";
   import { initSensorOs } from "../../scripts/desktop/sensor-os";
   import { initNotebook } from "../../scripts/desktop/notebook";
   const root = document.querySelector<HTMLElement>("[data-project-slug]");
   const copy = document.querySelector<HTMLElement>("[data-thumbfull-copy]");
-  if (root?.hasAttribute("data-game-monitor")) initGameMonitor(root);
+  if (root?.hasAttribute("data-game-monitor")) {
+    // 移动端（<640px）不加载 CRT 切台系统，改走纯滑动展示页（CSS 纵向铺开 + 去掉面板 inert）
+    if (window.innerWidth < 640) {
+      root.classList.add("is-mobile-scroll");
+      root.querySelectorAll("[data-panel]").forEach((p) => p.removeAttribute("inert"));
+      initGameMobile(root);
+    } else {
+      initGameMonitor(root);
+    }
+  }
   else if (root?.hasAttribute("data-clue-board")) {
     initClueBoard(root);
   } else if (root?.hasAttribute("data-sensor-os")) {
@@ -1023,12 +1078,38 @@ if (isGame) {
       width: min(260px, 72vw);
     }
   }
-  .bb-file-list li:hover .bb-section-note {
+  .bb-file-list li:hover .bb-section-note,
+  .bb-file-list li.is-open .bb-section-note {
     display: block;
   }
   .bb-section-note .bb-sticky-cover {
     display: block;
     width: 88px;
     margin: 0 0 8px;
+  }
+  /* 移动端：章节便利贴改内联铺开（滚动页），不再悬浮在侧边 */
+  @media (max-width: 639px) {
+    .bb-file-list li {
+      display: block;
+    }
+    .bb-section-note {
+      display: block;
+      position: static;
+      top: auto;
+      left: auto;
+      right: auto;
+      transform: none;
+      width: auto;
+      max-height: none;
+      overflow: visible;
+      margin: 10px 0 0;
+      padding: 12px 14px;
+      background: #fff3a8;
+      box-shadow: 0 8px 16px rgba(20, 16, 10, 0.12);
+    }
+    .bb-file-list li:hover .bb-section-note,
+    .bb-file-list li.is-open .bb-section-note {
+      display: block;
+    }
   }
 </style>

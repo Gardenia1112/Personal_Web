@@ -92,6 +92,19 @@ html.is-thumbfull-leaving body {
   transition: none;
 }
 
+/* 手机（<640px）：全屏图用动态视口单位，避免地址栏/滚动条导致的 100vw/100vh 溢出（v2 任务 8） */
+@media (max-width: 639px) {
+  html.is-thumbfull-arrive .pd-hero-media {
+    width: 100dvw;
+    height: min(72dvh, 820px);
+  }
+  html.is-thumbfull-arrive .pd-game .pd-hero-media,
+  html.is-thumbfull-arrive .pd-game .game-glass {
+    width: 100dvw;
+    height: 100dvh;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html.is-thumbfull-arrive .pd-hero-copy,
   html.is-thumbfull-arrive .pd-body,

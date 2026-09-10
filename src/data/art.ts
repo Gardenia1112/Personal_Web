@@ -10,18 +10,24 @@ export interface ArtPiece {
   src?: string;
 }
 
+export interface ArtGroup {
+  title: string;
+  pieces: ArtPiece[];
+}
+
 export interface Artwork {
   slug: string;
   name: string;
-  category: "绘画" | "设计" | "剪辑";
+  category: "绘画" | "设计" | "剪辑" | "流浪尸潮 UI/场景素材";
   cover?: string;
   status: "done" | "todo";
   pieces: ArtPiece[];
+  groups?: ArtGroup[];
 }
 
 const ART_ROOT = path.join(process.cwd(), "public", "assets", "art");
 
-const IMAGE_EXT = new Set([".png", ".jpg", ".jpeg", ".webp"]);
+const IMAGE_EXT = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
 const VIDEO_EXT = new Set([".mp4"]);
 
 function naturalSort(a: string, b: string) {
@@ -86,4 +92,23 @@ export const artworks: Artwork[] = [
     "剪辑",
     scanDir("editing", "video", VIDEO_EXT),
   ),
+  // ④ 流浪尸潮 UI/场景素材 —— 全部资产按 4 组归类，复用现有卡片/详情样式
+  (() => {
+    const groups: ArtGroup[] = [
+      { title: "UI 素材", pieces: scanDir("langshi-ui/ui", "image", IMAGE_EXT) },
+      { title: "场景概念图", pieces: scanDir("langshi-ui/concept", "image", IMAGE_EXT) },
+      { title: "功能物件拆分", pieces: scanDir("langshi-ui/objects", "image", IMAGE_EXT) },
+      { title: "白盒 / 流程稿", pieces: scanDir("langshi-ui/tiles", "image", IMAGE_EXT) },
+    ];
+    const artworkEntry: Artwork = {
+      slug: "langshi-ui",
+      name: "流浪尸潮（2.5D 像素肉鸽射击 Demo）· UI / 场景素材",
+      category: "流浪尸潮 UI/场景素材",
+      cover: "/assets/art/langshi-ui/concept/主页面概念图.png",
+      status: "done",
+      pieces: groups.flatMap((g) => g.pieces),
+      groups,
+    };
+    return artworkEntry;
+  })(),
 ];

@@ -381,9 +381,16 @@
   background: rgba(255, 255, 255, 0.35);
 }
 
+/* PDF 默认不挂载 iframe：只露「查看 PDF」按钮 + 下载链接，点击 .is-open 才装 iframe（任务 13） */
 .as-embed--pdf {
   position: relative;
-  min-height: min(48vh, 460px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 0;
+  padding: 30px 20px;
 }
 
 .as-embed--pdf iframe {
@@ -392,6 +399,59 @@
   height: min(48vh, 460px);
   border: 0;
   background: #fff;
+}
+
+/* 「查看 PDF」按钮 + 展开态（任务 13：默认不挂载 iframe） */
+.as-pdf-open {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 16px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.2);
+  color: inherit;
+  font-family: system-ui, sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.as-pdf-open:hover,
+.as-pdf-open:focus-visible {
+  background: rgba(255, 255, 255, 0.32);
+}
+.as-pdf-open:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.as-folder--mist .as-pdf-open,
+.as-folder--mint .as-pdf-open {
+  border-color: rgba(26, 61, 46, 0.22);
+  background: rgba(255, 255, 255, 0.55);
+}
+.as-pdf-open-label {
+  font-size: 16px;
+  font-weight: 700;
+}
+.as-pdf-open-hint {
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+/* 收起态：下载链接走行内居中；展开态回到右下角浮层 */
+.as-embed--pdf .as-embed-link {
+  position: static;
+}
+.as-embed--pdf.is-open {
+  display: block;
+  min-height: min(48vh, 460px);
+  padding: 0;
+}
+.as-embed--pdf.is-open .as-embed-link {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
 }
 
 .as-embed-link {
@@ -459,14 +519,14 @@
   }
 
   .as-embed--img img,
-  .as-embed--pdf,
-  .as-embed--pdf iframe {
+  .as-embed--pdf.is-open,
+  .as-embed--pdf.is-open iframe {
     max-height: min(42vh, 380px);
     height: min(42vh, 380px);
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .as-page {
     --as-side: 16px;
     --as-shelf-h: 58px;

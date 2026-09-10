@@ -810,6 +810,12 @@ html[data-tone="deep"] .sheet-home:hover {
   color: var(--game-green);
 }
 
+/* ⑥ 移动端专属控件（「查看源码」「展开全部」）：桌面隐藏 */
+.game-code-toggle,
+.game-code-more {
+  display: none;
+}
+
 .game-card {
   position: relative;
   margin: 0;
@@ -1103,6 +1109,216 @@ html[data-tone="deep"] .sheet-home:hover {
 
   .game-stat b {
     font-size: 72px;
+  }
+}
+
+/* ===== 流浪尸潮⑥：移动端改成纯滑动展示页（不加载 CRT 切台系统，竖排铺开）===== */
+@media (max-width: 639px) {
+  /* 放行整页滚动：桌面端 html/body 的高度与 overflow 锁在移动端解除 */
+  html[data-tone="deep"],
+  html[data-tone="deep"] body,
+  body:has(.pd-game) {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+  .pd-game {
+    height: auto;
+    min-height: 100vh;
+  }
+  .game-stage {
+    height: auto;
+    min-height: 100vh;
+  }
+  /* 拆掉显示器透视壳，轨道竖排 */
+  .game-tube {
+    position: static;
+    inset: auto;
+    overflow: visible;
+    border-radius: 0;
+    transform: none;
+  }
+  .game-glass {
+    position: static;
+    overflow: visible;
+    border-radius: 0;
+  }
+  .game-track {
+    display: block;
+    height: auto;
+    will-change: auto;
+  }
+  .game-panel {
+    flex: none;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .game-panel + .game-panel {
+    border-top: 2px solid var(--game-green-dim);
+  }
+  /* CH 标题改成流式块，不再悬浮左上角 */
+  .game-hud {
+    position: static;
+    inset: auto;
+  }
+  .game-panel .game-ch,
+  .game-hud .game-ch {
+    position: static;
+    margin: 20px 16px 12px;
+    font-size: clamp(30px, 8vw, 46px);
+  }
+  .game-panel:not(.is-on) .game-ch {
+    visibility: visible;
+  }
+  /* 关闭 CRT 显示层特效 */
+  .game-bezel,
+  .game-crt,
+  .game-snow,
+  .game-grid,
+  .game-scan,
+  .game-vignette,
+  .game-flash,
+  .game-boot,
+  .game-chrome {
+    display: none;
+  }
+  /* CH-01 封面按自然宽铺开 */
+  .pd-game .pd-hero-media,
+  .game-panel .pd-hero-media,
+  .game-panel .pd-hero-media img {
+    height: auto;
+    min-height: 0;
+  }
+  /* CH-02 实机 */
+  .game-reel {
+    height: auto;
+    padding: 8px 12px;
+  }
+  .game-reel video {
+    height: auto;
+    max-height: 64vh;
+  }
+  .game-sound {
+    display: none;
+  }
+  /* CH-03 制作：死 tab 隐藏，code/art 两个 pane 竖排铺开；源码默认折叠 */
+  .game-make {
+    padding: 8px 12px 40px;
+  }
+  .game-make-tabs {
+    display: none;
+  }
+  .game-make-pane[hidden] {
+    display: block;
+  }
+  /* 「查看源码」开关（移动端显示，桌面由基础样式隐藏） */
+  .game-code-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(100% - 24px);
+    margin: 4px 12px 16px;
+    min-height: 48px;
+    padding: 8px 16px;
+    border: 2px solid var(--game-green);
+    background: rgba(0, 0, 0, 0.82);
+    color: var(--game-green);
+    font-family: inherit;
+    font-size: 18px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+  .game-code-toggle:active {
+    background: rgba(57, 255, 20, 0.12);
+  }
+  /* 默认折叠：点「查看源码」加 .is-open 才铺开 */
+  .game-make-scroll--code:not(.is-open) {
+    display: none;
+  }
+  /* 长文件截断 + 「展开全部」；短文件原样铺开 */
+  .game-code-pre {
+    max-height: none;
+  }
+  .game-code-file {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 480px;
+  }
+  .game-code-file.is-long .game-code-pre {
+    max-height: 360px;
+    overflow: hidden;
+    position: relative;
+  }
+  .game-code-file.is-long .game-code-pre::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 88px;
+    background: linear-gradient(180deg, transparent, #000 78%);
+    pointer-events: none;
+  }
+  .game-code-file.is-long.is-open .game-code-pre {
+    max-height: none;
+  }
+  .game-code-file.is-long.is-open .game-code-pre::after {
+    display: none;
+  }
+  .game-code-file.is-long .game-code-more {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    border: 0;
+    border-top: 2px solid var(--game-green);
+    background: rgba(57, 255, 20, 0.08);
+    color: var(--game-green);
+    font-family: inherit;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+  }
+  .game-code-concept img {
+    max-height: none;
+  }
+  /* CH-04 记录：手风琴（点标题展开/收起，单开） */
+  .game-file {
+    height: auto;
+    overflow: visible;
+    padding: 8px 12px 40px;
+  }
+  .game-acc {
+    overflow: visible;
+  }
+  .game-file-row,
+  .game-file-row.is-on {
+    display: block;
+    flex: none;
+    overflow: visible;
+  }
+  .game-acc-item {
+    width: 100%;
+    max-width: none;
+    flex: none;
+    min-height: 44px;
+    pointer-events: auto;
+    cursor: pointer;
+    font-size: 20px;
+  }
+  .game-file-body,
+  .game-file-row.is-on .game-file-body {
+    display: none;
+  }
+  .game-file-row.is-open .game-file-body {
+    display: block;
+    opacity: 1;
+    transform: none;
+    padding: 0 16px 18px;
+    border-left: 0;
+  }
+  .game-file-body p {
+    font-size: 17px;
+  }
+  .game-bars {
+    margin-top: 18px;
   }
 }
 
@@ -1759,6 +1975,245 @@ html.is-thumbfull-arrive .is-buhuige .bb-frame {
   }
 }
 
+/* 不绘鸽钉板移动端（<640px）：单列堆叠 + 点击卡片弹浮层（任务 ⑤） */
+.bb-modal {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  /* 放行整页滚动：桌面端「一页悬停」的 html/body 高度+overflow 锁在移动端解除 */
+  html[data-page="sheet"]:has(.is-buhuige),
+  html[data-page="sheet"]:has(.is-buhuige) body {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+  /* 兜底：无论入场态 is-entering 是否走完，卡片与图例都保持可见（移动端单列堆叠，不做钉板入场） */
+  .is-buhuige.is-entering .bb-legend:not(.is-in),
+  .is-buhuige.is-entering .bb-item:not(.is-sticking):not(.is-stuck) {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .pd.is-buhuige {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .bb-frame {
+    display: block;
+    height: auto;
+    padding: 72px 10px 48px;
+  }
+
+  .bb-wall {
+    height: auto;
+    overflow: visible;
+    border-radius: 18px;
+    padding: 26px 0 6px;
+    box-shadow: inset 0 0 0 7px #d8d2c6, 0 16px 32px rgba(20, 16, 10, 0.1);
+  }
+
+  /* 散落背景装饰 / 连线 / 相片墙：移动端收起，只留卡片与图钉 */
+  .bb-gallery,
+  .bb-strings,
+  .bb-decor {
+    display: none;
+  }
+
+  /* 卡片：绝对定位 → 单列堆叠，取消旋转；
+     position: relative（非 static）作为定位上下文，避免卡片内部绝对定位的装饰
+     （挂环 / 图钉 / 航邮内衬 ::before）在 static 下错位到 .bb-wall：
+     航邮白衬会铺满整面墙盖住其它卡片，挂环图钉全堆到墙顶 */
+  .bb-item {
+    position: relative;
+    /* 抵消钉板绝对定位留下的内联 left/top，避免 relative 下把卡片往右/下偏移 */
+    left: auto !important;
+    top: auto !important;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    margin: 0 auto 26px;
+    transform: none !important;
+  }
+
+  .bb-key,
+  .bb-badge,
+  .bb-file,
+  .bb-id,
+  .bb-mail,
+  .bb-cert,
+  .bb-note {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .bb-key,
+  .bb-badge {
+    min-height: 0;
+  }
+
+  /* 图钉装饰保留但缩小 */
+  .bb-hook {
+    top: -18px;
+    width: 12px;
+    height: 18px;
+    margin-left: -6px;
+    border-width: 2px;
+  }
+
+  .bb-hook::after {
+    left: 2px;
+    bottom: -6px;
+    width: 6px;
+    height: 8px;
+    border-width: 2px;
+  }
+
+  .bb-pin-nail {
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+  }
+
+  .bb-ring {
+    width: 16px;
+    height: 16px;
+    margin-left: -8px;
+    border-width: 2px;
+  }
+
+  /* 钥匙齿/挂环向两侧突出，移动端会压住相邻卡片，直接收起 */
+  .bb-keybit {
+    display: none;
+  }
+
+  .bb-file-list li {
+    font-size: 15px;
+    padding: 8px 0;
+  }
+
+  .bb-no {
+    font-size: 12px;
+  }
+
+  .bb-item h2 {
+    font-size: 1.3rem;
+  }
+
+  .bb-obj-title {
+    font-size: 16px;
+  }
+
+  .bb-obj-sub {
+    font-size: 13px;
+  }
+
+  /* 详情内联铺开：悬停小浮层改在卡片下方常显，滚动即可看全，不再用全屏浮层 */
+  .bb-pop {
+    display: block;
+    position: relative;
+    z-index: 1;
+    /* 抵消桌面 data-pop 的 left/top/right（如 .bb-item[data-pop="down"] 的 top:104%、[data-pop="left"] 的 right:92%），
+       否则便签会被顶出卡片（03 便签右移 5px 溢出、05 便签被推到屏幕左侧外） */
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    width: auto;
+    max-width: none;
+    margin-top: 14px;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+  /* 05 便签按需求提到 RESULT 上方：DOM 顺序已把 .bb-pop 放到卡片内容之前，这里把间距改为下方 */
+  .bb-mail .bb-pop {
+    margin-top: 0;
+    margin-bottom: 14px;
+  }
+  .bb-item.is-detail .bb-pop {
+    opacity: 1;
+    transform: none;
+  }
+  .bb-sticky {
+    transform: none;
+    box-shadow: 0 8px 16px rgba(20, 16, 10, 0.12);
+  }
+  .bb-sticky p {
+    font-size: 14px;
+  }
+
+  /* 全屏详情浮层：移动端移除，改为内联滚动 */
+  .bb-modal {
+    display: none !important;
+  }
+
+  .bb-modal__card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    max-height: 82vh;
+    overflow-y: auto;
+    padding: 26px 22px 24px;
+    background: #fff3a8;
+    border-radius: 6px;
+    box-shadow: 0 24px 48px rgba(20, 16, 10, 0.32);
+    transform: rotate(-1deg);
+  }
+
+  .bb-modal__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(22, 16, 10, 0.08);
+    color: #161616;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .bb-modal__no {
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: #8a6d1a;
+  }
+
+  .bb-modal__title {
+    margin: 0 0 14px;
+    padding-right: 28px;
+    font-size: clamp(1.4rem, 5.5vw, 1.7rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .bb-modal__img {
+    display: block;
+    width: 100%;
+    margin: 0 0 14px;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    background: #ebe6dc;
+    border-radius: 4px;
+  }
+
+  .bb-modal__body p {
+    margin: 0 0 10px;
+    font-size: 16px;
+    line-height: 1.65;
+    color: #2b2518;
+  }
+
+  .bb-modal__body p:last-child {
+    margin-bottom: 0;
+  }
+}
+
 html[data-page="sheet"]:has(.is-zhilian),
 html[data-page="sheet"]:has(.is-zhilian) body {
   height: 100%;
@@ -2265,6 +2720,11 @@ html:has(.zhilian-os) #cursor {
   border-color: var(--zh-mag);
 }
 
+/* 桌面端：关窗按钮只显示「×」；「返回」文案仅移动端展示 */
+.zl-win__close-back {
+  display: none;
+}
+
 .zl-win__body {
   flex: 1;
   min-height: 0;
@@ -2451,6 +2911,153 @@ html:has(.zhilian-os) #cursor {
 
   .zl-watermark {
     font-size: clamp(72px, 22vw, 140px);
+  }
+}
+
+/* 智联 OS 移动端（<640px）：滚动页——顶栏 meta + 所有窗口竖排铺开，保留 OS 琥珀风格（任务 ⑥） */
+@media (max-width: 639px) {
+  /* 解锁整页滚动：桌面端 OS 全屏壳的高度 + overflow 锁在移动端解除 */
+  html[data-page="sheet"]:has(.is-zhilian),
+  html[data-page="sheet"]:has(.is-zhilian) body {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
+  }
+
+  .pd.is-zhilian {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .zl-bezel {
+    height: auto;
+    padding: 8px;
+  }
+
+  .zl-screen {
+    height: auto;
+    overflow: visible;
+  }
+
+  /* 顶栏仍作琥珀色头部，滚动时吸顶 */
+  .zl-topbar {
+    position: sticky;
+    top: 0;
+    gap: 10px;
+  }
+
+  .zl-topbar__menu {
+    display: none;
+  }
+
+  .zl-topbar__clock {
+    max-width: 42vw;
+  }
+
+  .zl-body {
+    display: block;
+    overflow: visible;
+    padding: 10px;
+  }
+
+  /* 滚动页：隐藏图标网格（不再点图标开窗口），保留 meta 信息面板作头部 */
+  .zl-launchpad {
+    display: block;
+    height: auto;
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .zl-icons {
+    display: none;
+  }
+
+  .zl-meta {
+    display: flex;
+    height: auto;
+    padding: 16px 18px 18px;
+  }
+
+  .zl-meta__title {
+    font-size: clamp(36px, 10vw, 56px);
+  }
+
+  /* 窗口：全屏浮层 → 竖排常显卡片 */
+  .zl-stage {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    display: block;
+    min-height: 0;
+    overflow: visible;
+    padding: 10px;
+    border: 2px dashed var(--zh-amber-dim);
+    background: transparent;
+  }
+
+  .zl-stage.is-open {
+    border-style: solid;
+  }
+
+  .zl-stage-empty {
+    display: none;
+  }
+
+  .zl-win {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    max-height: none;
+    overflow: visible;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+    margin: 0 0 16px;
+    border-width: 2px;
+    border-radius: 6px;
+  }
+
+  .zl-stage.is-open .zl-win.is-active,
+  .zl-win {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .zl-win__bar {
+    position: static;
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  .zl-win__dot,
+  .zl-win__title {
+    display: none;
+  }
+
+  .zl-win__name {
+    margin-left: 0;
+    font-size: 18px;
+  }
+
+  /* 滚动页窗口常显，去掉「返回」按钮 */
+  .zl-win__close,
+  .zl-win__close-x,
+  .zl-win__close-back {
+    display: none;
+  }
+
+  .zl-win__body {
+    flex: none;
+    min-height: auto;
+    overflow: visible;
+    padding: 16px 18px 32px;
+  }
+
+  .zl-win__h {
+    font-size: clamp(34px, 9vw, 46px);
   }
 }
 
@@ -3128,7 +3735,7 @@ html[data-page="sheet"]:has(.nb-cover:not(.is-away)) body {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   .nb-toys {
     display: none;
   }

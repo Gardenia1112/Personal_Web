@@ -215,3 +215,128 @@ html[data-about-chapter="ending"] .lm-bar[data-lm-theme="about"] {
   --lm-chip-hover: rgba(167, 139, 250, 0.22);
   --lm-chip-active: rgba(167, 139, 250, 0.32);
 }
+
+/* ===== 手机汉堡抽屉（<640px）=====
+   桌面/平板（>=640px）：汉堡、抽屉、遮罩全部隐藏，横向胶囊菜单照旧 */
+.menu-toggle,
+.lm-drawer,
+.lm-backdrop {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  /* 隐藏桌面横向胶囊，汉堡按钮接管 */
+  .lm-bar .menu--alonso {
+    display: none;
+  }
+  .lm-bar {
+    justify-content: flex-start;
+  }
+  .menu-toggle {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    padding: 11px;
+    border: none;
+    border-radius: 999px;
+    background: var(--lm-chip);
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--lm-active);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .menu-toggle[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .menu-toggle[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+  .menu-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* 侧滑抽屉 */
+  .lm-drawer {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 80%;
+    max-width: 300px;
+    z-index: 70;
+    padding: 84px 20px 24px;
+    background: rgba(15, 17, 21, 0.97);
+    box-shadow: 12px 0 40px rgba(0, 0, 0, 0.4);
+    overflow-y: auto;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+  .lm-drawer.is-open {
+    transform: translateX(0);
+  }
+  .lm-drawer__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .lm-drawer__link {
+    display: block;
+    padding: 15px 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    text-decoration: none;
+    color: rgba(248, 250, 252, 0.72);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lm-drawer__link:active {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .lm-drawer__link.is-current {
+    color: var(--lm-active);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* 遮罩 */
+  .lm-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 65;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .lm-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* 抽屉打开时锁滚动 */
+  html.lm-open body {
+    overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-toggle span,
+  .lm-drawer,
+  .lm-backdrop {
+    transition: none;
+  }
+}

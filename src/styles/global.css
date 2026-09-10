@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./tokens.css";
 @import "./cursor.css";
 @import "./paper.css";
 @import "./magnetic.css";
@@ -44,21 +45,201 @@ body {
   transition: background-color 0.7s ease;
   color: var(--color-fg);
   font-family: system-ui, -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-size: var(--font-size-body, 1rem); /* 任务 12：正文随视口流体，桌面锁 16px */
   -webkit-font-smoothing: antialiased;
 }
 
+/* 固定顶栏防遮挡：锚点跳转 / scrollIntoView / scroll-snap 对齐时给顶部留出空隙。
+   顶栏实际高 ≈ 12px padding + 44px 菜单 + 10px padding ≈ 66px，留 80px 余量。 */
+html {
+  scroll-padding-top: 80px;
+}
+@media (max-width: 639px) {
+  html {
+    scroll-padding-top: 72px;
+  }
+}
+
 /* 台灯主页彩蛋：浅色系仅作用本页 DOM（不跨页、不写 localStorage） */
+/* 根元素 html 的背景会铺满整个画布（body 在首页高度为 0，只改 body 看不到米白底），所以 html 与 body 一起改 */
+html[data-desk-theme="light"],
 html[data-desk-theme="light"] body {
-  background: #eef2f7;
+  background: #f7f3ee; /* 白天：米白色背景 */
+}
+html[data-desk-theme="light"] body {
   color: var(--color-fg-inv);
 }
 html[data-desk-theme="light"] #hero-type {
-  --hero-ink: var(--color-fg-inv);
+  --hero-ink: #101010; /* 白天：黑色字体 */
 }
 html[data-desk-theme="light"] #cursor {
   --cursor-core: var(--color-fg-inv);
   --cursor-glow: rgba(168, 85, 247, 0.5);
   mix-blend-mode: normal;
+}
+
+/* ===== 主页 2D 清新拟物壳（任务 ⑨）：hero + 4 分区卡片，无 3D 工位 ===== */
+.home-sections {
+  position: relative;
+  z-index: 44;
+  min-height: 100vh;
+  padding: 120px clamp(20px, 5vw, 64px) 96px;
+  background:
+    radial-gradient(1100px 560px at 88% -6%, rgba(111, 184, 255, 0.2), transparent 60%),
+    radial-gradient(900px 480px at 8% 4%, rgba(111, 184, 255, 0.12), transparent 55%),
+    var(--fresh-bg, #eef4fb);
+  color: var(--fresh-ink, #2b3a4a);
+}
+.home-sections-head {
+  max-width: 1080px;
+  margin: 0 auto 36px;
+}
+.home-welcome {
+  margin: 0;
+  font-family: var(--font-hand, "Caveat", "Ma Shan Zheng", cursive);
+  font-size: clamp(44px, 8vw, 84px);
+  font-weight: 700;
+  line-height: 0.9;
+  color: var(--fresh-accent, #6fb8ff);
+  transform: rotate(-3deg);
+  transform-origin: left bottom;
+}
+.home-kicker {
+  margin: 18px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fresh-ink-soft, #7c8a9b);
+}
+.home-hero-name {
+  margin: 10px 0 0;
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+}
+.home-hero-title {
+  margin: 8px 0 0;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--fresh-ink-soft, #7c8a9b);
+}
+.home-entries {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.home-entry {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 34px 26px 28px;
+  border-radius: var(--fresh-radius, 22px);
+  background: var(--fresh-card, #ffffff);
+  box-shadow: var(--fresh-shadow, 0 10px 30px rgba(120, 160, 220, 0.25));
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+/* 图钉装饰：卡片顶部一颗小图钉，仿拟物「钉在墙上的便签」 */
+.home-entry::before {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffe08a, #f2a71b 72%);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%);
+}
+a.home-entry:hover,
+a.home-entry:focus-visible {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 42px rgba(120, 160, 220, 0.34);
+}
+a.home-entry:focus-visible {
+  outline: 2px solid var(--fresh-accent, #6fb8ff);
+  outline-offset: 3px;
+}
+.home-entry-icon {
+  font-size: 42px;
+  line-height: 1;
+}
+.home-entry-body {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.home-entry-name {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.home-entry-en {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fresh-ink-soft, #7c8a9b);
+}
+.home-entry.is-empty {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 手机：单列 + 横向卡片，图钉挪到左上角 */
+@media (max-width: 639px) {
+  .home-sections {
+    padding: 88px 20px 80px;
+  }
+  .home-sections-head {
+    margin-bottom: 26px;
+  }
+  .home-entries {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .home-entry {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 20px 20px 24px;
+  }
+  .home-entry::before {
+    top: -5px;
+    left: 30px;
+    transform: none;
+  }
+  .home-entry-icon {
+    font-size: 30px;
+  }
+  .home-entry-name {
+    font-size: 17px;
+  }
+}
+
+
+/* 主页双形态门控：桌面/平板(>=640px) 显示 3D 工位，手机(<640px) 显示 2D 卡片 */
+.home-3d {
+  display: none;
+}
+@media (min-width: 640px) {
+  .home-3d {
+    display: block;
+  }
+  .home-sections {
+    display: none;
+  }
+  html[data-page="home"] body {
+    overflow: hidden;
+  }
 }
 
 /* 3D 物件的悬停标题只由热点圆点的 .hotspot-label 承担，
@@ -121,7 +302,7 @@ html[data-desk-theme="light"] #cursor {
   letter-spacing: -0.045em;
   line-height: 0.8;
   text-transform: uppercase;
-  color: var(--hero-ink, #2c3342);
+  color: var(--hero-ink, #a7afbc); /* 黑夜：淡灰色字体（原 #2c3342 在黑底上几乎不可见） */
 }
 .hero-line {
   display: block;
@@ -1534,8 +1715,8 @@ html[data-desk-theme="light"] .easter-pop::after {
   background: linear-gradient(90deg, #00d9ff, #a855f7);
 }
 /* ===== 降级为静态导航 =====
-   两条触发路径：① 窄屏媒体查询；② desk.ts 判定粗指针 / 模型加载失败时给 <html> 加 .is-fallback
-   （只靠媒体查询会漏掉「触屏 + 宽屏」设备：JS 不加载 3D，CSS 又不显示菜单，会白屏） */
+   唯一触发路径：desk.ts 性能探测（?gl=off / 无 WebGL / 低端机 / 模型加载失败）时给 <html> 加 .is-fallback。
+   手机默认保留 3D，不再靠宽度门控（v2 第 〇 条：3D 尽量保留，仅运行时探测到硬伤才回退）。 */
 .mobile-fallback {
   display: none;
   flex-direction: column;
@@ -1589,24 +1770,6 @@ button.mobile-fallback-link {
 }
 .mobile-fallback-emoji {
   font-size: 28px;
-}
-
-@media (max-width: 767px) {
-  #desk-scene,
-  #intro-overlay,
-  #intro-hint,
-  #loading-hint,
-  #hero-type,
-  #hotspots,
-  .easter-pop {
-    display: none;
-  }
-  .mobile-fallback {
-    display: flex;
-  }
-  .mobile-fallback-nav {
-    grid-template-columns: 1fr 1fr;
-  }
 }
 
 html.is-fallback
@@ -1712,23 +1875,59 @@ html[data-page="about"].is-fallback body {
   gap: 10px;
 }
 .about-fallback-chapters li {
+  border-radius: 12px;
+  background: rgba(255, 216, 10, 0.1);
+  border: 1px solid rgba(184, 134, 11, 0.16);
+  overflow: hidden;
+}
+.about-fallback-chapter summary {
   display: flex;
   align-items: baseline;
   gap: 12px;
   padding: 12px 14px;
-  border-radius: 12px;
-  background: rgba(255, 216, 10, 0.1);
-  border: 1px solid rgba(184, 134, 11, 0.16);
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
 }
-.about-fallback-chapters em {
+.about-fallback-chapter summary::-webkit-details-marker {
+  display: none;
+}
+.about-fallback-chapter em {
   font-style: normal;
   font-size: 12px;
   font-weight: 800;
   color: rgba(184, 134, 11, 0.85);
 }
-.about-fallback-chapters span {
+.about-fallback-chapter span {
   font-size: 14px;
   font-weight: 600;
+}
+.about-fallback-chapter-chevron {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 13px;
+  color: rgba(184, 134, 11, 0.66);
+  transition: transform 0.25s ease;
+}
+.about-fallback-chapter[open] .about-fallback-chapter-chevron {
+  transform: rotate(180deg);
+}
+.about-fallback-chapter-body {
+  padding: 2px 16px 14px 44px;
+}
+.about-fallback-chapter-body p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(43, 41, 38, 0.82);
+}
+.about-fallback-chapter-body p:last-child {
+  margin-bottom: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .about-fallback-chapter-chevron {
+    transition: none;
+  }
 }
 .about-fallback-note {
   margin: 0 0 20px;

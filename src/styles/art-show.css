@@ -9,6 +9,9 @@
 [data-art-show="editing"] {
   --cat: #b5834a;
 }
+[data-art-show="langshi-ui"] {
+  --cat: #3f9d67;
+}
 
 html[data-page="sheet"]:has([data-art-show]) body {
   background: #fff8f3;
@@ -154,7 +157,7 @@ button.as-card {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 639px) {
   [data-art-show="illustration"] .as-grid,
   [data-art-show="illustration"] .as-grid--masonry {
     column-count: 1;
@@ -176,7 +179,7 @@ button.as-card {
   gap: 24px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
   [data-art-show="lnu-ip"] .as-grid {
     max-width: none;
   }
@@ -236,6 +239,77 @@ button.as-card {
 @media (prefers-reduced-motion: reduce) {
   [data-art-show="editing"] .as-reel-stage {
     transition: none;
+  }
+}
+
+/* ④ 流浪尸潮 UI/场景素材：四组分节，复用 .as-card 卡片 */
+[data-art-show="langshi-ui"] .as-group {
+  margin: 0 0 56px;
+}
+
+[data-art-show="langshi-ui"] .as-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 18px;
+  padding: 0 0 10px;
+  border-bottom: 2px solid color-mix(in srgb, var(--cat) 38%, transparent);
+}
+
+[data-art-show="langshi-ui"] .as-group-head h2 {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #3b1f2b;
+}
+
+[data-art-show="langshi-ui"] .as-group-head span {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--cat);
+}
+
+[data-art-show="langshi-ui"] .as-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+[data-art-show="langshi-ui"] .as-card {
+  border: 1px solid color-mix(in srgb, var(--cat) 20%, transparent);
+  background: #fff6f0;
+}
+
+[data-art-show="langshi-ui"] .as-media {
+  aspect-ratio: 4 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+[data-art-show="langshi-ui"] .as-img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+[data-art-show="langshi-ui"] .as-ph {
+  aspect-ratio: 4 / 3;
+}
+
+@media (max-width: 639px) {
+  [data-art-show="langshi-ui"] .as-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  [data-art-show="langshi-ui"] .as-media {
+    padding: 8px;
   }
 }
 

@@ -81,28 +81,39 @@ function buildEasterPopup(): HTMLElement {
 }
 
 
-/** 3D 不可用（移动端 / 模型加载失败）时露出静态 DOM 菜单，避免白屏 */
+/** 3D 不可用（无 WebGL / 低端机 / 模型加载失败）时露出静态 DOM 菜单，避免白屏 */
 function degradeToFallback() {
   document.documentElement.classList.add("is-fallback");
 }
 
+/** 运行时性能探测（v2 任务 1）：默认保留 3D，仅在有硬伤时降级
+ *  - ?gl=off / ?three=off 手动强制降级（调试用）
+ *  - 无 WebGL 上下文 → 降级
+ *  - 低端机（≤2 核 或 ≤1GB 内存）→ 降级
+ *  其余（含手机中高端机）保留 3D。 */
+function shouldDegrade(): boolean {
+  const params = new URLSearchParams(location.search);
+  if (params.get("gl") === "off" || params.get("three") === "off") return true;
+  const canvas = document.createElement("canvas");
+  const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+  if (!gl) return true;
+  const cores = navigator.hardwareConcurrency ?? 4;
+  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
+  if (cores <= 2 || mem <= 1) return true;
+  return false;
+}
+
 export function initDesk(container: HTMLElement) {
-  // 移动端降级：粗指针 / 窄屏 → 不加载 Three.js 与 13MB 模型，由 .mobile-fallback 静态菜单兜底
-  // 调试：/?three=off 强制降级（不依赖设备能力，方便桌面验静态菜单）
-  const forceOff =
-    typeof location !== "undefined" &&
-    new URLSearchParams(location.search).get("three") === "off";
-  if (
-    forceOff ||
-    window.matchMedia("(pointer: coarse)").matches ||
-    container.clientWidth < 768
-  ) {
+  // 移动端不再按宽度/粗指针一律降级；改为运行时性能探测（见 shouldDegrade）。
+  if (shouldDegrade()) {
     degradeToFallback();
     return;
   }
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const swayEnabled = window.matchMedia("(pointer: fine)").matches && !reduceMotion;
+  // 手机 touch 拖拽旋转：围绕 WORLD_UP 偏航 + 俯仰（clamp），桌面(pointer:fine)由鼠标 sway 接管，两者互斥
+  const orbit = { yaw: 0, pitch: 0 };
 
   // 场景不设背景色：画布保持透明，好让 #hero-type 的背景大字从 3D 工位后面透出来
   const scene = new THREE.Scene();
@@ -134,6 +145,8 @@ export function initDesk(container: HTMLElement) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.domElement.style.display = "block";
+  // 手机拖拽旋转：禁止浏览器把手势抢去做页面平移/缩放
+  renderer.domElement.style.touchAction = "none";
   container.appendChild(renderer.domElement);
 
   // ── 两套光照管线（手册 §3 精修 2）──
@@ -155,6 +168,10 @@ export function initDesk(container: HTMLElement) {
   const pointer = new THREE.Vector2();
   const introOverlay = document.getElementById("intro-overlay");
   const introHint = document.getElementById("intro-hint");
+  // 触屏（手机/平板）没有「鼠标靠近」，提示改为拖拽旋转 + 点按
+  if (introHint && window.matchMedia("(pointer: coarse)").matches) {
+    introHint.textContent = "拖拽旋转 · 点按发光图标探索工位";
+  }
   const loadingHint = document.getElementById("loading-hint");
   const hotspotLayer = document.getElementById("hotspots");
   const heroType = document.getElementById("hero-type");
@@ -358,6 +375,11 @@ export function initDesk(container: HTMLElement) {
 
   function onClick() {
     if (!ready || activating || !hovered) return;
+    // touch 拖拽旋转结束后浏览器仍会补发一次 click，这里吞掉，避免「转完视角就误跳页」
+    if (suppressClick) {
+      suppressClick = false;
+      return;
+    }
     runAction(hovered);
   }
 
@@ -404,6 +426,40 @@ export function initDesk(container: HTMLElement) {
 
   container.addEventListener("pointermove", onPointerMove);
   container.addEventListener("click", onClick);
+
+  // ── 手机 touch 拖拽旋转（v2 任务 1）：拖过阈值视为旋转并吞掉随后的 click，短触仍走 hover→点按跳转 ──
+  let dragging = false;
+  let dragMoved = false;
+  let suppressClick = false;
+  let lastX = 0;
+  let lastY = 0;
+  const DRAG_THRESHOLD = 6; // px，超过才算旋转，避免把轻点误判成拖拽
+  container.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "touch") return;
+    dragging = true;
+    dragMoved = false;
+    lastX = e.clientX;
+    lastY = e.clientY;
+  });
+  container.addEventListener("pointermove", (e) => {
+    if (!dragging || e.pointerType !== "touch") return;
+    const dx = e.clientX - lastX;
+    const dy = e.clientY - lastY;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    if (!dragMoved && Math.hypot(dx, dy) <= DRAG_THRESHOLD) return;
+    dragMoved = true;
+    orbit.yaw += dx * 0.005;
+    orbit.pitch = Math.max(-0.9, Math.min(0.9, orbit.pitch + dy * 0.005));
+  });
+  const endDrag = () => {
+    if (dragMoved) suppressClick = true;
+    dragging = false;
+    dragMoved = false;
+  };
+  container.addEventListener("pointerup", endDrag);
+  container.addEventListener("pointercancel", endDrag);
+
   window.addEventListener("resize", () => {
     updateCamera();
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -635,20 +691,51 @@ export function initDesk(container: HTMLElement) {
     }
   );
 
-  // ── 主循环：鼠标视角摇晃（lerp）──
+  // ── 帧率自保护（v2 任务 1 可选）：模型就绪后若连续 60 帧都 >50ms（<20fps），带 ?gl=off 重载降级 ──
+  let lastFrameMs = performance.now();
+  let slowStreak = 0;
+  let degraded = false;
+
+  // ── 主循环：鼠标视角摇晃（lerp）+ 手机 touch 拖拽旋转 ──
   function frame() {
     requestAnimationFrame(frame);
+
+    if (ready && !degraded) {
+      const now = performance.now();
+      const dt = now - lastFrameMs;
+      lastFrameMs = now;
+      if (dt > 50) {
+        slowStreak += 1;
+        if (slowStreak >= 60) {
+          degraded = true;
+          const u = new URL(location.href);
+          u.searchParams.set("gl", "off");
+          location.replace(u.toString());
+          return;
+        }
+      } else {
+        slowStreak = 0;
+      }
+    }
 
     if (swayEnabled) {
       sway.x += (swayTo.x - sway.x) * SWAY_EASE;
       sway.y += (swayTo.y - sway.y) * SWAY_EASE;
     }
     const amp = camState.radius * SWAY_AMOUNT;
+
+    // 视线基向量：基础 VIEW_DIR 先绕 WORLD_UP 偏航，再绕右轴俯仰（桌面 orbit 恒为 0，等效原状）
+    const dir = VIEW_DIR.clone().applyAxisAngle(WORLD_UP, orbit.yaw);
+    const right = new THREE.Vector3().crossVectors(dir, WORLD_UP).normalize();
+    dir.applyAxisAngle(right, orbit.pitch);
+    const up = new THREE.Vector3().crossVectors(right, dir).normalize();
+
     camera.position
       .copy(camTarget)
-      .addScaledVector(VIEW_DIR, camState.dist)
-      .addScaledVector(SWAY_RIGHT, sway.x * amp)
-      .addScaledVector(SWAY_UP, sway.y * amp * 0.55);
+      .addScaledVector(dir, camState.dist)
+      .addScaledVector(right, sway.x * amp)
+      .addScaledVector(up, sway.y * amp * 0.55);
+    camera.up.copy(up);
     camera.lookAt(camTarget);
 
     // 背景大字朝反方向微移：和前景工位形成视差，读起来才有前后空间

@@ -667,6 +667,40 @@ html[data-page="desktop"] #cursor {
   }
 }
 
+/* 手机（<640px）：选择台改单列卡片列表，允许纵向滚动，整卡可点（v2 任务 7） */
+@media (max-width: 639px) {
+  html[data-page="desktop"] body {
+    overflow: auto;
+  }
+  .dt-stage {
+    height: auto;
+    min-height: 100vh;
+    max-height: none;
+  }
+  .dt-welcome {
+    height: auto;
+    max-height: 24vh;
+    top: 64px;
+  }
+  .dt-cards {
+    position: static;
+    left: auto;
+    bottom: auto;
+    translate: none;
+    width: 100%;
+    max-width: 480px;
+    margin-inline: auto;
+    grid-template-columns: 1fr;
+    gap: 44px;
+    align-items: center;
+    justify-items: center;
+    padding: clamp(150px, 30vh, 220px) 24px 88px;
+  }
+  .dt-card {
+    width: min(100%, 260px);
+  }
+}
+
 /* 文件夹子状态：奶油底上的 overlay；进上滑、出下滑，对齐卡片 rise/fall */
 html[data-page="desktop"].is-folder-open .dt-stage {
   opacity: 0.22;

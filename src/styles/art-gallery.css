@@ -8,6 +8,15 @@ html.is-folder-open:has([data-folder-view="art"]:not([hidden])) .dt-folder-layer
   overflow: hidden;
 }
 
+/* 手机端：美术文件夹改为单列纵向滚动，解除桌面端横拖画廊对 folder-layer 的 overflow 锁；
+   folder-layer 是 fixed(inset:0)，visible 会让超出视口的内容既不可滚也不撑高 body，改成内部纵向滚动 */
+@media (max-width: 639px) {
+  html.is-folder-open:has([data-folder-view="art"]:not([hidden])) .dt-folder-layer {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+}
+
 .ag {
   --ag-pink: #ff91af;
   --ag-rose: #f19cbb;
@@ -199,10 +208,73 @@ html[data-page="sheet"]:has(.ag--sheet) body {
   --obj-z: 1;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639px) {
+  /* 移动端：横拖画廊 → 单列竖排，图 4/3、标题标签在图下（任务 ①） */
+  [data-art-gallery].ag {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  [data-art-gallery] .ag-bar {
+    position: relative;
+    padding: 88px 20px 12px;
+  }
+
+  [data-art-gallery] .ag-viewport {
+    height: auto;
+    overflow: visible;
+    touch-action: auto;
+    cursor: default;
+  }
+
+  [data-art-gallery] .ag-track {
+    display: block;
+    width: 100%;
+    height: auto;
+    padding: 8px 20px 56px;
+    transform: none !important;
+    will-change: auto;
+  }
+
   [data-art-gallery] .ag-item--object {
-    width: 78vw;
-    height: calc(78vw * 1.304);
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 0 28px;
+    transform: none !important;
+    box-shadow: 0 12px 28px rgba(97, 64, 81, 0.14);
+  }
+
+  [data-art-gallery] .ag-media {
+    height: auto;
+  }
+
+  [data-art-gallery] .ag-photo {
+    position: relative;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+
+  [data-art-gallery] .ag-photo > * {
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  [data-art-gallery] .ag-sticker {
+    position: static;
+    display: inline-block;
+    transform: none;
+    margin: 14px 0 0 14px;
+  }
+
+  [data-art-gallery] .ag-sticker--title {
+    font-size: 20px;
+  }
+
+  [data-art-gallery] .ag-sticker--meta {
+    margin-left: 10px;
+    font-size: 13px;
   }
 }
 

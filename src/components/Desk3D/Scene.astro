@@ -29,7 +29,7 @@ const navObjects = deskObjects.filter((o) => o.route.startsWith("/"));
   }
 </h1>
 
-<div class="relative z-10 w-full h-screen overflow-hidden" id="desk-scene"></div>
+<div class="fixed inset-0 z-10 overflow-hidden" id="desk-scene"></div>
 
 <!-- 热点圆点 = 导航菜单，位置由 desk.ts 每帧从 3D 投影到屏幕
      只给会跳路由的物件加圆点：台灯（切昼夜）和咖啡（彩蛋）不是导航项，留给鼠标扫到时自己发光 -->
@@ -67,5 +67,15 @@ const navObjects = deskObjects.filter((o) => o.route.startsWith("/"));
 <script>
   import { initDesk } from "../../scripts/desk";
   const el = document.getElementById("desk-scene");
-  if (el) initDesk(el);
+  // 3D 仅在桌面/平板（>=640px）初始化；手机由 .home-sections 2D 壳接管，不加载 13MB 模型。
+  // 手机竖屏→横屏跨越 640px 时懒启动一次（started 防重复绑定）。
+  const mq = window.matchMedia("(min-width: 640px)");
+  let started = false;
+  function maybeStart() {
+    if (!el || started || !mq.matches) return;
+    started = true;
+    initDesk(el);
+  }
+  maybeStart();
+  mq.addEventListener("change", maybeStart);
 </script>

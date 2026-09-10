@@ -23,3 +23,10 @@
     transition: none;
   }
 }
+
+/* 手机/触屏兜底：脚本只在 (pointer: fine) 绑定磁吸，这里做 CSS 保险 */
+@media (pointer: coarse) {
+  .magnetic-btn {
+    transform: none !important;
+  }
+}

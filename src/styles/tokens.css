@@ -1,0 +1,27 @@
+/* 移动端适配 · 断点 tokens（唯一来源）
+   §3.1：断点只分两档——手机 <640px 单独写，平板/桌面 >=900px 共用一套。
+   注意：CSS @media 条件里不能使用 var()，所以下面变量供 JS / clamp() 等引用；
+   媒体查询内直接写数值 639px / 900px，数值一律以这里为准，勿散落 767/768/800 等旧值。 */
+
+:root {
+  --bp-sm: 640px; /* 手机上界（不含）：<640px 走手机分支 */
+  --bp-md: 900px; /* 平板/桌面起点（含）：>=900px 走桌面分支 */
+
+  /* 清新拟物风设计令牌（主页壳，任务 6）
+     ⚠️ 用 --fresh-* 前缀另起一套，避免覆盖 global.css @theme 里已占用的 --color-ink（/desktop 奶油底正文）。 */
+  --fresh-bg: #eef4fb; /* 浅蓝白背景 */
+  --fresh-card: #ffffff; /* 拟物卡片底 */
+  --fresh-ink: #2b3a4a; /* 清新正文 */
+  --fresh-ink-soft: #7c8a9b; /* 次级文字 */
+  --fresh-accent: #6fb8ff; /* 清新蓝 */
+  --fresh-radius: 22px;
+  --fresh-shadow: 0 10px 30px rgba(120, 160, 220, 0.25);
+  --font-hand: "Caveat", "Ma Shan Zheng", cursive; /* welcome 手写体 */
+
+  /* 字号 / 间距流体阶梯（任务 12）：标题/正文/说明三档在 375px 不溢出。
+     clamp 下限保手机可读、上限锁桌面原值；只作用于 body 继承（rem 根字号不动，避免牵动全站 rem 组件）。 */
+  --font-size-h1: clamp(1.75rem, 5vw, 3rem); /* 页面大标题 */
+  --font-size-h2: clamp(1.35rem, 4vw, 1.75rem); /* 区块标题 */
+  --font-size-body: clamp(0.9rem, 2.5vw, 1rem); /* 正文：375px≈14.4px，桌面锁 16px */
+  --space-section: clamp(2rem, 6vw, 4rem); /* 区块纵向留白 */
+}

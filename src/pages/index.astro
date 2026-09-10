@@ -1,11 +1,18 @@
 ---
-// 首页：深夜工位 3D 场景（全屏，不使用 BaseLayout，物件即导航）
+// 首页：桌面/平板（>=640px）用深夜工位 3D 场景（物件即导航）；手机（<640px）用 2D 清新拟物卡片
 import Scene from "../components/Desk3D/Scene.astro";
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
 import LineMenu from "../components/LineMenu.astro";
 import "../styles/global.css";
-import { author } from "../data/profile";
+import { author, profile } from "../data/profile";
+
+const homeLinks = [
+  { href: "/desktop", icon: "📁", name: "项目与作品", en: "PROJECTS" },
+  { href: "/about", icon: "👤", name: "关于我", en: "ABOUT" },
+  { href: "/awards", icon: "🏆", name: "获奖与证书", en: "AWARDS" },
+  { href: "/contact", icon: "✉️", name: "联系我", en: "CONTACT" },
+];
 ---
 <!doctype html>
 <html lang="zh-CN" data-page="home">
@@ -23,15 +30,47 @@ import { author } from "../data/profile";
     <meta property="og:image" content="/assets/art/辽大IP/logo.png" />
     <script is:inline>
       try {
-        if (localStorage.getItem("yb-design:desk-theme") === "light") {
+        // 手机始终走浅色 2D 壳；桌面台灯主题由 localStorage 记忆（默认深色）
+        if (
+          window.matchMedia("(max-width: 639px)").matches ||
+          localStorage.getItem("yb-design:desk-theme") === "light"
+        ) {
           document.documentElement.dataset.deskTheme = "light";
         }
       } catch (e) {}
     </script>
   </head>
-  <body class="overflow-hidden">
+  <body>
     <LineMenu current="home" theme="home" />
-    <Scene />
+
+    <!-- 桌面/平板：3D 工位（手机端整体隐藏，避免加载 13MB 模型） -->
+    <div class="home-3d">
+      <Scene />
+    </div>
+
+    <!-- 手机：2D 清新拟物首页 hero + 4 分区卡片即导航 -->
+    <main class="home-sections" aria-label="站点分区入口">
+      <div class="home-sections-head">
+        <p class="home-welcome" aria-hidden="true">welcome</p>
+        <h1 class="home-hero-name">{profile.name}</h1>
+        <p class="home-hero-title">{profile.jobTitle}</p>
+        <p class="home-kicker">SITE MAP · 分区入口</p>
+      </div>
+      <div class="home-entries">
+        {
+          homeLinks.map((l) => (
+            <a class="home-entry" href={l.href}>
+              <span class="home-entry-icon" aria-hidden="true">{l.icon}</span>
+              <span class="home-entry-body">
+                <span class="home-entry-name">{l.name}</span>
+                <span class="home-entry-en">{l.en}</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+    </main>
+
     <TransitionOverlay />
     <CustomCursor />
   </body>

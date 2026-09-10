@@ -121,6 +121,12 @@ export function initAwardsStack() {
 
   const fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
+  // 触屏没有「悬停」，简介里的交互说明改为「点按」
+  const lede = document.querySelector<HTMLElement>(".as-lede");
+  if (lede && !fine) {
+    lede.textContent = "奖项按时间叠成文件柜；同层最多三份。点按标签把文件抽到前面，点按整层即展开，再点收起。";
+  }
+
   root.querySelectorAll<HTMLElement>("[data-as-folder]").forEach((folder) => {
     folder.addEventListener("mouseenter", () => {
       window.clearTimeout(leaveTimer);
@@ -153,7 +159,7 @@ export function initAwardsStack() {
     root.addEventListener("click", (e) => {
       const t = e.target as HTMLElement | null;
       if (!t) return;
-      if (t.closest("[data-as-preview]") || t.closest("a[download]") || t.closest(".as-embed-link")) return;
+      if (t.closest("[data-as-preview]") || t.closest("[data-as-pdf-open]") || t.closest("a[download]") || t.closest(".as-embed-link")) return;
       const tab = t.closest<HTMLElement>("[data-as-tab]");
       if (tab) {
         const folder = tab.closest<HTMLElement>("[data-as-folder]");
@@ -177,6 +183,22 @@ export function initAwardsStack() {
       e.preventDefault();
       openLightbox(preview.dataset.asPreview);
     }
+  });
+
+  // PDF 默认不挂载 iframe：点「查看 PDF」才加载，避免首屏拉浏览器 PDF 查看器（任务 13）
+  root.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-as-pdf-open]");
+    const src = btn?.dataset.asPdfOpen;
+    if (!btn || !src) return;
+    const box = btn.closest<HTMLElement>("[data-as-pdf]");
+    e.preventDefault();
+    const frame = document.createElement("iframe");
+    frame.src = `${src}#view=FitH`;
+    frame.title = btn.getAttribute("aria-label") ?? "PDF 证书";
+    frame.loading = "lazy";
+    box?.classList.add("is-open");
+    box?.insertBefore(frame, box.firstChild);
+    btn.remove();
   });
 
   document.addEventListener("click", (e) => {
