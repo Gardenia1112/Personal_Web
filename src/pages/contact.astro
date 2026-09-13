@@ -54,14 +54,24 @@ const channels = [
           </a>
           <a
             class="nm-contact-cta nm-contact-cta--ghost magnetic-btn"
-            href={profile.resume}
-            download
-            aria-label="下载简历 resume.pdf"
+            href={profile.resumes.tech.href}
+            download={profile.resumes.tech.download}
+            aria-label="下载技术求职简历（游戏客户端工程师）"
           >
-            下载简历
+            <span class="nm-contact-cta-role" aria-hidden="true">技术求职</span>
+            <span>下载简历</span>
+          </a>
+          <a
+            class="nm-contact-cta nm-contact-cta--ghost magnetic-btn"
+            href={profile.resumes.art.href}
+            download={profile.resumes.art.download}
+            aria-label="下载美工求职简历（2D 场景）"
+          >
+            <span class="nm-contact-cta-role" aria-hidden="true">美工求职</span>
+            <span>下载简历</span>
           </a>
         </div>
-        <p class="nm-contact-expect">通常 24–48 小时内回复 · 欢迎聊实习机会、项目合作与游戏制作交流</p>
+        <p class="nm-contact-expect">技术岗 / 美工岗两份简历分开提供 · 通常 24–48 小时内回复 · 欢迎聊实习机会、项目合作与游戏制作交流</p>
       </div>
     </section>
 

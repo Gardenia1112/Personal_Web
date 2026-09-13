@@ -14,7 +14,17 @@ export const profile = {
   website: "",
   github: "https://github.com/Gardenia1112",
   gitee: "https://gitee.com/bfnya/Unity_Game2025.git",
-  resume: "/resume.pdf", // 简历文件；下载入口在 /about 与 /contact，不另开页面
+  // 简历分两个方向：技术岗（游戏客户端）与美工岗（2D 场景），下载入口在 /contact
+  resumes: {
+    tech: {
+      href: "/resume/game-client-engineer.pdf",
+      download: "游戏客户端工程师-辽宁大学-27届毕业生-赵韵婷.pdf",
+    },
+    art: {
+      href: "/resume/2d-scene.pdf",
+      download: "2D场景-辽宁大学-27届毕业生-赵韵婷.pdf",
+    },
+  },
 
   // 首页背景排版大字：铺满视口、位于 3D 工位之后形成前后空间感
   // ⚠️ 按用户要求不含真名；三行长度接近才能各自撑满一行宽度

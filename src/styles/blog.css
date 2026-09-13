@@ -489,6 +489,7 @@ html[data-page="blog"] footer {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   padding: 10px 18px;
   border-radius: 999px;
   background: var(--nm-lavender);
@@ -498,6 +499,14 @@ html[data-page="blog"] footer {
   font-weight: 700;
   border: 1.5px solid var(--nm-lavender);
   transition: filter 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.nm-contact-cta-role {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 16%, transparent);
 }
 .nm-contact-cta:hover,
 .nm-contact-cta:focus-visible {
