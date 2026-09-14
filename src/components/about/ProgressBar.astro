@@ -1,0 +1,22 @@
+---
+// 线性进度条（唯一导航 UI）。填充比例由 about.ts 写 --progress 变量驱动；
+// <640 底部水平（scaleX），>=640 右侧竖直（scaleY），点击跳转逻辑也在 about.ts。
+interface Props {
+  total: number;
+}
+
+const { total } = Astro.props;
+const max = total - 1;
+---
+<div
+  class="about-progress"
+  role="progressbar"
+  aria-label="关于我章节进度"
+  aria-valuemin="0"
+  aria-valuemax={String(max)}
+  aria-valuenow="0"
+>
+  <div class="about-progress-track">
+    <div class="about-progress-fill"></div>
+  </div>
+</div>

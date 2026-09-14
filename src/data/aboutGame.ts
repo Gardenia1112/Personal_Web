@@ -1,7 +1,5 @@
-// 02 §3.1 游戏化介绍 —— 展板内容（内容对应 01 §3）
-// 第 4 块「技能与教育」由 profile.ts 的结构化数据拼装，避免技能/教育双份维护
-import { profile } from "./profile";
-
+// 02 §3.1 关于我 —— 4 屏叙事展板内容（全屏 Snap 页面读取）
+// 屏 3（NOW）的技能 / 教育 / 工作方法由 profile.ts 提供，本文件只存叙事正文与配图
 export interface GameBoardData {
   id: string;
   index: number;
@@ -15,33 +13,7 @@ export interface GameBoardData {
   subtitle?: string;
   scrollTexts?: string[];
   cta?: { label: string; href: string };
-  resume?: { title: string; items: string[] }[];
 }
-
-// 第 4 块展板：把「教育背景 / 专业技能 / 工作方法」做成可滚动简历卡
-const resumeBoard: GameBoardData = {
-  id: "resume",
-  index: 4,
-  title: "技能与教育",
-  kicker: "STATS",
-  tagline: `求职意向 · ${profile.jobIntention}`,
-  cover: "/assets/about/now-fsm.png",
-  lines: [],
-  resume: [
-    {
-      title: "教育背景",
-      items: [
-        `${profile.education_detail.school} · ${profile.education_detail.major} · ${profile.education_detail.period}`,
-        `课程：${profile.education_detail.courses.join(" / ")}`,
-      ],
-    },
-    ...profile.skills.map((s) => ({ title: s.category, items: [s.items] })),
-    {
-      title: "工作方法",
-      items: [profile.intro.habit, profile.intro.method, profile.intro.goal],
-    },
-  ],
-};
 
 export const gameBoards: GameBoardData[] = [
   {
@@ -119,10 +91,9 @@ export const gameBoards: GameBoardData[] = [
       "工作之余也自己做 2D 插画与场景概念，能独立完成界面与关卡的视觉搭建，和程序对齐规格时更少返工。",
     ],
   },
-  resumeBoard,
   {
     id: "ending",
-    index: 5,
+    index: 4,
     title: "向未来全速前进！",
     kicker: "NEXT LEVEL · NEW GAME!",
     cover: "/assets/about/chapter-ending.png",
@@ -137,10 +108,3 @@ export const gameBoards: GameBoardData[] = [
     cta: { label: "联系我 →", href: "/contact" },
   },
 ];
-
-// 横版世界：一路小旗子，最后一面结束
-export const WORLD_WIDTH = 3000;
-export const FLAG_X_START = 420;
-export const FLAG_GAP = 560;
-export const PLAYER_START_X = 72;
-export const TRIGGER_RANGE = 64;

@@ -2,6 +2,15 @@
 // 站内署名统一走这里：name 与 author 均取笔名 赵彼方（真名不再进入源码）
 export const author = "赵彼方";
 
+export interface ProfileStat {
+  label: string;
+  value: number;
+  decimals: number;
+  prefix?: string;
+  suffix?: string;
+  note?: string;
+}
+
 export const profile = {
   name: "赵彼方",
   avatar: "", // Models 目录已移除；头像路径待补标准证件照
@@ -80,4 +89,13 @@ export const profile = {
       tags: ["状态机", "事件驱动", "数据驱动", "对象池", "GC 优化", "性能基线回归"],
     },
   ],
+
+  // 关键数字（屏3 数据卡片 · 数字滚动）：value 为目标值，decimals 为小数位，
+  // prefix/suffix 为前后缀，note 为补充说明（如 35 → 60 FPS）
+  stats: [
+    { label: "累计营收", value: 2.7, decimals: 1, prefix: "¥", suffix: " 万" },
+    { label: "软件著作权", value: 2, decimals: 0, suffix: " 项" },
+    { label: "测试场景帧率", value: 60, decimals: 0, suffix: " FPS", note: "35 → 60 FPS" },
+    { label: "性能提升", value: 71, decimals: 0, prefix: "+", suffix: "%" },
+  ] as ProfileStat[],
 };

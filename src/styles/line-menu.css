@@ -162,22 +162,12 @@ html[data-desk-theme="light"] .lm-bar[data-lm-theme="home"] {
   --lm-chip-active: rgba(20, 24, 31, 0.14);
 }
 
-/* ── 关于我：黄 ── */
+/* ── 关于我：暗底金（深夜工位） ── */
 .lm-bar[data-lm-theme="about"] {
-  --lm-muted: rgba(120, 90, 20, 0.55);
-  --lm-hover: rgba(80, 60, 10, 0.85);
-  --lm-active: #c99200;
-  --lm-mask: #fff8e7;
-  --lm-chip: rgba(255, 214, 10, 0.22);
-  --lm-chip-hover: rgba(255, 214, 10, 0.34);
-  --lm-chip-active: rgba(255, 214, 10, 0.48);
-}
-html[data-about-chapter="now"] .lm-bar[data-lm-theme="about"],
-html[data-about-chapter="ending"] .lm-bar[data-lm-theme="about"] {
   --lm-muted: rgba(255, 214, 10, 0.55);
   --lm-hover: rgba(255, 230, 120, 0.9);
   --lm-active: #ffd60a;
-  --lm-mask: #14181f;
+  --lm-mask: #0f1115;
   --lm-chip: rgba(255, 214, 10, 0.12);
   --lm-chip-hover: rgba(255, 214, 10, 0.2);
   --lm-chip-active: rgba(255, 214, 10, 0.28);

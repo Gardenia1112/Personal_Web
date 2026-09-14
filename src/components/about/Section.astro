@@ -1,0 +1,33 @@
+---
+// 单屏容器：渲染 kicker / 标题（字符级错位淡入）/ tagline + 封面压暗背景。
+// 入场状态由 about.ts 通过 .is-in class 控制，本组件不写脚本。
+interface Props {
+  id: string;
+  variant: "start" | "turning" | "now" | "ending";
+  kicker: string;
+  title: string;
+  tagline?: string;
+  cover: string;
+}
+
+const { id, variant, kicker, title, tagline, cover } = Astro.props;
+// 标题按 Unicode 码点拆成字符，空格转成不换行空格，供 CSS 逐字错位淡入
+const chars = Array.from(title).map((ch) => (ch === " " ? " " : ch));
+---
+<section class="about-screen" data-screen={id} data-variant={variant} aria-labelledby={`${id}-title`}>
+  <div class="about-screen-bg" aria-hidden="true" style={`background-image:url(${cover})`}></div>
+  <div class="about-screen-inner">
+    <header class="about-screen-head">
+      <p class="about-kicker">{kicker}</p>
+      <h2 class="about-title" id={`${id}-title`}>
+        {chars.map((c, i) => (
+          <span class="about-char" style={`--i:${i}`}>{c}</span>
+        ))}
+      </h2>
+      {tagline && <p class="about-tagline">{tagline}</p>}
+    </header>
+    <div class="about-screen-body">
+      <slot />
+    </div>
+  </div>
+</section>

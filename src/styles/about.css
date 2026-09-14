@@ -1,0 +1,450 @@
+/* ===== About 全屏 Snap 叙事页 =====
+   深夜工位 / 像素 / 游戏 · 竖直整屏吸附
+   结构：.about-viewport > .about-screen ×4；进度条 <640 底部水平，>=640 右侧竖直
+   断点：640 / 1024。动效走 --progress 变量 + .is-in 入场 class，尊重 reduced-motion */
+
+:root {
+  --about-gold: #ffd60a;
+  --about-bronze: #b8860b;
+}
+
+/* 关于页铺成暗色「深夜工位」底，滚动交给 .about-viewport */
+html[data-page="about"],
+html[data-page="about"] body {
+  overflow: hidden;
+}
+html[data-page="about"] body {
+  background: var(--color-deep);
+  color: var(--color-fg);
+}
+html[data-page="about"] #cursor {
+  --cursor-core: var(--color-cyan);
+  --cursor-glow: rgba(0, 217, 255, 0.35);
+  mix-blend-mode: normal;
+}
+
+/* 滚动容器 */
+.about-viewport {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+}
+.about-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+/* 单屏 */
+.about-screen {
+  --accent: var(--color-cyan);
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 96px clamp(20px, 5vw, 64px) 56px;
+  isolation: isolate;
+}
+.about-screen[data-variant="turning"] {
+  --accent: var(--color-warm);
+}
+.about-screen[data-variant="now"] {
+  --accent: var(--about-gold);
+}
+.about-screen[data-variant="ending"] {
+  --accent: var(--about-gold);
+}
+
+/* 封面压暗背景 */
+.about-screen-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.18;
+  filter: saturate(0.7) contrast(1.05);
+}
+.about-screen-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, transparent 30%, var(--color-deep) 100%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-deep) 70%, transparent), var(--color-deep));
+}
+
+.about-screen-inner {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* 标题区 */
+.about-kicker {
+  margin: 0 0 16px;
+  font-size: clamp(11px, 1.4vw, 13px);
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.about-title {
+  margin: 0;
+  font-size: clamp(1.9rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  line-height: 1.12;
+  color: var(--color-fg);
+}
+.about-tagline {
+  margin: 14px 0 0;
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--color-fg) 62%, transparent);
+}
+
+/* 入场动效：进入视口（.is-in 只加一次）后淡入。
+   隐藏态仅在 JS 可用时（html.js）生效，无 JS 时内容保持可见做降级。 */
+html.js .about-screen .about-kicker,
+html.js .about-screen .about-screen-body {
+  opacity: 0;
+  transform: translateY(24px);
+}
+html.js .about-screen.is-in .about-kicker {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.js .about-screen.is-in .about-screen-body {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s;
+}
+
+/* 标题字符级错位淡入 */
+.about-char {
+  display: inline-block;
+}
+html.js .about-char {
+  opacity: 0;
+  transform: translateY(0.5em);
+}
+html.js .about-screen.is-in .about-char {
+  animation: about-char-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i) * 40ms);
+}
+@keyframes about-char-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 正文行（屏1 / 屏2） */
+.about-story {
+  list-style: none;
+  margin: 30px auto 0;
+  padding: 0;
+  max-width: 720px;
+  display: grid;
+  gap: 16px;
+  text-align: left;
+}
+.about-line {
+  margin: 0;
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+  line-height: 1.85;
+  color: color-mix(in srgb, var(--color-fg) 86%, transparent);
+}
+.about-line::before {
+  content: "▸ ";
+  color: var(--accent);
+}
+
+/* ===== 屏3 数据 ===== */
+.now-stats {
+  display: grid;
+  gap: 22px;
+  margin-top: 28px;
+  text-align: left;
+}
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+@media (min-width: 1024px) {
+  .about-stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.about-stat {
+  padding: 16px 14px;
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent) 14%, transparent),
+    color-mix(in srgb, var(--accent) 5%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.about-stat-value {
+  display: block;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--accent);
+}
+.about-stat-label {
+  display: block;
+  margin-top: 9px;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--color-fg) 62%, transparent);
+}
+.about-stat-note {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--color-fg) 46%, transparent);
+}
+
+.now-columns {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+@media (min-width: 1024px) {
+  .now-columns {
+    grid-template-columns: 1.05fr 1fr;
+  }
+}
+.now-facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.now-fact {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-desk) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--color-fg) 86%, transparent);
+}
+.now-side {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+/* 卡片（技能 / 教育 / 方法） */
+.about-card {
+  padding: 14px 15px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-desk) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-fg) 12%, transparent);
+}
+.about-card h4 {
+  margin: 0 0 9px;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.about-card p,
+.about-card li {
+  font-size: 0.86rem;
+  line-height: 1.68;
+  color: color-mix(in srgb, var(--color-fg) 80%, transparent);
+}
+.about-card p + p {
+  margin-top: 6px;
+}
+.about-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.about-card li + li {
+  margin-top: 6px;
+}
+
+.about-skills {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 640px) {
+  .about-skills {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.about-edu-method {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+@media (min-width: 1024px) {
+  .about-edu-method {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== 屏4 收尾 ===== */
+.about-end {
+  display: grid;
+  gap: 30px;
+  justify-items: center;
+  margin-top: 30px;
+}
+.about-end-sub {
+  max-width: 640px;
+  margin: 0;
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  line-height: 1.8;
+  color: color-mix(in srgb, var(--color-fg) 88%, transparent);
+}
+.about-end-scroll {
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.about-end-track {
+  display: flex;
+  width: max-content;
+  animation: about-end-marquee 22s linear infinite;
+}
+.about-end-group {
+  display: flex;
+  gap: 52px;
+  padding-right: 52px;
+  flex: none;
+  white-space: nowrap;
+}
+.about-end-group span {
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: color-mix(in srgb, var(--accent) 90%, transparent);
+}
+@keyframes about-end-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.about-end-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 34px;
+  border-radius: 999px;
+  background: var(--about-gold);
+  color: #1d2126;
+  font-weight: 800;
+  font-size: 1.05rem;
+  text-decoration: none;
+  box-shadow: 0 14px 34px rgba(255, 214, 10, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.about-end-cta:hover,
+.about-end-cta:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(255, 214, 10, 0.42);
+}
+.about-end-cta:focus-visible {
+  outline: 2px solid var(--color-cyan);
+  outline-offset: 3px;
+}
+
+/* ===== 进度条（唯一导航） ===== */
+.about-progress {
+  position: fixed;
+  z-index: 60;
+  left: 20px;
+  right: 20px;
+  bottom: 14px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.about-progress-track {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-fg) 14%, transparent);
+  overflow: hidden;
+}
+.about-progress-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-cyan);
+  transform: scaleX(var(--progress, 0));
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (min-width: 640px) {
+  .about-progress {
+    left: auto;
+    right: 16px;
+    bottom: auto;
+    top: 50%;
+    width: 24px;
+    height: min(46vh, 340px);
+    transform: translateY(-50%);
+    justify-content: center;
+  }
+  .about-progress-track {
+    width: 4px;
+    height: 100%;
+  }
+  .about-progress-fill {
+    transform: scaleY(var(--progress, 0));
+    transform-origin: center top;
+  }
+}
+
+/* 小屏把顶部留白收窄一点，给内容多让出空间 */
+@media (max-width: 639px) {
+  .about-screen {
+    padding-top: 84px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js .about-screen .about-kicker,
+  html.js .about-screen .about-screen-body,
+  html.js .about-char {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .about-end-track {
+    animation: none;
+  }
+  .about-progress-fill {
+    transition: none;
+  }
+}

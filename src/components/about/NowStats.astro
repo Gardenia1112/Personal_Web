@@ -1,0 +1,110 @@
+---
+// 屏3 数据卡片：关键数字（数字滚动）+ 技能四组 + 教育背景 / 工作方法（并入屏3）。
+// 正文证据行由 about.astro 传入 lines；技能 / 教育 / 方法读 profile.ts。
+import { profile } from "../../data/profile";
+
+interface Props {
+  lines: string[];
+}
+
+const { lines } = Astro.props;
+---
+<div class="now-stats">
+  <div class="about-stats">
+    {
+      profile.stats.map((s) => (
+        <div class="about-stat">
+          <span
+            class="about-stat-value"
+            data-value={String(s.value)}
+            data-decimals={String(s.decimals)}
+            data-prefix={s.prefix ?? ""}
+            data-suffix={s.suffix ?? ""}
+          >{s.prefix ?? ""}{s.value.toFixed(s.decimals)}{s.suffix ?? ""}</span>
+          <span class="about-stat-label">{s.label}</span>
+          {s.note && <span class="about-stat-note">{s.note}</span>}
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="now-columns">
+    <ol class="now-facts">
+      {lines.map((l) => (
+        <li class="now-fact">{l}</li>
+      ))}
+    </ol>
+
+    <div class="now-side">
+      <div class="about-skills">
+        {
+          profile.skills.map((s) => (
+            <div class="about-card about-skill">
+              <h4>{s.category}</h4>
+              <p>{s.items}</p>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="about-edu-method">
+        <div class="about-card">
+          <h4>教育背景</h4>
+          <p>{profile.education_detail.school} · {profile.education_detail.major} · {profile.education_detail.period}</p>
+          <p>课程：{profile.education_detail.courses.join(" / ")}</p>
+        </div>
+        <div class="about-card">
+          <h4>工作方法</h4>
+          <ul>
+            <li>{profile.intro.habit}</li>
+            <li>{profile.intro.method}</li>
+            <li>{profile.intro.goal}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 数字滚动：首次进入视口时从 0 缓动到目标值，仅一次；reduced-motion 直接显示终值。
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const root = document.querySelector<HTMLElement>(".now-stats");
+  if (root) {
+    const values = Array.from(root.querySelectorAll<HTMLElement>(".about-stat-value"));
+
+    const render = (el: HTMLElement, v: number) => {
+      const decimals = Number(el.dataset.decimals ?? 0);
+      const prefix = el.dataset.prefix ?? "";
+      const suffix = el.dataset.suffix ?? "";
+      el.textContent = `${prefix}${v.toFixed(decimals)}${suffix}`;
+    };
+
+    if (!reduce) {
+      // 先归零（此时屏3 尚在视口外，无闪烁），进入视口再缓动到终值
+      values.forEach((el) => render(el, 0));
+      const statWrap = root.querySelector<HTMLElement>(".about-stats");
+      if (statWrap) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              io.unobserve(entry.target);
+              const duration = 1100;
+              const start = performance.now();
+              const tick = (now: number) => {
+                const t = Math.min(1, (now - start) / duration);
+                const ease = 1 - Math.pow(1 - t, 3);
+                values.forEach((el) => render(el, Number(el.dataset.value) * ease));
+                if (t < 1) requestAnimationFrame(tick);
+              };
+              requestAnimationFrame(tick);
+            }
+          },
+          { threshold: 0.4 }
+        );
+        io.observe(statWrap);
+      }
+    }
+  }
+</script>

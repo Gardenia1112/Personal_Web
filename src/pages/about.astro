@@ -2,9 +2,20 @@
 import TransitionOverlay from "../components/TransitionOverlay.astro";
 import CustomCursor from "../components/CustomCursor.astro";
 import LineMenu from "../components/LineMenu.astro";
+import Section from "../components/about/Section.astro";
+import ProgressBar from "../components/about/ProgressBar.astro";
+import NowStats from "../components/about/NowStats.astro";
 import "../styles/global.css";
+import "../styles/about.css";
 import { author, profile } from "../data/profile";
 import { gameBoards } from "../data/aboutGame";
+
+const board = (id: string) => gameBoards.find((b) => b.id === id)!;
+const start = board("start");
+const turning = board("turning");
+const now = board("now");
+const ending = board("ending");
+const total = gameBoards.length;
 ---
 <!doctype html>
 <html lang="zh-CN" data-page="about">
@@ -12,119 +23,68 @@ import { gameBoards } from "../data/aboutGame";
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" />
-    <meta name="description" content="游戏化个人介绍" />
-    <title>关于我 · yb-design</title>
+    <meta name="description" content={`关于我 · ${author}`} />
+    <title>关于我 · {author}</title>
     <link rel="canonical" href={`https://[TARGET_DOMAIN]${Astro.url.pathname}`} />
     <meta property="og:url" content={`https://[TARGET_DOMAIN]${Astro.url.pathname}`} />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="关于我 · yb-design" />
-    <meta property="og:description" content="游戏化个人介绍" />
+    <meta property="og:title" content={`关于我 · ${author}`} />
+    <meta property="og:description" content={`关于我 · ${author}`} />
     <meta property="og:image" content="/assets/art/辽大IP/logo.png" />
+    <script is:inline>document.documentElement.classList.add("js");</script>
   </head>
-  <body class="overflow-hidden">
+  <body>
     <LineMenu current="about" theme="about" />
-    <main id="game" class="relative w-full h-screen overflow-hidden">
-      <a class="about-home magnetic-btn" href="/" aria-label="回工位">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </a>
-      <div id="about-wipe" aria-hidden="true"></div>
-      <div id="about-hint" class="about-hint is-on" aria-hidden="true">
-        <p>A/D 或 ←/→ 移动</p>
-      </div>
-      <div id="board-panel" aria-live="polite">
-        <div class="about-panel-body" id="board-panel-body"></div>
-      </div>
-      <a id="about-ending-cta" class="about-ending-cta magnetic-btn" href="/contact">联系我 →</a>
-    </main>
 
-    <!-- 移动端降级：静态简介。桌面端仍走 Phaser 横版小游戏（下方脚本条件加载，Phaser 不参与降级分支） -->
-    <section id="about-fallback" class="about-fallback" aria-label="关于我 · 静态简介">
-      <div class="about-fallback-card">
-        <a class="about-fallback-back" href="/" aria-label="回工位">← 回工位</a>
-        <p class="about-fallback-kicker">GAME INTRO · 关于我</p>
-        <figure class="about-fallback-cover">
-          <img src="/assets/about/now-desk-night.png" alt="深夜工位" />
-        </figure>
-        <h1 class="about-fallback-title">{author}</h1>
-        <p class="about-fallback-tagline">求职意向 · {profile.jobIntention}</p>
-        <p class="about-fallback-lead">{profile.intro.tagline}</p>
-        <section class="about-fallback-resume-block" aria-label="技能 · 教育 · 方法">
-          <h2>技能 · 教育 · 方法</h2>
-          <div class="about-fallback-resume">
-            <h4>教育背景</h4>
-            <ul>
-              <li>{profile.education_detail.school} · {profile.education_detail.major} · {profile.education_detail.period}</li>
-              <li>课程：{profile.education_detail.courses.join(" / ")}</li>
-            </ul>
-          </div>
-          {profile.skills.map((s) => (
-            <div class="about-fallback-resume">
-              <h4>{s.category}</h4>
-              <ul>
-                <li>{s.items}</li>
-              </ul>
-            </div>
+    <div class="about-viewport">
+      <Section id="start" variant="start" kicker={start.kicker} title={start.title} cover={start.cover}>
+        <ol class="about-story">
+          {start.lines.map((l) => (
+            <li class="about-line">{l}</li>
           ))}
-          <div class="about-fallback-resume">
-            <h4>工作方法</h4>
-            <ul>
-              <li>{profile.intro.habit}</li>
-              <li>{profile.intro.method}</li>
-              <li>{profile.intro.goal}</li>
-            </ul>
-          </div>
-        </section>
-        <ol class="about-fallback-chapters">
-          {
-            gameBoards
-              .filter((b) => b.id !== "resume")
-              .map((b, i) => {
-                const body = b.lines.length > 0 ? b.lines : b.subtitle ? [b.subtitle] : [];
-                return (
-                  <li>
-                    <details class="about-fallback-chapter">
-                      <summary>
-                        <em>{String(i + 1).padStart(2, "0")}</em>
-                        <span>{b.title}</span>
-                        <i class="about-fallback-chapter-chevron" aria-hidden="true">▾</i>
-                      </summary>
-                      <div class="about-fallback-chapter-body">
-                        {body.map((line) => (
-                          <p>{line}</p>
-                        ))}
-                      </div>
-                    </details>
-                  </li>
-                );
-              })
-          }
         </ol>
-        <p class="about-fallback-note">桌面端可体验完整横版小游戏（A/D 或 ←/→ 移动，滚动翻阅介绍）。</p>
-        <a class="about-fallback-cta" href="/contact">联系我 →</a>
-      </div>
-    </section>
+      </Section>
 
-    <script>
-      // 降级判定（对齐 desk.ts 的 degradeToFallback 触发）：粗指针 / 窄屏 / ?game=off → 加 .is-fallback，
-      // 只露静态简介；只有桌面端才动态 import Phaser，避免移动端拉取并执行游戏包
-      const params = new URLSearchParams(location.search);
-      const fallback =
-        params.get("game") === "off" ||
-        window.matchMedia("(pointer: coarse)").matches ||
-        window.innerWidth < 640;
-      if (fallback) {
-        document.documentElement.classList.add("is-fallback");
-      } else {
-        import("../scripts/game/game").then(({ createGameIntro }) => {
-          const container = document.getElementById("game");
-          const panel = document.getElementById("board-panel");
-          if (container) createGameIntro(container, panel);
-        });
-      }
-    </script>
+      <Section id="turning" variant="turning" kicker={turning.kicker} title={turning.title} cover={turning.cover}>
+        <ol class="about-story">
+          {turning.lines.map((l) => (
+            <li class="about-line">{l}</li>
+          ))}
+        </ol>
+      </Section>
+
+      <Section id="now" variant="now" kicker={now.kicker} title={now.title} tagline={now.tagline} cover={now.cover}>
+        <NowStats lines={now.lines} />
+      </Section>
+
+      <Section id="ending" variant="ending" kicker={ending.kicker} title={ending.title} cover={ending.cover}>
+        <div class="about-end">
+          <p class="about-end-sub">{ending.subtitle}</p>
+          <div class="about-end-scroll" aria-hidden="true">
+            <div class="about-end-track">
+              <div class="about-end-group">
+                {ending.scrollTexts?.map((t) => (
+                  <span>{t}</span>
+                ))}
+              </div>
+              <div class="about-end-group">
+                {ending.scrollTexts?.map((t) => (
+                  <span>{t}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <a class="about-end-cta" href={ending.cta?.href ?? "/contact"}>{ending.cta?.label ?? "联系我 →"}</a>
+        </div>
+      </Section>
+    </div>
+
+    <ProgressBar total={total} />
     <TransitionOverlay />
     <CustomCursor />
+    <script>
+      import { initAbout } from "../scripts/about";
+      initAbout();
+    </script>
   </body>
 </html>
