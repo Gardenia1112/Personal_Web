@@ -63,23 +63,27 @@ html[data-page="about"] #cursor {
   --accent: var(--about-gold);
 }
 
-/* 封面压暗背景 */
+/* 每屏背面插图：用旧配图 cover 做压暗背景，保证文字可读的前提下清晰可见 */
 .about-screen-bg {
   position: absolute;
   inset: 0;
   z-index: -1;
   background-size: cover;
   background-position: center;
-  opacity: 0.18;
-  filter: saturate(0.7) contrast(1.05);
+  opacity: 0.42;
+  filter: saturate(0.85) contrast(1.03);
 }
 .about-screen-bg::after {
   content: "";
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(120% 90% at 50% 0%, transparent 30%, var(--color-deep) 100%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-deep) 70%, transparent), var(--color-deep));
+    radial-gradient(120% 90% at 50% 0%, transparent 32%, var(--color-deep) 98%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-deep) 42%, transparent),
+      color-mix(in srgb, var(--color-deep) 86%, transparent)
+    );
 }
 
 .about-screen-inner {
