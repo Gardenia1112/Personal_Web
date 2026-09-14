@@ -27,8 +27,8 @@ export const profile = {
   // 简历分两个方向：技术岗（游戏客户端）与美工岗（2D 场景），下载入口在 /contact
   resumes: {
     tech: {
-      href: "/resume/game-client-engineer.pdf",
-      download: "游戏客户端工程师-辽宁大学-27届毕业生-赵韵婷.pdf",
+      href: "/resume/tech-resume.pdf",
+      download: "辽宁大学27届赵韵婷.pdf",
     },
     art: {
       href: "/resume/2d-scene.pdf",

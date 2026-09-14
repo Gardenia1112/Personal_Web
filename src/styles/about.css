@@ -180,7 +180,8 @@ html.js .about-screen.is-in .about-char {
 .now-stats {
   display: grid;
   gap: 22px;
-  margin-top: 28px;
+  margin: 28px auto 0;
+  max-width: 980px;
   text-align: left;
 }
 .about-stats {
@@ -194,6 +195,9 @@ html.js .about-screen.is-in .about-char {
   }
 }
 .about-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   padding: 16px 14px;
   border-radius: 16px;
   background: linear-gradient(
@@ -204,7 +208,6 @@ html.js .about-screen.is-in .about-char {
   border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
 }
 .about-stat-value {
-  display: block;
   font-size: clamp(1.6rem, 4vw, 2.3rem);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
@@ -212,15 +215,11 @@ html.js .about-screen.is-in .about-char {
   color: var(--accent);
 }
 .about-stat-label {
-  display: block;
-  margin-top: 9px;
   font-size: 0.8rem;
   letter-spacing: 0.06em;
   color: color-mix(in srgb, var(--color-fg) 62%, transparent);
 }
 .about-stat-note {
-  display: block;
-  margin-top: 4px;
   font-size: 0.72rem;
   color: color-mix(in srgb, var(--color-fg) 46%, transparent);
 }
