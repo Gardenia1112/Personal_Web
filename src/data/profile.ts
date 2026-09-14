@@ -31,10 +31,16 @@ export const profile = {
       download: "辽宁大学27届赵韵婷.pdf",
     },
     art: {
-      href: "/resume/2d-scene.pdf",
-      download: "2D场景-辽宁大学-27届毕业生-赵韵婷.pdf",
+      href: "/resume/art-resume.pdf",
+      download: "艺术简历.pdf",
     },
   },
+
+  // 个人主页（关于我 · NOW 屏的快捷入口）
+  social: [
+    { label: "GitHub", url: "https://github.com/Gardenia1112", handle: "Gardenia1112" },
+    { label: "Gitee", url: "https://gitee.com/bfnya", handle: "bfnya" },
+  ],
 
   // 首页背景排版大字：铺满视口、位于 3D 工位之后形成前后空间感
   // ⚠️ 按用户要求不含真名；三行长度接近才能各自撑满一行宽度

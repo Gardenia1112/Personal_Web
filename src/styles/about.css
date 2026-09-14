@@ -176,18 +176,33 @@ html.js .about-screen.is-in .about-char {
   color: var(--accent);
 }
 
-/* ===== 屏3 数据 ===== */
+/* ===== 屏3 数据（紧凑 · 单屏容纳） ===== */
+/* 标题改小 + 上移，让整屏内容无需滚动即可看完 */
+.about-screen[data-variant="now"] {
+  padding-top: 80px;
+}
+.about-screen[data-variant="now"] .about-kicker {
+  margin-bottom: 10px;
+}
+.about-screen[data-variant="now"] .about-title {
+  font-size: clamp(1.5rem, 4.2vw, 2.3rem);
+}
+.about-screen[data-variant="now"] .about-tagline {
+  margin-top: 8px;
+  font-size: clamp(0.82rem, 1.8vw, 0.95rem);
+}
+
 .now-stats {
   display: grid;
-  gap: 22px;
-  margin: 28px auto 0;
+  gap: 14px;
+  margin: 16px auto 0;
   max-width: 980px;
   text-align: left;
 }
 .about-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 10px;
 }
 @media (min-width: 1024px) {
   .about-stats {
@@ -197,9 +212,9 @@ html.js .about-screen.is-in .about-char {
 .about-stat {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px 14px;
-  border-radius: 16px;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--accent) 14%, transparent),
@@ -208,30 +223,70 @@ html.js .about-screen.is-in .about-char {
   border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
 }
 .about-stat-value {
-  font-size: clamp(1.6rem, 4vw, 2.3rem);
+  font-size: clamp(1.4rem, 3.2vw, 1.9rem);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   color: var(--accent);
 }
 .about-stat-label {
-  font-size: 0.8rem;
+  font-size: 0.74rem;
   letter-spacing: 0.06em;
   color: color-mix(in srgb, var(--color-fg) 62%, transparent);
 }
 .about-stat-note {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   color: color-mix(in srgb, var(--color-fg) 46%, transparent);
+}
+
+/* 个人主页链接 */
+.now-links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.now-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-desk) 82%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  text-decoration: none;
+  color: var(--color-fg);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.now-link:hover,
+.now-link:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  outline: none;
+}
+.now-link-ico {
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+.now-link-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+.now-link-handle {
+  margin-left: auto;
+  font-size: 0.76rem;
+  color: color-mix(in srgb, var(--color-fg) 52%, transparent);
 }
 
 .now-columns {
   display: grid;
-  gap: 16px;
+  gap: 12px;
   align-items: start;
 }
 @media (min-width: 1024px) {
   .now-columns {
-    grid-template-columns: 1.05fr 1fr;
+    grid-template-columns: 1fr 1fr;
   }
 }
 .now-facts {
@@ -239,46 +294,46 @@ html.js .about-screen.is-in .about-char {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 .now-fact {
   margin: 0;
-  padding: 12px 14px;
-  border-radius: 12px;
+  padding: 10px 13px;
+  border-radius: 11px;
   background: color-mix(in srgb, var(--color-desk) 80%, transparent);
   border: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
-  font-size: 0.9rem;
-  line-height: 1.7;
+  font-size: 0.84rem;
+  line-height: 1.6;
   color: color-mix(in srgb, var(--color-fg) 86%, transparent);
 }
 .now-side {
   display: grid;
-  gap: 14px;
+  gap: 10px;
   align-content: start;
 }
 
 /* 卡片（技能 / 教育 / 方法） */
 .about-card {
-  padding: 14px 15px;
-  border-radius: 14px;
+  padding: 11px 13px;
+  border-radius: 12px;
   background: color-mix(in srgb, var(--color-desk) 82%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-fg) 12%, transparent);
 }
 .about-card h4 {
-  margin: 0 0 9px;
-  font-size: 0.78rem;
+  margin: 0 0 7px;
+  font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--accent);
 }
 .about-card p,
 .about-card li {
-  font-size: 0.86rem;
-  line-height: 1.68;
+  font-size: 0.82rem;
+  line-height: 1.6;
   color: color-mix(in srgb, var(--color-fg) 80%, transparent);
 }
 .about-card p + p {
-  margin-top: 6px;
+  margin-top: 5px;
 }
 .about-card ul {
   list-style: none;
@@ -286,23 +341,39 @@ html.js .about-screen.is-in .about-char {
   padding: 0;
 }
 .about-card li + li {
-  margin-top: 6px;
+  margin-top: 5px;
 }
 
 .about-skills {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 @media (min-width: 640px) {
   .about-skills {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+.about-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.about-tag {
+  font-size: 0.72rem;
+  line-height: 1;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  color: color-mix(in srgb, var(--color-fg) 84%, transparent);
+  white-space: nowrap;
+}
+
 .about-edu-method {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 10px;
 }
 @media (min-width: 1024px) {
   .about-edu-method {

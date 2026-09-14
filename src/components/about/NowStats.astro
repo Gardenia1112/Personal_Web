@@ -1,6 +1,6 @@
 ---
-// 屏3 数据卡片：关键数字（数字滚动）+ 技能四组 + 教育背景 / 工作方法（并入屏3）。
-// 正文证据行由 about.astro 传入 lines；技能 / 教育 / 方法读 profile.ts。
+// 屏3 数据卡片：关键数字（数字滚动）+ 个人主页链接 + 正文证据行 + 技能标签 + 教育 / 工作方法。
+// 紧凑排版以保证整屏容纳：技能用 tags（标签）而非完整 items 长句。
 import { profile } from "../../data/profile";
 
 interface Props {
@@ -28,6 +28,18 @@ const { lines } = Astro.props;
     }
   </div>
 
+  <div class="now-links">
+    {
+      profile.social.map((s) => (
+        <a class="now-link" href={s.url} target="_blank" rel="noopener" aria-label={`访问${s.label}主页（新标签页打开）`}>
+          <span class="now-link-ico" aria-hidden="true">{s.label === "GitHub" ? "GH" : "GT"}</span>
+          <span class="now-link-name">{s.label}</span>
+          <span class="now-link-handle">{s.handle}</span>
+        </a>
+      ))
+    }
+  </div>
+
   <div class="now-columns">
     <ol class="now-facts">
       {lines.map((l) => (
@@ -41,7 +53,11 @@ const { lines } = Astro.props;
           profile.skills.map((s) => (
             <div class="about-card about-skill">
               <h4>{s.category}</h4>
-              <p>{s.items}</p>
+              <div class="about-tags">
+                {s.tags.map((t) => (
+                  <span class="about-tag">{t}</span>
+                ))}
+              </div>
             </div>
           ))
         }
