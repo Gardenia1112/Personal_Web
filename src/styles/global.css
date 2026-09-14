@@ -1977,6 +1977,20 @@ html[data-page="about"].is-fallback body {
 .about-fallback-chapter-body p:last-child {
   margin-bottom: 0;
 }
+.about-fallback-resume-block {
+  margin: 0 0 28px;
+  padding: 18px 16px;
+  border-radius: 14px;
+  background: rgba(255, 216, 10, 0.08);
+  border: 1px solid rgba(184, 134, 11, 0.18);
+}
+.about-fallback-resume-block > h2 {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #2b2926;
+}
 .about-fallback-resume h4 {
   margin: 0 0 6px;
   font-size: 12px;

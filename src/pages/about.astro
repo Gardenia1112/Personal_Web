@@ -50,38 +50,55 @@ import { gameBoards } from "../data/aboutGame";
         <h1 class="about-fallback-title">{author}</h1>
         <p class="about-fallback-tagline">求职意向 · {profile.jobIntention}</p>
         <p class="about-fallback-lead">{profile.intro.tagline}</p>
+        <section class="about-fallback-resume-block" aria-label="技能 · 教育 · 方法">
+          <h2>技能 · 教育 · 方法</h2>
+          <div class="about-fallback-resume">
+            <h4>教育背景</h4>
+            <ul>
+              <li>{profile.education_detail.school} · {profile.education_detail.major} · {profile.education_detail.period}</li>
+              <li>课程：{profile.education_detail.courses.join(" / ")}</li>
+            </ul>
+          </div>
+          {profile.skills.map((s) => (
+            <div class="about-fallback-resume">
+              <h4>{s.category}</h4>
+              <ul>
+                <li>{s.items}</li>
+              </ul>
+            </div>
+          ))}
+          <div class="about-fallback-resume">
+            <h4>工作方法</h4>
+            <ul>
+              <li>{profile.intro.habit}</li>
+              <li>{profile.intro.method}</li>
+              <li>{profile.intro.goal}</li>
+            </ul>
+          </div>
+        </section>
         <ol class="about-fallback-chapters">
           {
-            gameBoards.map((b) => {
-              const body = b.lines.length > 0 ? b.lines : b.subtitle ? [b.subtitle] : [];
-              return (
-                <li>
-                  <details class="about-fallback-chapter">
-                    <summary>
-                      <em>{String(b.index).padStart(2, "0")}</em>
-                      <span>{b.title}</span>
-                      <i class="about-fallback-chapter-chevron" aria-hidden="true">▾</i>
-                    </summary>
-                    <div class="about-fallback-chapter-body">
-                      {b.resume && b.resume.length > 0 ? (
-                        b.resume.map((s) => (
-                          <div class="about-fallback-resume">
-                            <h4>{s.title}</h4>
-                            <ul>
-                              {s.items.map((it) => (
-                                <li>{it}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))
-                      ) : (
-                        body.map((line) => <p>{line}</p>)
-                      )}
-                    </div>
-                  </details>
-                </li>
-              );
-            })
+            gameBoards
+              .filter((b) => b.id !== "resume")
+              .map((b, i) => {
+                const body = b.lines.length > 0 ? b.lines : b.subtitle ? [b.subtitle] : [];
+                return (
+                  <li>
+                    <details class="about-fallback-chapter">
+                      <summary>
+                        <em>{String(i + 1).padStart(2, "0")}</em>
+                        <span>{b.title}</span>
+                        <i class="about-fallback-chapter-chevron" aria-hidden="true">▾</i>
+                      </summary>
+                      <div class="about-fallback-chapter-body">
+                        {body.map((line) => (
+                          <p>{line}</p>
+                        ))}
+                      </div>
+                    </details>
+                  </li>
+                );
+              })
           }
         </ol>
         <p class="about-fallback-note">桌面端可体验完整横版小游戏（A/D 或 ←/→ 移动，滚动翻阅介绍）。</p>
