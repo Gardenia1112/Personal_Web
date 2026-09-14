@@ -1,4 +1,7 @@
-// 02 §3.1 游戏化介绍 —— 4 个展板内容（内容对应 01 §3）
+// 02 §3.1 游戏化介绍 —— 展板内容（内容对应 01 §3）
+// 第 4 块「技能与教育」由 profile.ts 的结构化数据拼装，避免技能/教育双份维护
+import { profile } from "./profile";
+
 export interface GameBoardData {
   id: string;
   index: number;
@@ -12,7 +15,33 @@ export interface GameBoardData {
   subtitle?: string;
   scrollTexts?: string[];
   cta?: { label: string; href: string };
+  resume?: { title: string; items: string[] }[];
 }
+
+// 第 4 块展板：把「教育背景 / 专业技能 / 工作方法」做成可滚动简历卡
+const resumeBoard: GameBoardData = {
+  id: "resume",
+  index: 4,
+  title: "技能与教育",
+  kicker: "STATS",
+  tagline: `求职意向 · ${profile.jobIntention}`,
+  cover: "/assets/about/now-fsm.png",
+  lines: [],
+  resume: [
+    {
+      title: "教育背景",
+      items: [
+        `${profile.education_detail.school} · ${profile.education_detail.major} · ${profile.education_detail.period}`,
+        `课程：${profile.education_detail.courses.join(" / ")}`,
+      ],
+    },
+    ...profile.skills.map((s) => ({ title: s.category, items: [s.items] })),
+    {
+      title: "工作方法",
+      items: [profile.intro.habit, profile.intro.method, profile.intro.goal],
+    },
+  ],
+};
 
 export const gameBoards: GameBoardData[] = [
   {
@@ -28,11 +57,8 @@ export const gameBoards: GameBoardData[] = [
       "/assets/about/start-play.png",
     ],
     lines: [
-      "我玩的第一个游戏是《我的世界》——在那个什么都能拆、什么都能搭的世界里，我盖出了属于自己的第一栋房子，那种成就感至今记得",
-      "后来知道了材质包、模组、地图，才发现同一个游戏还能被改造成这么多样子，心里那颗「我也想做」的种子就是这时候埋下的",
-      "但热情归热情，那时候网没现在这么方便，查资料、找教程处处碰壁，想看更详细的内容还得啃外网",
-      "为了读懂那些英文教程，我硬着头皮学英语、折腾上网、照着写下第一行 Java 脚本……对一个小孩来说，确实太累了",
-      "学的东西太多太杂，学业也一度没跟上，有一阵子，我真的怀疑自己是不是走错了路",
+      "我玩的第一个游戏是《我的世界》——盖出第一栋房子后，我开始好奇「游戏是怎么做出来的」。",
+      "为了读懂英文教程，我硬着头皮学英语、写下第一行 Java 脚本，也第一次意识到：比起玩，我更想造。",
     ],
   },
   {
@@ -48,10 +74,8 @@ export const gameBoards: GameBoardData[] = [
       "/assets/about/turning-dmc.png",
     ],
     lines: [
-      "上了高一，接触到更多单机大作——GTA、鬼泣、猎天使魔女、荒野大镖客、古剑奇谭……",
-      "原来游戏还能做到这种程度，那颗种子一下子就破了土：我要做游戏",
-      "也是在那时，我第一次打开了 Unity，写出了第一个能跑的小东西",
-      "正好赶上分科，我几乎没有犹豫就选了理科——那一刻觉得，自己离那个梦，好像又近了一步",
+      "高三第一次打开 Unity，写出第一个能跑的小东西，分科时没犹豫就选了理科。",
+      "大学专业是测控技术与仪器（非科班），于是课外自学 Unity/C# 与客户端工程，靠一个个人战斗原型，把状态机、事件中心和对象池真正跑通了。",
     ],
   },
   {
@@ -59,7 +83,7 @@ export const gameBoards: GameBoardData[] = [
     index: 3,
     title: "现在的我",
     kicker: "NOW",
-    tagline: "游戏制作人 · 本科在读",
+    tagline: "本科在读 · 求职中",
     cover: "/assets/about/now-unity.jpg",
     gallery: [
       "/assets/about/now-unity.jpg",
@@ -88,25 +112,26 @@ export const gameBoards: GameBoardData[] = [
       "/assets/about/now-art-lnu-10.jpg",
     ],
     lines: [
-      "如今我主攻游戏制作，从玩法想到落地，一个人能从策划案捋到可运行的代码",
-      "擅长性能优化（对象池、GC 调优）和清晰架构（状态机、组件化、事件解耦）",
-      "数据驱动、序列化、文件 I/O 这一套也都熟悉，团队协作走标准 Git 工作流、做过 Code Review、带过新人",
-      "一路绕了点路，但回头看，每一步都没白走——现在做的，正是小时候想做的事",
+      "如今我能独立完成玩法系统的设计与落地，也带过 3 人小团队交付可上线内容。",
+      "《流浪尸潮》个人项目：用状态机 + 事件中心拆分战斗 / 经济 / 成就 / UI，Profiler 定位 Update 开销后，测试场景帧率从 35 提升到 60 FPS（约 +71%），敌人生成改用对象池消除卡顿。",
+      "不绘鸽工作室（国家级大创，负责人）：独立交付客户端架构与核心模块，项目累计营收 2.7 万元，产出软件著作权 2 项。",
+      "用 C# 写 CSV 配置导出与数据处理工具，让策划能批量改配置；习惯 预期 → Play 对照 → 记录差异 → 验证后合入。",
+      "工作之余也自己做 2D 插画与场景概念，能独立完成界面与关卡的视觉搭建，和程序对齐规格时更少返工。",
     ],
   },
+  resumeBoard,
   {
     id: "ending",
-    index: 4,
+    index: 5,
     title: "向未来全速前进！",
     kicker: "NEXT LEVEL · NEW GAME!",
     cover: "/assets/about/chapter-ending.png",
     lines: [],
-    subtitle: "让我们一起做出最好玩的游戏。",
+    subtitle: "正在找 2027 届实习（游戏客户端 / 软件开发 / 前后端开发 / 测试），欢迎一起做出能跑、好玩、能交付的东西。",
     scrollTexts: [
       "NEW GAME!",
       "Press Start to Continue",
-      "LEVEL UP",
-      "SELECT YOUR CHARACTER",
+      "OPEN TO INTERNSHIP",
       "INSERT COIN",
     ],
     cta: { label: "联系我 →", href: "/contact" },
@@ -114,7 +139,7 @@ export const gameBoards: GameBoardData[] = [
 ];
 
 // 横版世界：一路小旗子，最后一面结束
-export const WORLD_WIDTH = 2400;
+export const WORLD_WIDTH = 3000;
 export const FLAG_X_START = 420;
 export const FLAG_GAP = 560;
 export const PLAYER_START_X = 72;

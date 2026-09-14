@@ -357,6 +357,30 @@ class GameScene extends Phaser.Scene {
           <p class="about-board-meta">${no} X · ${d.kicker}</p>
         </article>
       `;
+    } else if (d.id === "resume") {
+      body.innerHTML = `
+        <article class="about-board is-resume">
+          ${deco}
+          <div class="about-board-copy">
+            <p class="about-stage-kicker">${d.kicker}</p>
+            <h2 class="about-stage-title">${d.title}</h2>
+            ${d.tagline ? `<p class="about-stage-tagline">${d.tagline}</p>` : ""}
+            <div class="about-resume-groups">
+              ${(d.resume ?? [])
+                .map(
+                  (s) => `
+                <section class="about-resume-group">
+                  <h3 class="about-resume-head">${s.title}</h3>
+                  <ul class="about-resume-items">${s.items.map((it) => `<li>${it}</li>`).join("")}</ul>
+                </section>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+          <p class="about-board-meta">${no} X · ${d.kicker}</p>
+        </article>
+      `;
     } else if (d.id === "ending") {
       body.innerHTML = `
         <article class="about-board is-ending">
